@@ -1,0 +1,211 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.exist-db</groupId>
+        <artifactId>exist-apps-parent</artifactId>
+        <version>1.9.1</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>org.exist-db</groupId>
+    <artifactId>exist-stanford-ner</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+
+    <name>Example App</name>
+    <description>Example App for eXist-db</description>
+    <url>https://my-organisation.com/exist-db/app</url>
+
+    <organization>
+        <name>My Organisation</name>
+        <url>http://my-organisation.com</url>
+    </organization>
+
+    <licenses>
+        <license>
+            <name>GNU Lesser General Public License, version 2.1</name>
+            <url>http://opensource.org/licenses/LGPL-2.1</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://www.github.com/my-organisation/example-exist-app.git</url>
+        <connection>scm:git:https://www.github.com/my-organisation/example-exist-app.git</connection>
+        <developerConnection>scm:git:https://www.github.com/my-organisation/example-exist-app.git</developerConnection>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://www.github.com/my-organisation/example-exist-app/issues</url>
+    </issueManagement>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.source>1.8</project.build.source>
+        <project.build.target>1.8</project.build.target>
+
+        <exist.version>5.0.0</exist.version>
+
+        <!-- used in the EXPath Package Descriptor -->
+        <package-name>https://my-organisation.com/exist-db/app</package-name>
+
+        <example.module.namespace>https://my-organisation.com/exist-db/ns/app/my-java-module</example.module.namespace>
+        <example.module.java.classname>ExampleModule</example.module.java.classname>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.exist-db</groupId>
+            <artifactId>exist-core</artifactId>
+            <version>${exist.version}</version>
+        </dependency>
+
+        <!-- test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.xmlunit</groupId>
+            <artifactId>xmlunit-core</artifactId>
+            <version>2.6.3</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changes-plugin</artifactId>
+                <configuration>
+                    <includeOpenIssues>false</includeOpenIssues>
+                    <onlyMilestoneIssues>false</onlyMilestoneIssues>
+                    <columnNames>Type, Summary</columnNames>
+                    <outputDirectory>${project.basedir}</outputDirectory>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>github-report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/xar-resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>templates/**</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/xar-resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>templates/**</exclude>
+                </excludes>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                        <manifestEntries>
+                            <Build-Tag>${build-tag}</Build-Tag>
+                            <Git-Commit>${build-commit}</Git-Commit>
+                            <Git-Commit-Abbrev>${build-commit-abbrev}</Git-Commit-Abbrev>
+                            <Build-Version>${build-version}</Build-Version>
+                            <Build-Timestamp>${build-tstamp}</Build-Timestamp>
+                            <Source-Repository>${project.scm.connection}</Source-Repository>
+                            <Description>${project.description}</Description>
+                            <Implementation-URL>${project.url}</Implementation-URL>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>ro.kuberam.maven.plugins</groupId>
+                <artifactId>kuberam-expath-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>create-xar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>make-xar</goal>
+                        </goals>
+                        <configuration>
+                            <descriptor>xar-assembly.xml</descriptor>
+                            <finalName>${package-final-name}</finalName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <configuration>
+                    <useAgent>true</useAgent>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <mavenExecutorId>forked-path
+                    </mavenExecutorId> <!-- avoid a bug with GPG plugin hanging http://jira.codehaus.org/browse/MGPG-9 -->
+                    <autoVersionSubmodules>true</autoVersionSubmodules>
+                    <tagNameFormat>@{project.version}</tagNameFormat>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <repositories>
+        <repository>
+            <id>exist-db</id>
+            <url>http://repo.evolvedbinary.com/repository/exist-db/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>exist-db-snapshots</id>
+            <url>http://repo.evolvedbinary.com/repository/exist-db-snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>clojars.org</id>
+            <url>http://clojars.org/repo</url>
+        </pluginRepository>
+    </pluginRepositories>
+</project>
