@@ -53,8 +53,8 @@
         <!-- used in the EXPath Package Descriptor -->
         <package-name>https://my-organisation.com/exist-db/app</package-name>
 
-        <example.module.namespace>https://my-organisation.com/exist-db/ns/app/my-java-module</example.module.namespace>
-        <example.module.java.classname>ExampleModule</example.module.java.classname>
+        <example.module.namespace>http://exist-db.org/xquery/stanford-ner</example.module.namespace>
+        <example.module.java.classname>StanfordNERModule</example.module.java.classname>
     </properties>
 
     <dependencies>
@@ -62,6 +62,11 @@
             <groupId>org.exist-db</groupId>
             <artifactId>exist-core</artifactId>
             <version>${exist.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>edu.stanford.nlp</groupId>
+            <artifactId>stanford-corenlp</artifactId>
+            <version>3.9.2</version>
         </dependency>
 
         <!-- test dependencies -->
@@ -175,6 +180,25 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <tagNameFormat>@{project.version}</tagNameFormat>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
+                        <phase>package</phase> <!-- bind to the packaging phase -->
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
