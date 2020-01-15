@@ -12,16 +12,16 @@
     </parent>
 
     <groupId>org.exist-db</groupId>
-    <artifactId>exist-stanford-ner</artifactId>
+    <artifactId>stanford-ner</artifactId>
     <version>2.0.0-SNAPSHOT</version>
 
-    <name>Example App</name>
-    <description>Example App for eXist-db</description>
+    <name>Stanford NER</name>
+    <description>Stanford Named Entity Recognizer</description>
     <url>https://my-organisation.com/exist-db/app</url>
 
     <organization>
-        <name>My Organisation</name>
-        <url>http://my-organisation.com</url>
+        <name>eXist-db</name>
+        <url>http://exist-db.org</url>
     </organization>
 
     <licenses>
@@ -180,25 +180,6 @@
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <tagNameFormat>@{project.version}</tagNameFormat>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <version>3.2.0</version>
-                <configuration>
-                    <descriptorRefs>
-                        <descriptorRef>jar-with-dependencies</descriptorRef>
-                    </descriptorRefs>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>make-assembly</id> <!-- this is used for inheritance merges -->
-                        <phase>package</phase> <!-- bind to the packaging phase -->
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
