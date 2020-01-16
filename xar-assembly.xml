@@ -41,14 +41,6 @@
 
     <!-- include the XQuery Library modules written in XQuery from this project -->
     <xquerySets>
-        <xquerySet>
-            <namespace>https://my-organisation.com/exist-db/ns/app/my-xquery-module</namespace>
-            <directory>${basedir}/src/main/xquery</directory>
-            <includes>
-                <include>example-module.xqm</include>
-            </includes>
-            <outputDirectory>content</outputDirectory>
-        </xquerySet>
     </xquerySets>
 
     <!-- include the XQuery Library Module written in Java (JAR output) from this project -->
