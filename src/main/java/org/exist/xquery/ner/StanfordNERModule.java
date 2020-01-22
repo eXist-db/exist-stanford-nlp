@@ -36,11 +36,7 @@ public class StanfordNERModule extends AbstractInternalModule {
 
     public final static FunctionDef[] functions = {
         new FunctionDef(Classify.signatures[0], Classify.class),
-        new FunctionDef(Classify.signatures[1], Classify.class),
-        new FunctionDef(Classify.signatures[2], Classify.class),
-        new FunctionDef(Classify.signatures[3], Classify.class),
-        new FunctionDef(Classify.signatures[4], Classify.class),
-        new FunctionDef(Classify.signatures[5], Classify.class)
+        new FunctionDef(Classify.signatures[1], Classify.class)
     };
 
     public StanfordNERModule(Map<String, List<? extends Object>> parameters) {
