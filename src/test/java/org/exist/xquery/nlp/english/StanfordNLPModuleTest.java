@@ -1,4 +1,4 @@
-package org.exist.xquery.ner;
+package org.exist.xquery.nlp.english;
 
 
 import org.exist.EXistException;
@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class StanfordNERModuleTest {
+public class StanfordNLPModuleTest {
 
     @ClassRule
     public static ExistEmbeddedServer existEmbeddedServer = new ExistEmbeddedServer(false, true);

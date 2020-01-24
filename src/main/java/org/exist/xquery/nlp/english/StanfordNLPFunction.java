@@ -1,5 +1,5 @@
 /*
- *   exist-stanford-ner: XQuery module to integrate the stanford named entity
+ *   exist-stanford-nlp-english: XQuery module to integrate the stanford named entity
  *   extraction library with eXist-db.
  *   Copyright (C) 2013 Wolfgang Meier and contributors
  *
@@ -16,49 +16,33 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.exist.xquery.ner;
+package org.exist.xquery.nlp.english;
 
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
-import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.pipeline.Annotation;
-import edu.stanford.nlp.pipeline.CoreDocument;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import edu.stanford.nlp.pipeline.XMLOutputter;
 import edu.stanford.nlp.sequences.SeqClassifierFlags;
-import nu.xom.Document;
-import org.apache.commons.io.IOUtils;
-import org.exist.dom.persistent.BinaryDocument;
-import org.exist.dom.persistent.DocumentImpl;
 import org.exist.dom.QName;
 import org.exist.dom.memtree.DocumentBuilderReceiver;
 import org.exist.dom.memtree.MemTreeBuilder;
-import org.exist.security.PermissionDeniedException;
-import org.exist.storage.txn.TransactionException;
-import org.exist.storage.txn.Txn;
-import org.exist.xmldb.XmldbURI;
 import org.exist.xquery.*;
 import org.exist.xquery.value.*;
 import org.xml.sax.SAXException;
 
-import javax.xml.transform.stream.StreamSource;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-public class Classify extends BasicFunction {
+public class StanfordNLPFunction extends BasicFunction {
 
     public static final String PREFIX = "stream2file";
     public static final String SUFFIX = ".tmp";
 
     public final static FunctionSignature signatures[] = {
             new FunctionSignature(
-                new QName("classify-string", StanfordNERModule.NAMESPACE_URI, StanfordNERModule.PREFIX),
+                new QName("classify-string", StanfordNLPModule.NAMESPACE_URI, StanfordNLPModule.PREFIX),
                 "Classify the provided text string. Returns a sequence of text nodes and elements for " +
                 "recognized entities.",
                 new SequenceType[] {
@@ -71,7 +55,7 @@ public class Classify extends BasicFunction {
                     "Sequence of text nodes and elements denoting recognized entities in the text")
             ),
             new FunctionSignature(
-                    new QName("classify-node", StanfordNERModule.NAMESPACE_URI, StanfordNERModule.PREFIX),
+                    new QName("classify-node", StanfordNLPModule.NAMESPACE_URI, StanfordNLPModule.PREFIX),
                     "Mark up named entities in a node and all its sub-nodes. Returns a new in-memory document. " +
                             "Recognized entities are enclosed in inline elements.",
                     new SequenceType[] {
@@ -93,7 +77,7 @@ public class Classify extends BasicFunction {
     private static AbstractSequenceClassifier<CoreLabel> cachedClassifier = null;
     private AnalyzeContextInfo cachedContextInfo;
 
-    public Classify(XQueryContext context, FunctionSignature signature) {
+    public StanfordNLPFunction(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
@@ -107,12 +91,8 @@ public class Classify extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
         String annotators = args[0].getStringValue();
 
-//        context.pushDocumentContext();
-
-        // creates a StanfordCoreNLP object, with POS tagging, lemmatization, NER
         Properties props = new Properties();
         props.put("annotators", annotators);
-        //props.put("annotators", "tokenize, ssplit, pos, lemma, parse");
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
 
         try {
@@ -153,7 +133,7 @@ public class Classify extends BasicFunction {
 
         try {
             final MemTreeBuilder builder = context.getDocumentBuilder();
-            final DocumentBuilderReceiver receiver = new NERDocumentReceiver(builder, pipeline, callback);
+            final DocumentBuilderReceiver receiver = new NLPDocumentReceiver(builder, pipeline, callback);
 
             final int nodeNr = builder.getDocument().getLastNode();
 
@@ -262,13 +242,13 @@ public class Classify extends BasicFunction {
         }
     }
 
-    private class NERDocumentReceiver extends DocumentBuilderReceiver {
+    private class NLPDocumentReceiver extends DocumentBuilderReceiver {
 
         private MemTreeBuilder builder;
         private FunctionReference callback;
         private boolean inCallback = false;
 
-        public NERDocumentReceiver(MemTreeBuilder builder, StanfordCoreNLP pipeline, FunctionReference callback) {
+        public NLPDocumentReceiver(MemTreeBuilder builder, StanfordCoreNLP pipeline, FunctionReference callback) {
             super(builder, true);
             this.builder = builder;
             this.callback = callback;

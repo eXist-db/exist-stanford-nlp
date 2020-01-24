@@ -1,5 +1,5 @@
 /*
- *   exist-stanford-ner: XQuery module to integrate the stanford named entity
+ *   exist-stanford-nlp-english: XQuery module to integrate the stanford named entity
  *   extraction library with eXist-db.
  *   Copyright (C) 2013 Wolfgang Meier and contributors
  *
@@ -16,7 +16,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package org.exist.xquery.ner;
+package org.exist.xquery.nlp.english;
 
 import org.exist.xquery.AbstractInternalModule;
 import org.exist.xquery.FunctionDef;
@@ -29,17 +29,17 @@ import java.util.Map;
  *
  * @author Wolfgang
  */
-public class StanfordNERModule extends AbstractInternalModule {
+public class StanfordNLPModule extends AbstractInternalModule {
 
-    public final static String NAMESPACE_URI = "http://exist-db.org/xquery/stanford-ner";
-    public final static String PREFIX = "ner";
+    public final static String NAMESPACE_URI = "http://exist-db.org/xquery/stanford-nlp/english";
+    public final static String PREFIX = "nlpen";
 
     public final static FunctionDef[] functions = {
-        new FunctionDef(Classify.signatures[0], Classify.class),
-        new FunctionDef(Classify.signatures[1], Classify.class)
+        new FunctionDef(StanfordNLPFunction.signatures[0], StanfordNLPFunction.class),
+        new FunctionDef(StanfordNLPFunction.signatures[1], StanfordNLPFunction.class)
     };
 
-    public StanfordNERModule(Map<String, List<? extends Object>> parameters) {
+    public StanfordNLPModule(Map<String, List<? extends Object>> parameters) {
         super(functions, parameters, false);
     }
 
@@ -55,7 +55,7 @@ public class StanfordNERModule extends AbstractInternalModule {
 
     @Override
     public String getDescription() {
-        return "Named Entity Recognition module using Stanford NER";
+        return "Stanford Natural Language Processing for English";
     }
 
     @Override

@@ -1,4 +1,4 @@
-package org.exist.xquery.ner;
+package org.exist.xquery.nlp.english;
 
 import edu.stanford.nlp.coref.CorefCoreAnnotations;
 import edu.stanford.nlp.coref.data.CorefChain;
@@ -11,7 +11,6 @@ import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.naturalli.NaturalLogicAnnotations;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.AnnotationOutputter;
-import edu.stanford.nlp.pipeline.CoreNLPProtos;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.semgraph.SemanticGraph;
 import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations;
@@ -52,8 +51,7 @@ public class MemTreeOutputter extends AnnotationOutputter {
     private static Sequence annotationsToSequence(Annotation annotation, Options options, MemTreeBuilder builder) throws QName.IllegalQNameException {
 
         builder.startDocument();
-        builder.startElement(new QName("root"), null);
-        builder.startElement(new QName("document"), null);
+        builder.startElement(new QName("StanfordNLP"), null);
 
         setSingleElement(builder, "docId", annotation.get(CoreAnnotations.DocIDAnnotation.class));
         setSingleElement(builder, "docDate", annotation.get(CoreAnnotations.DocDateAnnotation.class));
@@ -157,8 +155,7 @@ public class MemTreeOutputter extends AnnotationOutputter {
             builder.endElement(); // coreferences
         }
 
-        builder.endElement(); // doocument
-        builder.endElement(); // root
+        builder.endElement(); // StanfordNLP
         builder.endDocument();
         return builder.getDocument();
     }

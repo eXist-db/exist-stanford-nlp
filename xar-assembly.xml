@@ -134,7 +134,7 @@
     <components>
         <resource>
             <public-uri>${example.module.namespace}</public-uri>
-            <file>urn:java:class:org.exist.xquery.ner.${example.module.java.classname}</file>
+            <file>urn:java:class:org.exist.xquery.nlp.english.${example.module.java.classname}</file>
         </resource>
     </components>
 
