@@ -44,16 +44,16 @@ public class MemTreeOutputter extends AnnotationOutputter {
 
     }
 
-    public static Sequence annotationToSequence(Annotation annotation, StanfordCoreNLP pipeline, MemTreeBuilder builder) {
+    public static Sequence annotationToSequence(Annotation annotation, StanfordCoreNLP pipeline, MemTreeBuilder builder) throws QName.IllegalQNameException {
         Options options = getOptions(pipeline.getProperties());
         return annotationsToSequence(annotation, options, builder);
     }
 
-    private static Sequence annotationsToSequence(Annotation annotation, Options options, MemTreeBuilder builder) {
+    private static Sequence annotationsToSequence(Annotation annotation, Options options, MemTreeBuilder builder) throws QName.IllegalQNameException {
 
         builder.startDocument();
-        builder.startElement(NAMESPACE_URI, "root", null, null);
-        builder.startElement(NAMESPACE_URI, "document", null, null);
+        builder.startElement(new QName("root"), null);
+        builder.startElement(new QName("document"), null);
 
         setSingleElement(builder, "docId", annotation.get(CoreAnnotations.DocIDAnnotation.class));
         setSingleElement(builder, "docDate", annotation.get(CoreAnnotations.DocDateAnnotation.class));
@@ -70,7 +70,7 @@ public class MemTreeOutputter extends AnnotationOutputter {
         //
         // Save the information for each sentence in this doc
         //
-        builder.startElement(NAMESPACE_URI, "sentences", null, null);
+        builder.startElement(new QName("sentences"), null);
 
         if (annotation.get(CoreAnnotations.SentencesAnnotation.class) != null) {
             int sentCount = 1;
@@ -82,15 +82,15 @@ public class MemTreeOutputter extends AnnotationOutputter {
                     attribs.addAttribute(null, "line", "line", "string", Integer.toString(lineNumber));
                 }
                 sentCount ++;
-                builder.startElement(new QName("sentence", NAMESPACE_URI, null), attribs);
+                builder.startElement(new QName("sentence"), attribs);
 
-                builder.startElement(NAMESPACE_URI, "tokens", null, null);
+                builder.startElement(new QName("tokens"), null);
 
                 List<CoreLabel> tokens = sentence.get(CoreAnnotations.TokensAnnotation.class);
                 for (int j = 0; j < tokens.size(); j++) {
                     attribs = new AttributesImpl();
                     attribs.addAttribute(null, "id", "id", "string", Integer.toString(j + 1));
-                    builder.startElement(new QName("token", NAMESPACE_URI, null), attribs);
+                    builder.startElement(new QName("token"), attribs);
                     addWordInfo(builder, tokens.get(j), j + 1);
                     builder.endElement();
                 }
@@ -100,7 +100,7 @@ public class MemTreeOutputter extends AnnotationOutputter {
                 Tree tree = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 
                 if (tree != null) {
-                    builder.startElement(NAMESPACE_URI, "parse", null, null);
+                    builder.startElement(new QName("parse"), null);
                     addConstituentTreeInfo(builder, tree, options.constituencyTreePrinter);
                     builder.endElement();
                 }
@@ -152,7 +152,7 @@ public class MemTreeOutputter extends AnnotationOutputter {
                 annotation.get(CorefCoreAnnotations.CorefChainAnnotation.class);
         if (corefChains != null) {
             List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
-            builder.startElement(NAMESPACE_URI, "coreferences", null, null);
+            builder.startElement(new QName("coreferences"), null);
             addCorefGraphInfo(options, builder, sentences, corefChains, NAMESPACE_URI);
             builder.endElement(); // coreferences
         }
@@ -163,14 +163,14 @@ public class MemTreeOutputter extends AnnotationOutputter {
         return builder.getDocument();
     }
 
-    private static boolean addCorefGraphInfo(Options options, MemTreeBuilder builder, List<CoreMap> sentences, Map<Integer, CorefChain> corefChains, String namespaceUri) {
+    private static boolean addCorefGraphInfo(Options options, MemTreeBuilder builder, List<CoreMap> sentences, Map<Integer, CorefChain> corefChains, String namespaceUri) throws QName.IllegalQNameException {
         boolean foundCoref = false;
 
         for (CorefChain chain : corefChains.values()) {
             if (!options.printSingletons && chain.getMentionsInTextualOrder().size() <= 1)
                 continue;
             foundCoref = true;
-            builder.startElement(namespaceUri, "coreference", null, null);
+            builder.startElement(new QName("coreference"), null);
             CorefChain.CorefMention source = chain.getRepresentativeMention();
             addCorefMention(options, builder, namespaceUri, sentences, source, true);
             for (CorefChain.CorefMention mention : chain.getMentionsInTextualOrder()) {
@@ -184,13 +184,13 @@ public class MemTreeOutputter extends AnnotationOutputter {
         return foundCoref;
     }
 
-    private static void addCorefMention(Options options, MemTreeBuilder builder, String namespaceUri, List<CoreMap> sentences, CorefChain.CorefMention mention, boolean representative) {
+    private static void addCorefMention(Options options, MemTreeBuilder builder, String namespaceUri, List<CoreMap> sentences, CorefChain.CorefMention mention, boolean representative) throws QName.IllegalQNameException {
         AttributesImpl attributes = null;
         if (representative) {
             attributes = new AttributesImpl();
             attributes.addAttribute(null, "representative", "representative", "string", "true");
         }
-        builder.startElement(new QName("mention", NAMESPACE_URI, null), attributes);
+        builder.startElement(new QName("mention"), attributes);
 
         setSingleElement(builder, "sentence", Integer.toString(mention.sentNum));
         setSingleElement(builder, "start", Integer.toString(mention.startIndex));
@@ -229,7 +229,7 @@ public class MemTreeOutputter extends AnnotationOutputter {
         builder.characters(temp);
     }
 
-    private static void addWordInfo(MemTreeBuilder builder, CoreLabel token, int id) {
+    private static void addWordInfo(MemTreeBuilder builder, CoreLabel token, int id) throws QName.IllegalQNameException {
         setSingleElement(builder, "word", token.get(CoreAnnotations.TextAnnotation.class));
         setSingleElement(builder, "lemma", token.get(CoreAnnotations.LemmaAnnotation.class));
 
@@ -259,7 +259,7 @@ public class MemTreeOutputter extends AnnotationOutputter {
             AttributesImpl attribs = new AttributesImpl();
             attribs.addAttribute(null, "tid", "tid", "string", timex.tid());
             attribs.addAttribute(null, "type", "type", "string", timex.timexType());
-            builder.startElement(new QName("Timex", NAMESPACE_URI, null), attribs);
+            builder.startElement(new QName("Timex"), attribs);
             builder.endElement();
         }
 
@@ -280,9 +280,9 @@ public class MemTreeOutputter extends AnnotationOutputter {
         }
     }
 
-    private static void setSingleElement(MemTreeBuilder builder, String elemName, String value) {
+    private static void setSingleElement(MemTreeBuilder builder, String elemName, String value) throws QName.IllegalQNameException {
         if (value != null) {
-            builder.startElement(NAMESPACE_URI, elemName, null, null);
+            builder.startElement(new QName(elemName), null);
             builder.characters(value);
             builder.endElement();
         }

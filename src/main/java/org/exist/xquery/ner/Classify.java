@@ -107,22 +107,32 @@ public class Classify extends BasicFunction {
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
         String annotators = args[0].getStringValue();
 
-        context.pushDocumentContext();
+//        context.pushDocumentContext();
 
         // creates a StanfordCoreNLP object, with POS tagging, lemmatization, NER
         Properties props = new Properties();
-        props.put("annotators", "tokenize, ssplit, pos, lemma, ner");
+        props.put("annotators", annotators);
         //props.put("annotators", "tokenize, ssplit, pos, lemma, parse");
         StanfordCoreNLP pipeline = new StanfordCoreNLP(props);
 
         try {
             if (isCalledAs("classify-string")) {
                 String text = args[1].getStringValue();
-                Annotation annotation = new Annotation(text);
-                pipeline.annotate(annotation);
-                MemTreeBuilder builder = context.getDocumentBuilder();
+                final MemTreeBuilder builder = new MemTreeBuilder(context);
 
-                Sequence result = MemTreeOutputter.annotationToSequence(annotation, pipeline, builder);
+                if (builder == null) {
+                    throw new XPathException("no builder");
+                }
+
+                final Annotation annotation = new Annotation(text);
+                pipeline.annotate(annotation);
+
+                Sequence result = null;
+                try {
+                    result = MemTreeOutputter.annotationToSequence(annotation, pipeline, builder);
+                } catch (QName.IllegalQNameException e) {
+                    e.printStackTrace();
+                }
                 return result;
             } else {
                 NodeValue nv = (NodeValue) args[1].itemAt(0);
@@ -134,7 +144,7 @@ public class Classify extends BasicFunction {
                 return classifyNode(nv, pipeline, callback);
             }
         } finally {
-            context.popDocumentContext();
+//            context.popDocumentContext();
         }
     }
 
