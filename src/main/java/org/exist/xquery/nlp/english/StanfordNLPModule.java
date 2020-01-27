@@ -34,30 +34,53 @@ public class StanfordNLPModule extends AbstractInternalModule {
     public final static String NAMESPACE_URI = "http://exist-db.org/xquery/stanford-nlp/english";
     public final static String PREFIX = "nlpen";
 
+    /**
+     *
+     */
     public final static FunctionDef[] functions = {
         new FunctionDef(StanfordNLPFunction.signatures[0], StanfordNLPFunction.class),
         new FunctionDef(StanfordNLPFunction.signatures[1], StanfordNLPFunction.class)
     };
 
+    /**
+     *
+     * @param parameters
+     */
     public StanfordNLPModule(Map<String, List<? extends Object>> parameters) {
         super(functions, parameters, false);
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public String getNamespaceURI() {
         return NAMESPACE_URI;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public String getDefaultPrefix() {
         return PREFIX;
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public String getDescription() {
         return "Stanford Natural Language Processing for English";
     }
 
+    /**
+     *
+     * @return
+     */
     @Override
     public String getReleaseVersion() {
         return null;

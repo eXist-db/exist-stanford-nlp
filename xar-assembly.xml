@@ -41,6 +41,14 @@
 
     <!-- include the XQuery Library modules written in XQuery from this project -->
     <xquerySets>
+        <xquerySet>
+            <namespace>http://exist-db.org/xquery/stanford-nlp/ner/english</namespace>
+            <directory>${basedir}/src/main/xquery</directory>
+            <includes>
+                <include>ner-module.xqm</include>
+            </includes>
+            <outputDirectory>content</outputDirectory>
+        </xquerySet>
     </xquerySets>
 
     <!-- include the XQuery Library Module written in Java (JAR output) from this project -->
@@ -61,18 +69,6 @@
             <version>3.9.2</version>
             <classifier>models</classifier>
         </dependencySet>
-<!--        <dependencySet>-->
-<!--            <groupId>edu.stanford.nlp</groupId>-->
-<!--            <artifactId>stanford-corenlp</artifactId>-->
-<!--            <version>3.9.2</version>-->
-<!--            <classifier>models-arabic</classifier>-->
-<!--        </dependencySet>-->
-<!--        <dependencySet>-->
-<!--            <groupId>edu.stanford.nlp</groupId>-->
-<!--            <artifactId>stanford-corenlp</artifactId>-->
-<!--            <version>3.9.2</version>-->
-<!--            <classifier>models-chinese</classifier>-->
-<!--        </dependencySet>-->
         <dependencySet>
             <groupId>edu.stanford.nlp</groupId>
             <artifactId>stanford-corenlp</artifactId>
@@ -85,24 +81,6 @@
             <version>3.9.2</version>
             <classifier>models-english-kbp</classifier>
         </dependencySet>
-<!--        <dependencySet>-->
-<!--            <groupId>edu.stanford.nlp</groupId>-->
-<!--            <artifactId>stanford-corenlp</artifactId>-->
-<!--            <version>3.9.2</version>-->
-<!--            <classifier>models-french</classifier>-->
-<!--        </dependencySet>-->
-<!--        <dependencySet>-->
-<!--            <groupId>edu.stanford.nlp</groupId>-->
-<!--            <artifactId>stanford-corenlp</artifactId>-->
-<!--            <version>3.9.2</version>-->
-<!--            <classifier>models-german</classifier>-->
-<!--        </dependencySet>-->
-<!--        <dependencySet>-->
-<!--            <groupId>edu.stanford.nlp</groupId>-->
-<!--            <artifactId>stanford-corenlp</artifactId>-->
-<!--            <version>3.9.2</version>-->
-<!--            <classifier>models-spanish</classifier>-->
-<!--        </dependencySet>-->
         <dependencySet>
             <groupId>de.jollyday</groupId>
             <artifactId>jollyday</artifactId>

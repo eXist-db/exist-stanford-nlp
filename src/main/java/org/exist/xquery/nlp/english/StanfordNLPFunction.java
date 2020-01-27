@@ -35,11 +35,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
+/**
+ *
+ */
 public class StanfordNLPFunction extends BasicFunction {
 
     public static final String PREFIX = "stream2file";
     public static final String SUFFIX = ".tmp";
 
+    /**
+     *
+     */
     public final static FunctionSignature signatures[] = {
             new FunctionSignature(
                 new QName("classify-string", StanfordNLPModule.NAMESPACE_URI, StanfordNLPModule.PREFIX),
@@ -75,18 +81,35 @@ public class StanfordNLPFunction extends BasicFunction {
     };
 
     private static AbstractSequenceClassifier<CoreLabel> cachedClassifier = null;
-    private AnalyzeContextInfo cachedContextInfo;
+    private AnalyzeContextInfo cachedContextInfo = null;
 
+    /**
+     *
+     * @param context
+     * @param signature
+     */
     public StanfordNLPFunction(XQueryContext context, FunctionSignature signature) {
         super(context, signature);
     }
 
+    /**
+     *
+     * @param contextInfo
+     * @throws XPathException
+     */
     @Override
     public void analyze(AnalyzeContextInfo contextInfo) throws XPathException {
         cachedContextInfo = new AnalyzeContextInfo(contextInfo);
         super.analyze(cachedContextInfo);
     }
 
+    /**
+     *
+     * @param args
+     * @param contextSequence
+     * @return
+     * @throws XPathException
+     */
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
         String annotators = args[0].getStringValue();
@@ -128,6 +151,14 @@ public class StanfordNLPFunction extends BasicFunction {
         }
     }
 
+    /**
+     *
+     * @param node
+     * @param pipeline
+     * @param callback
+     * @return
+     * @throws XPathException
+     */
     private Sequence classifyNode(NodeValue node, StanfordCoreNLP pipeline, FunctionReference callback) throws XPathException {
         final Properties serializeOptions = new Properties();
 
@@ -145,10 +176,24 @@ public class StanfordNLPFunction extends BasicFunction {
         }
     }
 
-    private void classifyText(String text, MemTreeBuilder builder, DocumentBuilderReceiver receiver, ValueSequence result, FunctionReference callback) throws XPathException, SAXException {
+    /**
+     *
+     * @param text
+     * @param builder
+     * @param receiver
+     * @param result
+     * @param callback
+     * @throws XPathException
+     * @throws SAXException
+     */
+    private void classifyText(String text, MemTreeBuilder builder, NLPDocumentReceiver receiver, ValueSequence result, FunctionReference callback) throws XPathException, SAXException {
         StringBuilder buf = new StringBuilder();
         String background = SeqClassifierFlags.DEFAULT_BACKGROUND_SYMBOL;
         String prevTag = background;
+        StanfordCoreNLP pipeline = receiver.getPipeline();
+        final Annotation annotation = new Annotation(text);
+        pipeline.annotate(annotation);
+
         int nodeNr = 0;
         List<List<CoreLabel>> out = cachedClassifier.classify(text);
         for (List<CoreLabel> sentence : out) {
@@ -217,6 +262,15 @@ public class StanfordNLPFunction extends BasicFunction {
         writeText(builder, buf, result);
     }
 
+    /**
+     *
+     * @param callback
+     * @param buf
+     * @param prevTag
+     * @param receiver
+     * @throws XPathException
+     * @throws SAXException
+     */
     private void execCallback(FunctionReference callback, StringBuilder buf, String prevTag, DocumentBuilderReceiver receiver) throws XPathException, SAXException {
         final StringValue tagName = new StringValue(prevTag);
         final StringValue content = new StringValue(buf.toString());
@@ -232,6 +286,12 @@ public class StanfordNLPFunction extends BasicFunction {
         buf.setLength(0);
     }
 
+    /**
+     *
+     * @param builder
+     * @param buf
+     * @param result
+     */
     private void writeText(MemTreeBuilder builder, StringBuilder buf, ValueSequence result) {
         if (buf.length() > 0) {
             int node = builder.characters(buf.toString());
@@ -242,18 +302,42 @@ public class StanfordNLPFunction extends BasicFunction {
         }
     }
 
+    /**
+     *
+     */
     private class NLPDocumentReceiver extends DocumentBuilderReceiver {
 
         private MemTreeBuilder builder;
         private FunctionReference callback;
+        private StanfordCoreNLP pipeline;
         private boolean inCallback = false;
 
+        /**
+         *
+         * @param builder
+         * @param pipeline
+         * @param callback
+         */
         public NLPDocumentReceiver(MemTreeBuilder builder, StanfordCoreNLP pipeline, FunctionReference callback) {
             super(builder, true);
             this.builder = builder;
+            this.pipeline = pipeline;
             this.callback = callback;
         }
 
+        /**
+         *
+         * @return
+         */
+        public StanfordCoreNLP getPipeline() {
+            return this.pipeline;
+        }
+
+        /**
+         *
+         * @param seq
+         * @throws SAXException
+         */
         @Override
         public void characters(CharSequence seq) throws SAXException {
             if (inCallback) {
@@ -271,6 +355,13 @@ public class StanfordNLPFunction extends BasicFunction {
             }
         }
 
+        /**
+         *
+         * @param ch
+         * @param start
+         * @param len
+         * @throws SAXException
+         */
         @Override
         public void characters(char[] ch, int start, int len) throws SAXException {
             if (inCallback) {

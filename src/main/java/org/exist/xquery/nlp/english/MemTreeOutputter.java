@@ -42,20 +42,41 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+/**
+ *
+ */
 public class MemTreeOutputter extends AnnotationOutputter {
-    private static final String NAMESPACE_URI = null;
 
-    @Override
-    public void print(Annotation doc, OutputStream target, Options options) throws IOException {
-
-    }
-
-    public static Sequence annotationToSequence(Annotation annotation, StanfordCoreNLP pipeline, MemTreeBuilder builder) throws QName.IllegalQNameException {
+    /**
+     *
+     * @param annotation
+     * @param pipeline
+     * @param builder
+     * @return
+     * @throws QName.IllegalQNameException
+     */
+    public static Sequence annotationToSequence(
+            Annotation annotation,
+            StanfordCoreNLP pipeline,
+            MemTreeBuilder builder
+    ) throws QName.IllegalQNameException {
         Options options = getOptions(pipeline.getProperties());
         return annotationsToSequence(annotation, options, builder);
     }
 
-    private static Sequence annotationsToSequence(Annotation annotation, Options options, MemTreeBuilder builder) throws QName.IllegalQNameException {
+    /**
+     *
+     * @param annotation
+     * @param options
+     * @param builder
+     * @return
+     * @throws QName.IllegalQNameException
+     */
+    private static Sequence annotationsToSequence(
+            Annotation annotation,
+            Options options,
+            MemTreeBuilder builder
+    ) throws QName.IllegalQNameException {
 
         builder.startDocument();
         builder.startElement(new QName("StanfordNLP"), null);
@@ -79,7 +100,7 @@ public class MemTreeOutputter extends AnnotationOutputter {
 
         if (annotation.get(CoreAnnotations.SentencesAnnotation.class) != null) {
             int sentCount = 1;
-            for (CoreMap sentence: annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
+            for (CoreMap sentence : annotation.get(CoreAnnotations.SentencesAnnotation.class)) {
                 attribs = new AttributesImpl();
                 attribs.addAttribute(null, "id", "id", "string", Integer.toString(sentCount));
                 Integer lineNumber = sentence.get(CoreAnnotations.LineNumberAnnotation.class);
@@ -94,7 +115,7 @@ public class MemTreeOutputter extends AnnotationOutputter {
                     String sentimentClass = sentence.get(SentimentCoreAnnotations.SentimentClass.class);
                     attribs.addAttribute(null, "sentiment", "sentiment", "string", sentimentClass.replaceAll(" ", ""));
                 }
-                sentCount ++;
+                sentCount++;
                 builder.startElement(new QName("sentence"), attribs);
 
                 builder.startElement(new QName("tokens"), null);
@@ -120,11 +141,11 @@ public class MemTreeOutputter extends AnnotationOutputter {
                 SemanticGraph basicDependencies = sentence.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class);
 
                 if (basicDependencies != null) {
-                    buildDependencyTreeInfo(builder, "basic-dependencies", sentence.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class), tokens, NAMESPACE_URI);
-                    buildDependencyTreeInfo(builder, "collapsed-dependencies", sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class), tokens, NAMESPACE_URI);
-                    buildDependencyTreeInfo(builder, "collapsed-ccprocessed-dependencies", sentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class), tokens, NAMESPACE_URI);
-                    buildDependencyTreeInfo(builder, "enhanced-dependencies", sentence.get(SemanticGraphCoreAnnotations.EnhancedDependenciesAnnotation.class), tokens, NAMESPACE_URI);
-                    buildDependencyTreeInfo(builder, "enhanced-plus-plus-dependencies", sentence.get(SemanticGraphCoreAnnotations.EnhancedPlusPlusDependenciesAnnotation.class), tokens, NAMESPACE_URI);
+                    buildDependencyTreeInfo(builder, "basic-dependencies", sentence.get(SemanticGraphCoreAnnotations.BasicDependenciesAnnotation.class), tokens);
+                    buildDependencyTreeInfo(builder, "collapsed-dependencies", sentence.get(SemanticGraphCoreAnnotations.CollapsedDependenciesAnnotation.class), tokens);
+                    buildDependencyTreeInfo(builder, "collapsed-ccprocessed-dependencies", sentence.get(SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation.class), tokens);
+                    buildDependencyTreeInfo(builder, "enhanced-dependencies", sentence.get(SemanticGraphCoreAnnotations.EnhancedDependenciesAnnotation.class), tokens);
+                    buildDependencyTreeInfo(builder, "enhanced-plus-plus-dependencies", sentence.get(SemanticGraphCoreAnnotations.EnhancedPlusPlusDependenciesAnnotation.class), tokens);
                 }
 
                 // add Open IE triples
@@ -146,12 +167,12 @@ public class MemTreeOutputter extends AnnotationOutputter {
                 // add the MR entities and relations
                 List<EntityMention> entities = sentence.get(MachineReadingAnnotations.EntityMentionsAnnotation.class);
                 List<RelationMention> relations = sentence.get(MachineReadingAnnotations.RelationMentionsAnnotation.class);
-                if (entities != null && ! entities.isEmpty()) {
+                if (entities != null && !entities.isEmpty()) {
                     builder.startElement(new QName("MachineReading"), null);
                     builder.startElement(new QName("entities"), null);
                     addEntities(builder, entities);
                     builder.endElement();
-                    
+
                     if (relations != null) {
                         builder.startElement(new QName("relations"), null);
                         addRelations(builder, relations, options.relationsBeam);
@@ -175,7 +196,7 @@ public class MemTreeOutputter extends AnnotationOutputter {
         if (corefChains != null) {
             List<CoreMap> sentences = annotation.get(CoreAnnotations.SentencesAnnotation.class);
             builder.startElement(new QName("coreferences"), null);
-            addCorefGraphInfo(options, builder, sentences, corefChains, NAMESPACE_URI);
+            addCorefGraphInfo(options, builder, sentences, corefChains);
             builder.endElement(); // coreferences
         }
 
@@ -184,15 +205,35 @@ public class MemTreeOutputter extends AnnotationOutputter {
         return builder.getDocument();
     }
 
-    private static void addRelations(MemTreeBuilder builder, List<RelationMention> relations, double beam) throws QName.IllegalQNameException {
-        for (RelationMention r: relations){
+    /**
+     *
+     * @param builder
+     * @param relations
+     * @param beam
+     * @throws QName.IllegalQNameException
+     */
+    private static void addRelations(
+            MemTreeBuilder builder,
+            List<RelationMention> relations,
+            double beam
+    ) throws QName.IllegalQNameException {
+        for (RelationMention r : relations) {
             if (r.printableObject(beam)) {
                 toRelationXML(builder, r);
             }
         }
     }
 
-    private static void toRelationXML(MemTreeBuilder builder, RelationMention relation) throws QName.IllegalQNameException {
+    /**
+     *
+     * @param builder
+     * @param relation
+     * @throws QName.IllegalQNameException
+     */
+    private static void toRelationXML(
+            MemTreeBuilder builder,
+            RelationMention relation
+    ) throws QName.IllegalQNameException {
         AttributesImpl attributes = null;
         attributes = new AttributesImpl();
         attributes.addAttribute(null, "id", "id", "string", relation.getObjectId());
@@ -217,7 +258,16 @@ public class MemTreeOutputter extends AnnotationOutputter {
         builder.endElement(); // relation
     }
 
-    private static void toEntityMentionXML(MemTreeBuilder builder, EntityMention entityMention) throws QName.IllegalQNameException {
+    /**
+     *
+     * @param builder
+     * @param entityMention
+     * @throws QName.IllegalQNameException
+     */
+    private static void toEntityMentionXML(
+            MemTreeBuilder builder,
+            EntityMention entityMention
+    ) throws QName.IllegalQNameException {
         AttributesImpl attributes = null;
         attributes = new AttributesImpl();
         attributes.addAttribute(null, "id", "id", "string", entityMention.getObjectId());
@@ -241,12 +291,21 @@ public class MemTreeOutputter extends AnnotationOutputter {
         builder.endElement(); //entity
     }
 
-    private static void makeProbabilitiesElement(MemTreeBuilder builder, ExtractionObject object) throws QName.IllegalQNameException {
+    /**
+     *
+     * @param builder
+     * @param object
+     * @throws QName.IllegalQNameException
+     */
+    private static void makeProbabilitiesElement(
+            MemTreeBuilder builder,
+            ExtractionObject object
+    ) throws QName.IllegalQNameException {
         builder.startElement(new QName("probabilities"), null);
 
         if (object.getTypeProbabilities() != null) {
             List<Pair<String, Double>> sorted = Counters.toDescendingMagnitudeSortedListWithCounts(object.getTypeProbabilities());
-            for(Pair<String, Double> lv: sorted) {
+            for (Pair<String, Double> lv : sorted) {
                 builder.startElement(new QName("probability"), null);
 
                 builder.startElement(new QName("label"), null);
@@ -264,19 +323,46 @@ public class MemTreeOutputter extends AnnotationOutputter {
         builder.endElement(); // probabilities
     }
 
-    private static void addEntities(MemTreeBuilder builder, List<EntityMention> entities) throws QName.IllegalQNameException {
-        for (EntityMention e: entities) {
+    /**
+     *
+     * @param builder
+     * @param entities
+     * @throws QName.IllegalQNameException
+     */
+    private static void addEntities(
+            MemTreeBuilder builder,
+            List<EntityMention> entities
+    ) throws QName.IllegalQNameException {
+        for (EntityMention e : entities) {
             toEntityMentionXML(builder, e);
         }
     }
 
-    private static void addTriples(MemTreeBuilder builder, Collection<RelationTriple> openieTriples) throws QName.IllegalQNameException {
+    /**
+     *
+     * @param builder
+     * @param openieTriples
+     * @throws QName.IllegalQNameException
+     */
+    private static void addTriples(
+            MemTreeBuilder builder,
+            Collection<RelationTriple> openieTriples
+    ) throws QName.IllegalQNameException {
         for (RelationTriple triple : openieTriples) {
             toTripleXML(builder, triple);
         }
     }
 
-    private static void toTripleXML(MemTreeBuilder builder, RelationTriple triple) throws QName.IllegalQNameException {
+    /**
+     *
+     * @param builder
+     * @param triple
+     * @throws QName.IllegalQNameException
+     */
+    private static void toTripleXML(
+            MemTreeBuilder builder,
+            RelationTriple triple
+    ) throws QName.IllegalQNameException {
         AttributesImpl attributes = null;
         builder.startElement(new QName("triple"), null);
 
@@ -322,7 +408,21 @@ public class MemTreeOutputter extends AnnotationOutputter {
         builder.endElement(); //triple
     }
 
-    private static boolean addCorefGraphInfo(Options options, MemTreeBuilder builder, List<CoreMap> sentences, Map<Integer, CorefChain> corefChains, String namespaceUri) throws QName.IllegalQNameException {
+    /**
+     *
+     * @param options
+     * @param builder
+     * @param sentences
+     * @param corefChains
+     * @return
+     * @throws QName.IllegalQNameException
+     */
+    private static boolean addCorefGraphInfo(
+            Options options,
+            MemTreeBuilder builder,
+            List<CoreMap> sentences,
+            Map<Integer, CorefChain> corefChains
+    ) throws QName.IllegalQNameException {
         boolean foundCoref = false;
 
         for (CorefChain chain : corefChains.values()) {
@@ -331,19 +431,34 @@ public class MemTreeOutputter extends AnnotationOutputter {
             foundCoref = true;
             builder.startElement(new QName("coreference"), null);
             CorefChain.CorefMention source = chain.getRepresentativeMention();
-            addCorefMention(options, builder, namespaceUri, sentences, source, true);
+            addCorefMention(options, builder, sentences, source, true);
             for (CorefChain.CorefMention mention : chain.getMentionsInTextualOrder()) {
                 if (mention == source) {
                     continue;
                 }
-                addCorefMention(options, builder, namespaceUri, sentences, mention, false);
+                addCorefMention(options, builder, sentences, mention, false);
             }
             builder.endElement(); // coreference
         }
         return foundCoref;
     }
 
-    private static void addCorefMention(Options options, MemTreeBuilder builder, String namespaceUri, List<CoreMap> sentences, CorefChain.CorefMention mention, boolean representative) throws QName.IllegalQNameException {
+    /**
+     *
+     * @param options
+     * @param builder
+     * @param sentences
+     * @param mention
+     * @param representative
+     * @throws QName.IllegalQNameException
+     */
+    private static void addCorefMention(
+            Options options,
+            MemTreeBuilder builder,
+            List<CoreMap> sentences,
+            CorefChain.CorefMention mention,
+            boolean representative
+    ) throws QName.IllegalQNameException {
         AttributesImpl attributes = null;
         if (representative) {
             attributes = new AttributesImpl();
@@ -375,7 +490,20 @@ public class MemTreeOutputter extends AnnotationOutputter {
         builder.endElement(); // mention
     }
 
-    private static void buildDependencyTreeInfo(MemTreeBuilder builder, String dependencyType, SemanticGraph graph, List<CoreLabel> tokens, String namespaceUri) throws QName.IllegalQNameException {
+    /**
+     *
+     * @param builder
+     * @param dependencyType
+     * @param graph
+     * @param tokens
+     * @throws QName.IllegalQNameException
+     */
+    private static void buildDependencyTreeInfo(
+            MemTreeBuilder builder,
+            String dependencyType,
+            SemanticGraph graph,
+            List<CoreLabel> tokens
+    ) throws QName.IllegalQNameException {
         if (graph != null) {
             AttributesImpl attributes = null;
             attributes = new AttributesImpl();
@@ -414,7 +542,30 @@ public class MemTreeOutputter extends AnnotationOutputter {
         }
     }
 
-    private static void addDependencyInfo(MemTreeBuilder builder, String rel, boolean isExtra, int source, String sourceWord, Integer sourceCopy, int target, String targetWord, Integer targetCopy) throws QName.IllegalQNameException {
+    /**
+     *
+     * @param builder
+     * @param rel
+     * @param isExtra
+     * @param source
+     * @param sourceWord
+     * @param sourceCopy
+     * @param target
+     * @param targetWord
+     * @param targetCopy
+     * @throws QName.IllegalQNameException
+     */
+    private static void addDependencyInfo(
+            MemTreeBuilder builder,
+            String rel,
+            boolean isExtra,
+            int source,
+            String sourceWord,
+            Integer sourceCopy,
+            int target,
+            String targetWord,
+            Integer targetCopy
+    ) throws QName.IllegalQNameException {
         AttributesImpl attributes = null;
         attributes = new AttributesImpl();
         attributes.addAttribute(null, "type", "type", "string", rel);
@@ -443,14 +594,35 @@ public class MemTreeOutputter extends AnnotationOutputter {
         builder.endElement(); // dep
     }
 
-    private static void addConstituentTreeInfo(MemTreeBuilder builder, Tree tree, TreePrint constituentTreePrinter) {
+    /**
+     *
+     * @param builder
+     * @param tree
+     * @param constituentTreePrinter
+     */
+    private static void addConstituentTreeInfo(
+            MemTreeBuilder builder,
+            Tree tree,
+            TreePrint constituentTreePrinter
+    ) {
         StringWriter treeStrWriter = new StringWriter();
         constituentTreePrinter.printTree(tree, new PrintWriter(treeStrWriter, true));
         String temp = treeStrWriter.toString();
         builder.characters(temp);
     }
 
-    private static void addWordInfo(MemTreeBuilder builder, CoreLabel token, int id) throws QName.IllegalQNameException {
+    /**
+     *
+     * @param builder
+     * @param token
+     * @param id
+     * @throws QName.IllegalQNameException
+     */
+    private static void addWordInfo(
+            MemTreeBuilder builder,
+            CoreLabel token,
+            int id
+    ) throws QName.IllegalQNameException {
         setSingleElement(builder, "word", token.get(CoreAnnotations.TextAnnotation.class));
         setSingleElement(builder, "lemma", token.get(CoreAnnotations.LemmaAnnotation.class));
 
@@ -501,11 +673,38 @@ public class MemTreeOutputter extends AnnotationOutputter {
         }
     }
 
-    private static void setSingleElement(MemTreeBuilder builder, String elemName, String value) throws QName.IllegalQNameException {
+    /**
+     *
+     * @param builder
+     * @param elemName
+     * @param value
+     * @throws QName.IllegalQNameException
+     */
+    private static void setSingleElement(
+            MemTreeBuilder builder,
+            String elemName,
+            String value
+    ) throws QName.IllegalQNameException {
         if (value != null) {
             builder.startElement(new QName(elemName), null);
             builder.characters(value);
             builder.endElement();
         }
+    }
+
+    /**
+     *
+     * @param doc
+     * @param target
+     * @param options
+     * @throws IOException
+     */
+    @Override
+    public void print(
+            Annotation doc,
+            OutputStream target,
+            Options options
+    ) throws IOException {
+
     }
 }
