@@ -2,7 +2,7 @@
 <package xmlns="http://expath.org/ns/pkg" name="${package-name}" abbrev="${package-abbrev}" version="${project.version}"
     spec="1.0">
     <title>${package-title}</title>
-    <author id="my-organisation">My Organisation</author>
+    <author id="my-organisation">eXist-db</author>
     <website>${project.url}</website>
     <license>GNU Lesser General Public License, version 2.1</license>
     <copyright>true</copyright>
@@ -42,7 +42,15 @@
     <!-- include the XQuery Library modules written in XQuery from this project -->
     <xquerySets>
         <xquerySet>
-            <namespace>http://exist-db.org/xquery/stanford-nlp/ner/english</namespace>
+            <namespace>http://exist-db.org/apps/stanford-nlp/config</namespace>
+            <directory>${basedir}/src/main/xquery</directory>
+            <includes>
+                <include>config.xqm</include>
+            </includes>
+            <outputDirectory>content</outputDirectory>
+        </xquerySet>
+        <xquerySet>
+            <namespace>http://exist-db.org/xquery/stanford-nlp/ner</namespace>
             <directory>${basedir}/src/main/xquery</directory>
             <includes>
                 <include>ner-module.xqm</include>
@@ -112,7 +120,7 @@
     <components>
         <resource>
             <public-uri>${example.module.namespace}</public-uri>
-            <file>urn:java:class:org.exist.xquery.nlp.english.${example.module.java.classname}</file>
+            <file>urn:java:class:org.exist.xquery.nlp.${example.module.java.classname}</file>
         </resource>
     </components>
 

@@ -1,4 +1,4 @@
-package org.exist.xquery.nlp.english;
+package org.exist.xquery.nlp;
 
 
 import org.exist.EXistException;

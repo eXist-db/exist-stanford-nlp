@@ -12,12 +12,12 @@
     </parent>
 
     <groupId>org.exist-db</groupId>
-    <artifactId>stanford-nlp-english</artifactId>
+    <artifactId>stanford-nlp</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
-    <name>Stanford NLP English</name>
-    <description>Stanford Natural Language Processing for English</description>
-    <url>https://exist-db.org/exist-db/nlp/english</url>
+    <name>Stanford NLP</name>
+    <description>Stanford Natural Language Processing</description>
+    <url>https://exist-db.org/exist-db/nlp</url>
 
     <organization>
         <name>eXist-db</name>
@@ -51,9 +51,9 @@
         <exist.version>5.0.0</exist.version>
 
         <!-- used in the EXPath Package Descriptor -->
-        <package-name>https://exist-db.org/exist-db/nlp/english</package-name>
+        <package-name>https://exist-db.org/exist-db/nlp</package-name>
 
-        <example.module.namespace>http://exist-db.org/xquery/stanford-nlp/english</example.module.namespace>
+        <example.module.namespace>http://exist-db.org/xquery/stanford-nlp</example.module.namespace>
         <example.module.java.classname>StanfordNLPModule</example.module.java.classname>
     </properties>
 
