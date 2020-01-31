@@ -24,14 +24,20 @@ import org.exist.dom.QName;
 import org.exist.dom.memtree.MemTreeBuilder;
 import org.exist.xquery.*;
 import org.exist.xquery.functions.map.MapType;
-import org.exist.xquery.util.SerializerUtils;
 import org.exist.xquery.value.*;
+
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Properties;
+import java.util.logging.Logger;
+import java.util.logging.Level;
 
 /**
  *
  */
 public class StanfordNLPFunction extends BasicFunction {
+
+    static Logger LOGGER = Logger.getLogger(StanfordNLPFunction.class.getName());
 
     /**
      *
@@ -72,10 +78,17 @@ public class StanfordNLPFunction extends BasicFunction {
     @Override
     public Sequence eval(Sequence[] args, Sequence contextSequence) throws XPathException {
         final Properties properties;
+        properties = new Properties();
         if (getArgumentCount() == 2 && !args[1].isEmpty()) {
-            properties = SerializerUtils.getSerializationOptions(this, (MapType) args[1].itemAt(0));
-        } else {
-            properties = new Properties();
+            MapType entries = (MapType) args[1].itemAt(0);
+            Iterator<Map.Entry<AtomicValue, Sequence>> iterator = entries.iterator();
+            while (iterator.hasNext()) {
+                Map.Entry<AtomicValue, Sequence> entry = iterator.next();
+                String key = String.valueOf(entry.getKey());
+                String value = String.valueOf(entry.getValue());
+                LOGGER.log(Level.INFO, "Property: " + key + ": [" + value + "]");
+                properties.put(key, value);
+            }
         }
         String text = args[0].getStringValue();
         StanfordCoreNLP pipeline = new StanfordCoreNLP(properties);

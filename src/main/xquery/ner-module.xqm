@@ -16,13 +16,13 @@ declare
   %rest:path("/StanfordNLP/NER")
   %rest:PUT("{$request-body}")
 function ner:classify-document($request-body as document-node(element())) {
-    let $annotators := "tokenize, ssplit, pos, lemma, ner"
+    let $annotators := fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
     return ner:dispatch($request-body/node(), $annotators)
 };
 
 declare
 function ner:classify-node($node as node()) {
-    let $annotators := "tokenize, ssplit, pos, lemma, ner"
+    let $annotators := fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
     return ner:dispatch($node, $annotators)
 };
 
@@ -30,7 +30,7 @@ declare
     %rest:path("/StanfordNLP/NER")
     %rest:form-param("text", "{$text}")
 function ner:classify-text($text as xs:string) {
-    let $annotators := "tokenize, ssplit, pos, lemma, ner"
+    let $annotators := fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
     return ner:classify($node/text(), $annotators)
 };
 
@@ -66,13 +66,13 @@ declare function ner:enrich($text as xs:string, $tokens as node()*) {
         let $ner-text := fn:substring($text, $start, $length)
         let $next := fn:subsequence($tokens, fn:index-of($tokens, $sibling-token) + 1)
         return (
-            ner:enrich($before, $next),
+            ner:enrich($before, $next), 
             element { $last-token/NER/text() } { $ner-text }, 
             if (fn:string-length($after) gt 0) then $after else ())
     
 };
 
-declare function ner:dispatch($node as node()?, $annotators as xs:string) {
+declare function ner:dispatch($node as node()?, $annotators as map(*)) {
     if ($node)
     then
         if (functx:has-simple-content($node))
@@ -81,7 +81,7 @@ declare function ner:dispatch($node as node()?, $annotators as xs:string) {
         else ()
 };
 
-declare function ner:pass-through($node as node()?, $annotators as xs:string) {
+declare function ner:pass-through($node as node()?, $annotators as map(*)) {
     if ($node)
     then element { $node/name() } { 
         $node/@*,  
@@ -91,10 +91,10 @@ declare function ner:pass-through($node as node()?, $annotators as xs:string) {
     else ()
 };
 
-declare function ner:classify($text as xs:string, $annotators as xs:string) {
-let $tokens := for $token in nlp:parse($text, map {"annotators" : $annotators })//token[fn:not(NER = "O")]
+declare function ner:classify($text as xs:string, $annotators as map(*)) {
+let $tokens := for $token in nlp:parse($text, $annotators)//token[fn:not(NER = "O")]
                 let $token-start := $token/CharacterOffsetBegin/number()
                 order by $token-start descending
             return $token
-return ner:enrich($text, $tokens)
+return ner:enrich($text, $tokens)    
 };
