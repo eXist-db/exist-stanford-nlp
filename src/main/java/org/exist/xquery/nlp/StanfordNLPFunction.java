@@ -50,11 +50,10 @@ public class StanfordNLPFunction extends BasicFunction {
                     new SequenceType[] {
                             new FunctionParameterSequenceType("text", Type.STRING, Cardinality.EXACTLY_ONE,
                                     "String of text to analyze."),
-                            new FunctionParameterSequenceType("properties", Type.MAP, Cardinality.ZERO_OR_ONE,
-                                    "The path to the serialized classifier to load. Should point to a binary resource " +
-                                            "stored within the database")
+                            new FunctionParameterSequenceType("properties", Type.MAP, Cardinality.EXACTLY_ONE,
+                                    "A map containing properties for the NLP pipeline. Typically, at least map { \"annotators\": \"tokenize, ssplit\" } should be provided. Properties can also be loaded from a JSON file via json-doc().")
                     },
-                    new FunctionReturnSequenceType(Type.ELEMENT, Cardinality.EXACTLY_ONE,
+                    new FunctionReturnSequenceType(Type.DOCUMENT, Cardinality.EXACTLY_ONE,
                             "Sequence of text nodes and elements denoting recognized entities in the text")
             )
     };

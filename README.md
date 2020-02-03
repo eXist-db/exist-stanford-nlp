@@ -1,63 +1,68 @@
 # Example App for eXist-db
 
-This is a simple skeleton Example App for eXist-db which will be built as an EXPath Package using Maven.
+![images/exist-stanford-nlp.png](images/exist-stanford-nlp.png)
 
-You can use this as a base for your own eXist-db Apps or Libraries.
+This application is a wrapper around the Stanford CoreNLP pipeline.
 
+The base call is:
 
-The App contains:
- 
-1. An example XQuery Library Module of user defined functions written in Java.
+```xquery
+xquery version "3.1";
 
-2. A example XQuery Library Module of user defined functions written in XQuery.
+import module namespace nlp="http://exist-db.org/xquery/stanford-nlp";
 
-3. A simple Web landing page for the app itself.   
+let $text := "The fate of Lehman Brothers, the beleaguered investment bank, " ||
+             "hung in the balance on Sunday as Federal Reserve officials and " ||
+             "the leaders of major financial institutions continued to gather in " ||
+             "emergency meetings trying to complete a plan to rescue the stricken " ||
+             "bank.  Several possible plans emerged from the talks, held at the " ||
+             "Federal Reserve Bank of New York and led by Timothy R. Geithner, " ||
+             "the president of the New York Fed, and Treasury Secretary Henry M. Paulson Jr."
 
+let $properties := map { 
+                     "annotators" : "tokenize, ssplit, pos, lemma, ner, depparse, coref",
+                     "tokenize.language" : "en" 
+                   }
 
-
-1. By default the project is setup for an LGPL 2.1 licensing scheme. You should decide if that is appropriate and if not, make the following modifications:
-
-  1. Modify the `licenses` section in `pom.xml`.
-  
-  2. Override the `configuration` of the license-maven-plugin` in `pom.xml`. See: http://code.mycila.com/license-maven-plugin/
-  
-  3. Potentially remove or replace `LGPL2.1-template.txt`.
-  
-  4. Run `mvn license:check` and `mvn license:format` appropriately. 
-
-1. You should modify the `pom.xml` changing at least the `groupId` and `artifactId` to coordinates that are suitable for your organisation.
-
-2. You should modify, remove, or append to, the files in:
-
-  * `src/main/java` for any XQuery library modules written in Java.
-
-  * `src/main/xquery` for any XQUery library modules written in Java.
-
-  * `src/main/xar-resources` for any static files or XQuery modules that are shipped as part of your app. 
-
-NOTE: You will also need to modify `xar-assembly.xml` to reflect any changes you make to user defined XQuery library modules (whether written in Java or XQuery).
-
-
-* Requirements: Java 8, Apache Maven 3.3+, Git.
-
-If you want to create an EXPath Package for the app, you can run:
-
-```bash
-$ mvn package
+return nlp:parse($text, $properties)
 ```
 
-There will be a `.xar` file in the `target/` sub-folder.
+This returns an XML document of the parsed text.
+
+Any of the properties that refer to files (e.g. ner.model) where the name will be looked 
+for as classpath resources or URLs.  The URLs would start with `http://localhost:8080/exist/`
+relative to the contents of the database.
 
 
-You can use the Maven Release plugin to publish your applications **publicly** to Maven Central.
+There is an XQuery function module that implements Named Entity Recognition that returns the properly
+tagged entities within the text.
 
-1. You need to register to manage the `groupId` of your organisation on Maven Central, see: http://central.sonatype.org/pages/ossrh-guide.html#create-a-ticket-with-sonatype
+```xquery
+xquery version "3.1";
 
-2. Assuming your Git repo is in-sync, you can simply run the following to upload to Sonatype OSS:
+import module namespace ner = "http://exist-db.org/xquery/stanford-nlp/ner";
 
-```bash
-$ mvn release:prepare
-$ mvn release:perform
+let $base := <p>The fate of Lehman Brothers, the beleaguered investment bank, 
+                hung in the balance on Sunday as Federal Reserve officials and
+                the leaders of major financial institutions continued to gather 
+                in emergency meetings trying to complete a plan to rescue the 
+                stricken bank.  Several possible plans emerged from the talks, 
+                held at the Federal Reserve Bank of New York and led by 
+                Timothy R. Geithner, the president of the New York Fed, and 
+                Treasury Secretary Henry M. Paulson Jr.</p> 
+
+return ner:classify-node($base)
 ```
 
-3. You need to release the artifacts on the Sonatype OSS web portal, see: http://central.sonatype.org/pages/ossrh-guide.html#releasing-to-central
+which returns
+
+```xml
+<p>The fate of <ORGANIZATION>Lehman Brothers</ORGANIZATION>, the beleaguered investment bank, 
+hung in the balance on <DATE>Sunday</DATE> as <ORGANIZATION>Federal Reserve</ORGANIZATION> 
+officials and the leaders of major financial institutions continued to gather in emergency 
+meetings trying to complete a plan to rescue the stricken bank.  Several possible plans 
+emerged from the talks, held at the <ORGANIZATION>Federal Reserve Bank of New York</ORGANIZATION> 
+and led by <PERSON>Timothy R. Geithner</PERSON>, the <TITLE>president</TITLE> of the 
+<ORGANIZATION>New York Fed</ORGANIZATION>, and <TITLE>Treasury Secretary</TITLE> 
+<PERSON>Henry M. Paulson Jr</PERSON>.</p>
+```
