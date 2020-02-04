@@ -1,4 +1,4 @@
-# Example App for eXist-db
+# Stanford CoreNLP Wrapper for eXist-db
 
 ![images/exist-stanford-nlp.png](images/exist-stanford-nlp.png)
 
