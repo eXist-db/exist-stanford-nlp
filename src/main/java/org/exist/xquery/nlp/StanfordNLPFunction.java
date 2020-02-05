@@ -23,6 +23,7 @@ import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import org.exist.dom.QName;
 import org.exist.dom.memtree.MemTreeBuilder;
 import org.exist.xquery.*;
+import org.exist.xquery.functions.array.ArrayType;
 import org.exist.xquery.functions.map.MapType;
 import org.exist.xquery.value.*;
 
@@ -84,7 +85,23 @@ public class StanfordNLPFunction extends BasicFunction {
             while (iterator.hasNext()) {
                 Map.Entry<AtomicValue, Sequence> entry = iterator.next();
                 String key = String.valueOf(entry.getKey());
-                String value = String.valueOf(entry.getValue());
+                final Sequence entryValue = entry.getValue();
+                final Item item = entryValue.itemAt(0);
+
+                StringBuffer buff = new StringBuffer();
+                if (item.getType() == Type.ARRAY) {
+                    ArrayType array = (ArrayType) item;
+                    for (int i = 0; i < array.getSize(); i++) {
+                        final Sequence member = array.get(i);
+                        if (i > 0) {
+                            buff.append(", ");
+                        }
+                        buff.append(member.getStringValue());
+                    }
+                } else {
+                    buff.append(item.getStringValue());
+                }
+                String value = buff.toString();
                 LOGGER.log(Level.INFO, "Property: " + key + ": [" + value + "]");
                 properties.put(key, value);
             }
