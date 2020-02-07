@@ -13,7 +13,7 @@
 
     <groupId>org.exist-db</groupId>
     <artifactId>stanford-nlp</artifactId>
-    <version>0.5.4</version>
+    <version>0.5.5</version>
 
     <name>Stanford Natural Language Processing</name>
     <description>Stanford Natural Language Processing</description>
