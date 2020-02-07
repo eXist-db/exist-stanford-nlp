@@ -13,9 +13,9 @@
 
     <groupId>org.exist-db</groupId>
     <artifactId>stanford-nlp</artifactId>
-    <version>0.5.3</version>
+    <version>0.5.4</version>
 
-    <name>Stanford NLP</name>
+    <name>Stanford Natural Language Processing</name>
     <description>Stanford Natural Language Processing</description>
     <url>https://exist-db.org/exist-db/nlp</url>
 

@@ -8,10 +8,11 @@ module namespace ner = "http://exist-db.org/xquery/stanford-nlp/ner";
 
 import module namespace nlp="http://exist-db.org/xquery/stanford-nlp";
 import module namespace functx = "http://www.functx.com";
-import module namespace console = "http://exist-db.org/xquery/console";
 
-declare namespace rest = "http://exquery.org/ns/restxq";
+declare namespace rest="http://exquery.org/ns/restxq";
+declare namespace output="http://www.w3.org/2010/xslt-xquery-serialization";
 
+(:
 declare
   %rest:path("/StanfordNLP/NER")
   %rest:PUT("{$request-body}")
@@ -19,6 +20,7 @@ function ner:classify-document($request-body as document-node(element())) {
     let $annotators := fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
     return ner:dispatch($request-body/node(), $annotators)
 };
+:)
 
 declare
 function ner:classify-node($node as node()) {
@@ -27,11 +29,13 @@ function ner:classify-node($node as node()) {
 };
 
 declare
+    %rest:GET
     %rest:path("/StanfordNLP/NER")
-    %rest:form-param("text", "{$text}")
-function ner:classify-text($text as xs:string) {
+    %rest:query-param("text", "{$text}")
+    %rest:produces("application/xml", "text/xml")
+function ner:query-text($text as xs:string) {
     let $annotators := fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
-    return ner:classify($node/text(), $annotators)
+    return element { 'ner' } { ner:classify($text, $annotators) }
 };
 
 declare function ner:sibling($token as node(), $tokens as node()*) as node() {

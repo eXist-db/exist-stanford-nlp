@@ -1,4 +1,12 @@
 {
-    "annotators" : "tokenize, ssplit, pos, lemma, ner, depparse, coref",
-    "tokenize.language" : "en"
+  "annotators": [
+    "tokenize",
+    "ssplit",
+    "pos",
+    "lemma",
+    "ner",
+    "depparse",
+    "coref"
+  ],
+  "tokenize.language": "en"
 }
