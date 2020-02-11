@@ -9,18 +9,13 @@ module namespace ner = "http://exist-db.org/xquery/stanford-nlp/ner";
 import module namespace nlp="http://exist-db.org/xquery/stanford-nlp";
 import module namespace functx = "http://www.functx.com";
 
-declare namespace rest="http://exquery.org/ns/restxq";
-declare namespace output="http://www.w3.org/2010/xslt-xquery-serialization";
+import module namespace rest = "http://exquery.org/ns/restxq";
 
-(:
 declare
-  %rest:path("/StanfordNLP/NER")
-  %rest:PUT("{$request-body}")
 function ner:classify-document($request-body as document-node(element())) {
     let $annotators := fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
     return ner:dispatch($request-body/node(), $annotators)
 };
-:)
 
 declare
 function ner:classify-node($node as node()) {
@@ -32,10 +27,21 @@ declare
     %rest:GET
     %rest:path("/StanfordNLP/NER")
     %rest:query-param("text", "{$text}")
-    %rest:produces("application/xml", "text/xml")
-function ner:query-text($text as xs:string) {
-    let $annotators := fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
-    return element { 'ner' } { ner:classify($text, $annotators) }
+    %rest:query-param("lang", "{$language}")
+function ner:query-text($text, $language) {
+    let $annotators := try {
+        switch ($language[1])
+          case "en" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
+          case "ar" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-arabic.json")
+          case "es" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-spanish.json")
+          case "fr" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-french.json")
+          case "zh" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-chinese.json")
+          case "de" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-german.json")
+          default return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
+          } catch * {
+            fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
+          }
+    return element { 'ner' } { ner:classify(util:unescape-uri($text[1], "UTF-8"), $annotators) }
 };
 
 declare function ner:sibling($token as node(), $tokens as node()*) as node() {
@@ -56,12 +62,11 @@ declare function ner:sibling($token as node(), $tokens as node()*) as node() {
 
 declare function ner:enrich($text as xs:string, $tokens as node()*) {
     if (fn:count($tokens) eq 0)
-    then 
+    then
         $text
-    else    
+    else
         let $last-token := $tokens[1]
         let $sibling-token := ner:sibling($last-token, fn:subsequence($tokens, 2))
-        let $sibling-position := fn:index-of($tokens, $sibling-token)
         let $start := $sibling-token/CharacterOffsetBegin/number() + 1
         let $end := $last-token/CharacterOffsetEnd/number() + 1
         let $length := $end - $start
