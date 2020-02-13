@@ -94,12 +94,16 @@ public class StanfordNLPFunction extends BasicFunction {
                     for (int i = 0; i < array.getSize(); i++) {
                         final Sequence member = array.get(i);
                         if (i > 0) {
-                            buff.append(", ");
+                            buff.append(",");
                         }
                         buff.append(member.getStringValue());
                     }
                 } else {
-                    buff.append(item.getStringValue());
+                    if ("NULL".equalsIgnoreCase(item.getStringValue())) {
+
+                    } else {
+                        buff.append(item.getStringValue());
+                    }
                 }
                 String value = buff.toString();
                 LOGGER.log(Level.INFO, "Property: " + key + ": [" + value + "]");

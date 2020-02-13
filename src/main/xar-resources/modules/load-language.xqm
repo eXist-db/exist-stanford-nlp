@@ -1,5 +1,7 @@
 xquery version "3.1";
 
+module namespace ll = "http://exist-db.org/xquery/stanford-nlp/load-language";
+
 import module namespace http = "http://expath.org/ns/http-client";
 import module namespace compression = "http://exist-db.org/xquery/compression";
 import module namespace console = "http://exist-db.org/xquery/console";
@@ -7,29 +9,29 @@ import module namespace functx = "http://www.functx.com";
 import module namespace util = "http://exist-db.org/xquery/util";
 import module namespace map = "http://www.w3.org/2005/xpath-functions/map";
 
-declare function local:mkcol-recursive($collection, $components) {
+declare function ll:mkcol-recursive($collection, $components) {
     if (exists($components)) then
         let $newColl := concat($collection, "/", $components[1])
         return (
             if (xmldb:collection-available($newColl)) 
             then () 
             else xmldb:create-collection($collection, $components[1]),
-            local:mkcol-recursive($newColl, subsequence($components, 2))
+            ll:mkcol-recursive($newColl, subsequence($components, 2))
         )
     else
         ()
 };
 
-declare function local:mkcol($collection, $path) {
-    local:mkcol-recursive($collection, tokenize($path, "/"))
+declare function ll:mkcol($collection, $path) {
+    ll:mkcol-recursive($collection, tokenize($path, "/"))
 };
 
 
-declare function local:entry-data($path as xs:anyURI, $type as xs:string, $data as item()?, $param as item()*) as item()?
+declare function ll:entry-data($path as xs:anyURI, $type as xs:string, $data as item()?, $param as item()*) as item()?
 {
     let $path-before := functx:substring-before-last($path, "/")
     let $resource-name := functx:substring-after-last($path, "/")
-    let $coll := local:mkcol("/db/apps/stanford-nlp/data", $path-before)
+    let $coll := ll:mkcol("/db/apps/stanford-nlp/data", $path-before)
     let $decided :=
             if (fn:ends-with($resource-name, ".properties")) 
             then 
@@ -69,12 +71,12 @@ declare function local:entry-data($path as xs:anyURI, $type as xs:string, $data 
     return ()
 }; 
 
-declare function local:entry-filter($path as xs:anyURI, $type as xs:string, $param as item()*) as xs:boolean
+declare function ll:entry-filter($path as xs:anyURI, $type as xs:string, $param as item()*) as xs:boolean
 {
 	$type = "resource"
 };
 
-declare function local:process($path as xs:string) {
+declare function ll:process($path as xs:string) {
     let $log0 := console:log($path)
     
     let $req := <http:request href="{$path}" method="get"/>
@@ -84,22 +86,9 @@ declare function local:process($path as xs:string) {
     
     return compression:unzip(
             $zip, 
-            util:function(xs:QName("local:entry-filter"), 3), 
+            util:function(xs:QName("ll:entry-filter"), 3),
             (),  
-            util:function(xs:QName("local:entry-data"), 4), 
+            util:function(xs:QName("ll:entry-data"), 4),
             ()
         )
 };
-
-let $paths := (
-            "http://nlp.stanford.edu/software/stanford-english-corenlp-2018-10-05-models.jar",
-            "http://nlp.stanford.edu/software/stanford-english-kbp-corenlp-2018-10-05-models.jar",
-            "http://nlp.stanford.edu/software/stanford-arabic-corenlp-2018-10-05-models.jar",
-            "http://nlp.stanford.edu/software/stanford-chinese-corenlp-2018-10-05-models.jar",
-            "http://nlp.stanford.edu/software/stanford-french-corenlp-2018-10-05-models.jar",
-            "http://nlp.stanford.edu/software/stanford-german-corenlp-2018-10-05-models.jar",
-            "http://nlp.stanford.edu/software/stanford-spanish-corenlp-2018-10-05-models.jar",
-            ()
-        )
-
-return for $path in $paths return local:process($path)
