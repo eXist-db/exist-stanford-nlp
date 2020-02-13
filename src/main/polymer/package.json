@@ -18,6 +18,7 @@
     "@polymer/iron-ajax": "^3.0.1",
     "@polymer/iron-flex-layout": "^3.0.0-pre.15",
     "@polymer/iron-iconset-svg": "^3.0.0-pre.15",
+    "@polymer/iron-image": "^3.0.2",
     "@polymer/iron-media-query": "^3.0.0-pre.15",
     "@polymer/iron-pages": "^3.0.0-pre.15",
     "@polymer/iron-selector": "^3.0.0-pre.15",
@@ -28,7 +29,7 @@
     "jsoneditor": "^8.5.3"
   },
   "devDependencies": {
-    "polymer-cli": "^1.7.1",
+    "polymer-cli": "^1.9.11",
     "wct-browser-legacy": "^1.0.0"
   },
   "engines": {

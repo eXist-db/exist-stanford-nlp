@@ -24,9 +24,9 @@ class MyView3 extends PolymerElement {
 
       <div class="card">
         <div class="circle">3</div>
-        <h1>View Three</h1>
-        <p>Modus commodo minimum eum te, vero utinam assueverit per eu.</p>
-        <p>Ea duis bonorum nec, falli paulo aliquid ei eum.Has at minim mucius aliquam, est id tempor laoreet.Pro saepe pertinax ei, ad pri animal labores suscipiantur.</p>
+        <h1>Initializing</h1>
+        <p>In order for the intallation module to be kept to a smaller size, the language files are loaded afterwards into the database.</p>
+        <p>In eXide, open and run <b>/db/apps/stanford-nlp/modules/load-languages.xq</b> as admin.</p>
       </div>
     `;
   }

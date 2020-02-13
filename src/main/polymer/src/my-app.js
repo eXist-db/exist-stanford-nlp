@@ -18,6 +18,7 @@ import '@polymer/app-layout/app-scroll-effects/app-scroll-effects.js';
 import '@polymer/app-layout/app-toolbar/app-toolbar.js';
 import '@polymer/app-route/app-location.js';
 import '@polymer/app-route/app-route.js';
+import '@polymer/iron-image/iron-image.js';
 import '@polymer/iron-pages/iron-pages.js';
 import '@polymer/iron-selector/iron-selector.js';
 import '@polymer/paper-icon-button/paper-icon-button.js';
@@ -71,6 +72,15 @@ class MyApp extends PolymerElement {
           color: black;
           font-weight: bold;
         }
+        
+        #stanford-nlp-logo {
+            margin-left: auto;
+            margin-right: auto;
+            width: 200px;
+            height: 200px;
+            --iron-image-width: 100%;
+            --iron-image-height: 100%;
+        }
       </style>
 
       <app-location route="{{route}}" url-space-regex="^[[rootPath]]">
@@ -83,10 +93,11 @@ class MyApp extends PolymerElement {
         <!-- Drawer content -->
         <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
           <app-toolbar>Menu</app-toolbar>
+          <iron-image sizing="cover" alt="The Stanford NLP logo." id="stanford-nlp-logo" src="./images/manifest/icon.svg"></iron-image>
           <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
-            <a name="view1" href="[[rootPath]]view1">View One</a>
-            <a name="view2" href="[[rootPath]]view2">View Two</a>
-            <a name="view3" href="[[rootPath]]view3">View Three</a>
+            <a name="home" href="[[rootPath]]home">Home</a>
+            <a name="api" href="[[rootPath]]api">API</a>
+            <a name="initializing" href="[[rootPath]]initializing">Initializing</a>
           </iron-selector>
         </app-drawer>
 
@@ -101,9 +112,9 @@ class MyApp extends PolymerElement {
           </app-header>
 
           <iron-pages selected="[[page]]" attr-for-selected="name" role="main">
-            <my-view1 name="view1"></my-view1>
-            <my-view2 name="view2"></my-view2>
-            <my-view3 name="view3"></my-view3>
+            <my-view1 name="home"></my-view1>
+            <my-view2 name="api"></my-view2>
+            <my-view3 name="initializing"></my-view3>
             <my-view404 name="view404"></my-view404>
           </iron-pages>
         </app-header-layout>
@@ -115,7 +126,7 @@ class MyApp extends PolymerElement {
     return {
       page: {
         type: String,
-        value: './view1',
+        value: './home',
         reflectToAttribute: true,
         observer: '_pageChanged'
       },
@@ -138,10 +149,10 @@ class MyApp extends PolymerElement {
      // Show the corresponding page according to the route.
      //
      // If no page was found in the route data, page will be an empty string.
-     // Show 'view1' in that case. And if the page doesn't exist, show 'view404'.
+     // Show 'home' in that case. And if the page doesn't exist, show 'view404'.
     if (!page) {
-      this.page = 'view1';
-    } else if (['view1', 'view2', 'view3'].indexOf(page) !== -1) {
+      this.page = 'home';
+    } else if (['home', 'api', 'initializing'].indexOf(page) !== -1) {
       this.page = page;
     } else {
       this.page = 'view404';
@@ -159,13 +170,13 @@ class MyApp extends PolymerElement {
     // Note: `polymer build` doesn't like string concatenation in the import
     // statement, so break it up.
     switch (page) {
-      case 'view1':
+      case 'home':
         import('./my-view1.js');
         break;
-      case 'view2':
+      case 'api':
         import('./my-view2.js');
         break;
-      case 'view3':
+      case 'initializing':
         import('./my-view3.js');
         break;
       case 'view404':
