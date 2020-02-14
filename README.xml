@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-model href="http://docbook.org/xml/5.1/rng/docbookxi.rng" schematypens="http://relaxng.org/ns/structure/1.0"?>
+<?xml-model href="http://docbook.org/xml/5.1/sch/docbook.sch" type="application/xml" schematypens="http://purl.oclc.org/dsdl/schematron"?>
+<article xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.1">
+    <info>
+        <title>Stanford CoreNLP Wrapper for eXist-db</title>
+        <mediaobject>
+            <imageobject>
+                <imagedata fileref="images/exist-stanford-nlp.png"/>
+            </imageobject>
+        </mediaobject>
+        <author>
+            <personname>
+                <firstname>Loren</firstname>
+                <surname>Cahlander</surname>
+            </personname>
+            <address>
+                <state>North Carolina</state>
+                <country>Unites States of America</country></address>
+            <email>loren.cahlander@easymetahub.com</email>
+        </author>
+    </info>
+    <section>
+        <title>Introduction</title>
+        <para>This application is a wrapper around the Stanford CoreNLP pipeline. for
+                <orgname>eXist-db</orgname> (the Open Source Native XML Database)</para>
+        <section>
+            <title>Why</title>
+            <para>Loren was between projects and at an <orgname>eXist-db</orgname> weekly conference
+                call it came to light that the previous impementations of Stanford NLP and Named
+                Entity Recognition were not compatible with version 5.0 of eXist-db.  Loren took
+                this project on while looking for the next project, so please see the contributions
+                section at the end of this article.</para>
+        </section>
+    </section>
+    <section>
+        <title>Getting Started</title>
+        <para/>
+        <section>
+            <title>Install eXist-db</title>
+            <para/>
+        </section>
+        <section>
+            <title>Installing the Application</title>
+            <para/>
+        </section>
+        <section>
+            <title>Loading the Languages</title>
+            <para>The application is installed without any of the language files OOTB.  The files
+                need to be loaded after the installation, so there is an XQuery script that will
+                load a language specific JAR file from an external webiste.  The JAR file is
+                expanded and the files are store in a relative path in the database from the data
+                collection within the application.</para>
+            <section>
+                <title>Properties</title>
+                <para>The properties files within the JAR file are transformed to JSON documents
+                    where the entries pointing to the data files that have been loaded into the
+                    database are transformed to the URL to that resource.</para>
+                <section>
+                    <title>Defaults</title>
+                    <para>The pipeline uses default properties that assume that the english jar file
+                        is loaded in the classpath.  Since the english jar is loaded into the
+                        database it is important to have a defaults JSON document that points to the
+                        english files in the database.</para>
+                </section>
+            </section>
+        </section>
+    </section>
+    <section>
+        <title>User Interface</title>
+        <para/>
+        <section>
+            <title>Named Entity Recognition</title>
+            <para>This user interface allows the user to enter text in the textbox, select the
+                language and then after it is submitted the resulting NER has a color coded view of
+                the text that identities the named entities.</para>
+        </section>
+        <section>
+            <title>NLP</title>
+            <para/>
+        </section>
+    </section>
+    <section>
+        <title>API</title>
+        <para/>
+        <section>
+            <title>RESTful API</title>
+            <para/>
+            <section>
+                <title>Natural Language Processing</title>
+                <para/>
+            </section>
+            <section>
+                <title>Named Entity Recognition</title>
+                <para/>
+            </section>
+        </section>
+        <section>
+            <title>XQuery Function Modules</title>
+            <para/>
+            <section>
+                <title>Natural Language Processing</title>
+                <para/>
+                <programlisting language="xquery">xquery version "3.1";
+
+import module namespace nlp="http://exist-db.org/xquery/stanford-nlp";
+
+let $text := "The fate of Lehman Brothers, the beleaguered investment bank, " ||
+             "hung in the balance on Sunday as Federal Reserve officials and " ||
+             "the leaders of major financial institutions continued to gather in " ||
+             "emergency meetings trying to complete a plan to rescue the stricken " ||
+             "bank.  Several possible plans emerged from the talks, held at the " ||
+             "Federal Reserve Bank of New York and led by Timothy R. Geithner, " ||
+             "the president of the New York Fed, and Treasury Secretary Henry M. Paulson Jr."
+
+let $properties := map { 
+                     "annotators" : "tokenize, ssplit, pos, lemma, ner, depparse, coref",
+                     "tokenize.language" : "en" 
+                   }
+
+return nlp:parse($text, $properties)</programlisting>
+                <para>This returns an XML document of the parsed text. </para>
+            </section>
+            <section>
+                <title>Named Entity Recognition</title>
+                <para/>
+                <programlisting>xquery version "3.1";
+
+import module namespace ner = "http://exist-db.org/xquery/stanford-nlp/ner";
+
+let $base := &lt;p>The fate of Lehman Brothers, the beleaguered investment bank, 
+                hung in the balance on Sunday as Federal Reserve officials and
+                the leaders of major financial institutions continued to gather 
+                in emergency meetings trying to complete a plan to rescue the 
+                stricken bank.  Several possible plans emerged from the talks, 
+                held at the Federal Reserve Bank of New York and led by 
+                Timothy R. Geithner, the president of the New York Fed, and 
+                Treasury Secretary Henry M. Paulson Jr.&lt;/p> 
+
+return ner:classify-node($base)</programlisting>
+                <para>With the results</para>
+                <programlisting language="xml">&lt;p>The fate of &lt;ORGANIZATION>Lehman Brothers&lt;/ORGANIZATION>, the beleaguered investment bank, 
+hung in the balance on &lt;DATE>Sunday&lt;/DATE> as &lt;ORGANIZATION>Federal Reserve&lt;/ORGANIZATION> 
+officials and the leaders of major financial institutions continued to gather in emergency 
+meetings trying to complete a plan to rescue the stricken bank.  Several possible plans 
+emerged from the talks, held at the &lt;ORGANIZATION>Federal Reserve Bank of New York&lt;/ORGANIZATION> 
+and led by &lt;PERSON>Timothy R. Geithner&lt;/PERSON>, the &lt;TITLE>president&lt;/TITLE> of the 
+&lt;ORGANIZATION>New York Fed&lt;/ORGANIZATION>, and &lt;TITLE>Treasury Secretary&lt;/TITLE> 
+&lt;PERSON>Henry M. Paulson Jr&lt;/PERSON>.&lt;/p></programlisting>
+            </section>
+        </section>
+    </section>
+    <section>
+        <title>Future Developments</title>
+        <para>Any requests for features should be submitted to <link
+                xlink:href="https://github.com/lcahlander/exist-stanford-nlp/issues"/></para>
+    </section>
+    <section>
+        <title>About the Author</title>
+        <para/>
+        <section>
+            <title>Contributions</title>
+            <para>Loren is an independent contractor, so his contributions to the Open Source
+                community are on his own time. If you appreciate his contributions to the NoSQL and
+                the Natural Language Processing communities, then please either contract him for a
+                project or submit a contribution to his company PayPal at
+                    <email>loren.cahlander@easymetahub.com</email>.</para>
+        </section>
+    </section>
+</article>
