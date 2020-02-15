@@ -25,6 +25,8 @@ Getting Started
 Install eXist-db
 ----------------
 
+Go to <http://exist-db.org> and download version 5.2 or later.
+
 Installing the Application
 --------------------------
 
@@ -83,23 +85,309 @@ xquery version "3.1";
 
 import module namespace nlp="http://exist-db.org/xquery/stanford-nlp";
 
-let $text := "The fate of Lehman Brothers, the beleaguered investment bank, " ||
-             "hung in the balance on Sunday as Federal Reserve officials and " ||
-             "the leaders of major financial institutions continued to gather in " ||
-             "emergency meetings trying to complete a plan to rescue the stricken " ||
-             "bank.  Several possible plans emerged from the talks, held at the " ||
-             "Federal Reserve Bank of New York and led by Timothy R. Geithner, " ||
-             "the president of the New York Fed, and Treasury Secretary Henry M. Paulson Jr."
+let $properties := json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-german.json")
 
-let $properties := map { 
-                     "annotators" : "tokenize, ssplit, pos, lemma, ner, depparse, coref",
-                     "tokenize.language" : "en" 
-                   }
-
+let $text := "Juliana kommt aus Paris. Das ist die Hauptstadt von Frankreich. " ||
+             "In diesem Sommer macht sie einen Sprachkurs in Freiburg. Das ist " ||
+              "eine Universitätsstadt im Süden von Deutschland."
+   
 return nlp:parse($text, $properties)
 ```
 
+The properties JSON document for Chinese is:
+
+```json
+    {
+        "ner.applyNumericClassifiers": "false",
+        "depparse.language": "german",
+        "ner.useSUTime": "false",
+        "ner.applyFineGrained": "false",
+        "tokenize.language": "de",
+        "parse.model": "http://localhost:8080/exist/apps/stanford-nlp/data/edu/stanford/nlp/models/lexparser/germanFactored.ser.gz",
+        "pos.model": "http://localhost:8080/exist/apps/stanford-nlp/data/edu/stanford/nlp/models/pos-tagger/german/german-hgc.tagger",
+        "ner.model": "http://localhost:8080/exist/apps/stanford-nlp/data/edu/stanford/nlp/models/ner/german.conll.germeval2014.hgc_175m_600.crf.ser.gz",
+        "annotators": [
+            "tokenize",
+            "ssplit",
+            "pos",
+            "ner",
+            "parse"
+        ],
+        "depparse.model": "http://localhost:8080/exist/apps/stanford-nlp/data/edu/stanford/nlp/models/parser/nndep/UD_German.gz"
+    }
+```
+
 This returns an XML document of the parsed text.
+
+```xml
+    <StanfordNLP>
+        <sentences>
+            <sentence id="1">
+                <tokens>
+                    <token id="1">
+                        <word>Juliana</word>
+                        <CharacterOffsetBegin>0</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>7</CharacterOffsetEnd>
+                        <POS>NE</POS>
+                        <NER>PERSON</NER>
+                    </token>
+                    <token id="2">
+                        <word>kommt</word>
+                        <CharacterOffsetBegin>8</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>13</CharacterOffsetEnd>
+                        <POS>VVFIN</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="3">
+                        <word>aus</word>
+                        <CharacterOffsetBegin>14</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>17</CharacterOffsetEnd>
+                        <POS>APPR</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="4">
+                        <word>Paris</word>
+                        <CharacterOffsetBegin>18</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>23</CharacterOffsetEnd>
+                        <POS>NE</POS>
+                        <NER>LOCATION</NER>
+                    </token>
+                    <token id="5">
+                        <word>.</word>
+                        <CharacterOffsetBegin>23</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>24</CharacterOffsetEnd>
+                        <POS>$.</POS>
+                        <NER>O</NER>
+                    </token>
+                </tokens>
+                <parse>(ROOT
+      (S (NE Juliana) (VVFIN kommt)
+        (PP (APPR aus) (NE Paris))
+        ($. .)))
+
+    </parse>
+            </sentence>
+            <sentence id="2">
+                <tokens>
+                    <token id="1">
+                        <word>Das</word>
+                        <CharacterOffsetBegin>25</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>28</CharacterOffsetEnd>
+                        <POS>PDS</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="2">
+                        <word>ist</word>
+                        <CharacterOffsetBegin>29</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>32</CharacterOffsetEnd>
+                        <POS>VAFIN</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="3">
+                        <word>die</word>
+                        <CharacterOffsetBegin>33</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>36</CharacterOffsetEnd>
+                        <POS>ART</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="4">
+                        <word>Hauptstadt</word>
+                        <CharacterOffsetBegin>37</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>47</CharacterOffsetEnd>
+                        <POS>NN</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="5">
+                        <word>von</word>
+                        <CharacterOffsetBegin>48</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>51</CharacterOffsetEnd>
+                        <POS>APPR</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="6">
+                        <word>Frankreich</word>
+                        <CharacterOffsetBegin>52</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>62</CharacterOffsetEnd>
+                        <POS>NE</POS>
+                        <NER>LOCATION</NER>
+                    </token>
+                    <token id="7">
+                        <word>.</word>
+                        <CharacterOffsetBegin>62</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>63</CharacterOffsetEnd>
+                        <POS>$.</POS>
+                        <NER>O</NER>
+                    </token>
+                </tokens>
+                <parse>(ROOT
+      (S (PDS Das) (VAFIN ist)
+        (NP (ART die) (NN Hauptstadt)
+          (PP (APPR von) (NE Frankreich)))
+        ($. .)))
+
+    </parse>
+            </sentence>
+            <sentence id="3">
+                <tokens>
+                    <token id="1">
+                        <word>In</word>
+                        <CharacterOffsetBegin>64</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>66</CharacterOffsetEnd>
+                        <POS>APPR</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="2">
+                        <word>diesem</word>
+                        <CharacterOffsetBegin>67</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>73</CharacterOffsetEnd>
+                        <POS>PDAT</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="3">
+                        <word>Sommer</word>
+                        <CharacterOffsetBegin>74</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>80</CharacterOffsetEnd>
+                        <POS>NN</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="4">
+                        <word>macht</word>
+                        <CharacterOffsetBegin>81</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>86</CharacterOffsetEnd>
+                        <POS>VVFIN</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="5">
+                        <word>sie</word>
+                        <CharacterOffsetBegin>87</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>90</CharacterOffsetEnd>
+                        <POS>PPER</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="6">
+                        <word>einen</word>
+                        <CharacterOffsetBegin>91</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>96</CharacterOffsetEnd>
+                        <POS>ART</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="7">
+                        <word>Sprachkurs</word>
+                        <CharacterOffsetBegin>97</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>107</CharacterOffsetEnd>
+                        <POS>NN</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="8">
+                        <word>in</word>
+                        <CharacterOffsetBegin>108</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>110</CharacterOffsetEnd>
+                        <POS>APPR</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="9">
+                        <word>Freiburg</word>
+                        <CharacterOffsetBegin>111</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>119</CharacterOffsetEnd>
+                        <POS>NE</POS>
+                        <NER>LOCATION</NER>
+                    </token>
+                    <token id="10">
+                        <word>.</word>
+                        <CharacterOffsetBegin>119</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>120</CharacterOffsetEnd>
+                        <POS>$.</POS>
+                        <NER>O</NER>
+                    </token>
+                </tokens>
+                <parse>(ROOT
+      (S
+        (PP (APPR In) (PDAT diesem) (NN Sommer))
+        (VVFIN macht) (PPER sie)
+        (NP (ART einen) (NN Sprachkurs)
+          (PP (APPR in) (NE Freiburg)))
+        ($. .)))
+
+    </parse>
+            </sentence>
+            <sentence id="4">
+                <tokens>
+                    <token id="1">
+                        <word>Das</word>
+                        <CharacterOffsetBegin>121</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>124</CharacterOffsetEnd>
+                        <POS>PDS</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="2">
+                        <word>ist</word>
+                        <CharacterOffsetBegin>125</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>128</CharacterOffsetEnd>
+                        <POS>VAFIN</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="3">
+                        <word>eine</word>
+                        <CharacterOffsetBegin>129</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>133</CharacterOffsetEnd>
+                        <POS>ART</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="4">
+                        <word>Universitätsstadt</word>
+                        <CharacterOffsetBegin>134</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>151</CharacterOffsetEnd>
+                        <POS>NN</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="5">
+                        <word>im</word>
+                        <CharacterOffsetBegin>152</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>154</CharacterOffsetEnd>
+                        <POS>APPRART</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="6">
+                        <word>Süden</word>
+                        <CharacterOffsetBegin>155</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>160</CharacterOffsetEnd>
+                        <POS>NN</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="7">
+                        <word>von</word>
+                        <CharacterOffsetBegin>161</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>164</CharacterOffsetEnd>
+                        <POS>APPR</POS>
+                        <NER>O</NER>
+                    </token>
+                    <token id="8">
+                        <word>Deutschland</word>
+                        <CharacterOffsetBegin>165</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>176</CharacterOffsetEnd>
+                        <POS>NE</POS>
+                        <NER>LOCATION</NER>
+                    </token>
+                    <token id="9">
+                        <word>.</word>
+                        <CharacterOffsetBegin>176</CharacterOffsetBegin>
+                        <CharacterOffsetEnd>177</CharacterOffsetEnd>
+                        <POS>$.</POS>
+                        <NER>O</NER>
+                    </token>
+                </tokens>
+                <parse>(ROOT
+      (S (PDS Das) (VAFIN ist)
+        (NP (ART eine) (NN Universitätsstadt)
+          (PP (APPRART im) (NN Süden)
+            (PP (APPR von) (NE Deutschland))))
+        ($. .)))
+
+    </parse>
+            </sentence>
+        </sentences>
+    </StanfordNLP>
+```
 
 ### Named Entity Recognition
 
@@ -108,29 +396,21 @@ This returns an XML document of the parsed text.
 
     import module namespace ner = "http://exist-db.org/xquery/stanford-nlp/ner";
 
-    let $base := <p>The fate of Lehman Brothers, the beleaguered investment bank, 
-                    hung in the balance on Sunday as Federal Reserve officials and
-                    the leaders of major financial institutions continued to gather 
-                    in emergency meetings trying to complete a plan to rescue the 
-                    stricken bank.  Several possible plans emerged from the talks, 
-                    held at the Federal Reserve Bank of New York and led by 
-                    Timothy R. Geithner, the president of the New York Fed, and 
-                    Treasury Secretary Henry M. Paulson Jr.</p> 
-
-    return ner:classify-node($base)
+    let $text := "Juliana kommt aus Paris. Das ist die Hauptstadt von Frankreich. " ||
+                 "In diesem Sommer macht sie einen Sprachkurs in Freiburg. Das ist " ||
+                  "eine Universitätsstadt im Süden von Deutschland."
+       
+    return ner:query-text($text, "de")
 ```
 
 With the results
 
-``` xml
-<p>The fate of <ORGANIZATION>Lehman Brothers</ORGANIZATION>, the beleaguered investment bank, 
-hung in the balance on <DATE>Sunday</DATE> as <ORGANIZATION>Federal Reserve</ORGANIZATION> 
-officials and the leaders of major financial institutions continued to gather in emergency 
-meetings trying to complete a plan to rescue the stricken bank.  Several possible plans 
-emerged from the talks, held at the <ORGANIZATION>Federal Reserve Bank of New York</ORGANIZATION> 
-and led by <PERSON>Timothy R. Geithner</PERSON>, the <TITLE>president</TITLE> of the 
-<ORGANIZATION>New York Fed</ORGANIZATION>, and <TITLE>Treasury Secretary</TITLE> 
-<PERSON>Henry M. Paulson Jr</PERSON>.</p>
+```xml
+<ner>
+    <PERSON>Juliana</PERSON> kommt aus <LOCATION>Paris</LOCATION>. 
+Das ist die Hauptstadt von <LOCATION>Frankreich</LOCATION>. 
+In diesem Sommer macht sie einen Sprachkurs in <LOCATION>Freiburg</LOCATION>. 
+Das ist eine Universitätsstadt im Süden von <LOCATION>Deutschland</LOCATION>.</ner>
 ```
 
 Future Developments
