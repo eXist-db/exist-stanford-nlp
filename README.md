@@ -94,7 +94,7 @@ let $text := "Juliana kommt aus Paris. Das ist die Hauptstadt von Frankreich. " 
 return nlp:parse($text, $properties)
 ```
 
-The properties JSON document for Chinese is:
+The properties JSON document for German is:
 
 ```json
     {
@@ -390,6 +390,9 @@ This returns an XML document of the parsed text.
 ```
 
 ### Named Entity Recognition
+
+There is an XQuery library module that takes the output of the NLP
+pipeline and surrounds the named entities with the appropriate tags.
 
 ```xquery
     xquery version "3.1";

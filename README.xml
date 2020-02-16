@@ -114,7 +114,7 @@ let $text := "Juliana kommt aus Paris. Das ist die Hauptstadt von Frankreich. " 
               "eine Universitätsstadt im Süden von Deutschland."
    
 return nlp:parse($text, $properties)</programlisting>
-                <para>The properties JSON document for Chinese is:</para>
+                <para>The properties JSON document for German is:</para>
                 <programlisting>{
     "ner.applyNumericClassifiers": "false",
     "depparse.language": "german",
@@ -404,7 +404,8 @@ return nlp:parse($text, $properties)</programlisting>
             </section>
             <section>
                 <title>Named Entity Recognition</title>
-                <para/>
+                <para>There is an XQuery library module that takes the output of the NLP pipeline
+                    and surrounds the named entities with the appropriate tags.</para>
                 <programlisting>xquery version "3.1";
 
 import module namespace ner = "http://exist-db.org/xquery/stanford-nlp/ner";
