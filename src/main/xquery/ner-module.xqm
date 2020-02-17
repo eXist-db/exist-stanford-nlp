@@ -11,39 +11,114 @@ import module namespace functx = "http://www.functx.com";
 
 import module namespace rest = "http://exquery.org/ns/restxq";
 
-declare
-function ner:classify-document($request-body as document-node(element())) {
-    let $annotators := fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
-    return ner:dispatch($request-body/node(), $annotators)
+(:~
+ : Generates the snippe match string to show the highlighted text for the client.
+ :
+ : @param $match The match text for a snippet that contains highlighted text
+ : @return A string with highlight spans encoded within the string
+ :)
+declare function ner:stringify($match as node()) as xs:string {
+    fn:string-join(
+        for $text-or-highlight in $match/node()
+        return
+        if ($text-or-highlight instance of element()) 
+        then
+            fn:concat('<span class="',
+                      fn:lower-case($text-or-highlight/local-name()),
+                      '">', 
+                      $text-or-highlight/text(), 
+                      '</span>')
+        else
+            $text-or-highlight
+    )
 };
 
+
+(:~
+ :)
 declare
-function ner:classify-node($node as node()) {
-    let $annotators := fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
-    return ner:dispatch($node, $annotators)
+function ner:classify-document($request-body as document-node(element())) as node() {
+    ner:classify-document($request-body, "en")
 };
 
+(:~
+ :)
+declare
+function ner:classify-document($request-body as document-node(element()), $language as xs:string) as node() {
+    ner:dispatch($request-body/node(), ner:properties-from-language($language))
+};
+
+(:~
+ :)
+declare
+function ner:classify-node($node as node()) as node() {
+    ner:classify-node($node, "en")
+};
+
+(:~
+ :)
+declare
+function ner:classify-node($node as node(), $language as xs:string) as node() {
+    ner:dispatch($node, ner:properties-from-language($language))
+};
+
+(:~
+ :)
+declare 
+function ner:properties-from-language($language as xs:string) as map(*) {
+    try {
+        switch ($language)
+            case "en" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
+            case "ar" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-arabic.json")
+            case "es" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-spanish.json")
+            case "fr" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-french.json")
+            case "zh" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-chinese.json")
+            case "de" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-german.json")
+            default return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
+    } catch * {
+        fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
+    }
+};
+
+(:~
+ :)
+declare
+    %rest:GET
+    %rest:path("/StanfordNLP/NER")
+    %rest:query-param("text", "{$text}")
+    %rest:query-param("lang", "{$language}", "en")
+    %rest:produces("application/xml")
+function ner:query-text-as-xml($text as xs:string*, $language as xs:string*) as node() {
+    element { 'ner' } { 
+            ner:classify(
+                    util:unescape-uri($text[1], "UTF-8"), 
+                    ner:properties-from-language($language[1])
+            ) 
+    }
+};
+
+(:~
+ :)
 declare
     %rest:GET
     %rest:path("/StanfordNLP/NER")
     %rest:query-param("text", "{$text}")
     %rest:query-param("lang", "{$language}")
-function ner:query-text($text, $language) {
-    let $annotators := try {
-        switch ($language[1])
-          case "en" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
-          case "ar" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-arabic.json")
-          case "es" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-spanish.json")
-          case "fr" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-french.json")
-          case "zh" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-chinese.json")
-          case "de" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-german.json")
-          default return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
-          } catch * {
-            fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
-          }
-    return element { 'ner' } { ner:classify(util:unescape-uri($text[1], "UTF-8"), $annotators) }
+    %rest:produces("application/json")
+function ner:query-text-as-json($text as xs:string*, $language as xs:string*) as map(*) {
+    map { 
+        'text' : 
+            ner:stringify(
+                ner:classify(
+                    util:unescape-uri($text[1], "UTF-8"), 
+                    ner:properties-from-language($language[1])
+                )
+            ) 
+    }
 };
 
+(:~
+ :)
 declare function ner:sibling($token as node(), $tokens as node()*) as node() {
     if (count($tokens) = 0) then $token else
     let $next-token := $tokens[1]
@@ -60,6 +135,8 @@ declare function ner:sibling($token as node(), $tokens as node()*) as node() {
     else $token
 };
 
+(:~
+ :)
 declare function ner:enrich($text as xs:string, $tokens as node()*) {
     if (fn:count($tokens) eq 0)
     then
@@ -81,6 +158,8 @@ declare function ner:enrich($text as xs:string, $tokens as node()*) {
     
 };
 
+(:~
+ :)
 declare function ner:dispatch($node as node()?, $annotators as map(*)) {
     if ($node)
     then
@@ -90,6 +169,8 @@ declare function ner:dispatch($node as node()?, $annotators as map(*)) {
         else ()
 };
 
+(:~
+ :)
 declare function ner:pass-through($node as node()?, $annotators as map(*)) {
     if ($node)
     then element { $node/name() } { 
@@ -100,6 +181,8 @@ declare function ner:pass-through($node as node()?, $annotators as map(*)) {
     else ()
 };
 
+(:~
+ :)
 declare function ner:classify($text as xs:string, $annotators as map(*)) {
 let $tokens := for $token in nlp:parse($text, $annotators)//token[fn:not(NER = "O")]
                 let $token-start := $token/CharacterOffsetBegin/number()

@@ -13,11 +13,21 @@
 
     <groupId>org.exist-db</groupId>
     <artifactId>stanford-nlp</artifactId>
-    <version>0.5.8</version>
+    <version>0.5.9</version>
 
     <name>Stanford Natural Language Processing</name>
-    <description>Stanford Natural Language Processing</description>
-    <url>https://exist-db.org/exist-db/nlp</url>
+    <description>Integrates the Stanford CoreNLP annotation pipeline library into eXist-db.</description>
+    <url>https://github.com/lcahlander/exist-stanford-nlp</url>
+
+    <contributors>
+        <contributor>
+            <name>Loren Cahlander</name>
+            <email>loren.cahlander@gmail.com</email>
+            <roles>
+                <role>Creator</role>
+            </roles>
+        </contributor>
+    </contributors>
 
     <organization>
         <name>eXist-db</name>

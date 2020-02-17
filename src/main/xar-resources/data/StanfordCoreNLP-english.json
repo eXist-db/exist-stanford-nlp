@@ -2,7 +2,9 @@
     "annotators": [
         "tokenize",
         "ssplit",
-        "pos"
+        "pos",
+        "lemma",
+        "ner"
     ],
     "tokenize.language": "en",
     "pos.model": "http://localhost:8080/exist/apps/stanford-nlp/data/edu/stanford/nlp/models/pos-tagger/english-left3words/english-left3words-distsim.tagger",
@@ -20,7 +22,7 @@
     "ner.fine.regexner.mapping": [
         "ignorecase=true",
         "validpospattern=^(NN|JJ).*",
-        "http://localhost:8080/exist/apps/stanford-nlp/data/edu/stanford/nlp/models/kbp/regexner_caseless.tab;http://localhost:8080/exist/apps/stanford-nlp/data/edu/stanford/nlp/models/kbp/regexner_cased.tab"
+        "http://localhost:8080/exist/apps/stanford-nlp/data/edu/stanford/nlp/models/kbp/english/gazetteers/regexner_caseless.tab;http://localhost:8080/exist/apps/stanford-nlp/data/edu/stanford/nlp/models/kbp/english/gazetteers/regexner_cased.tab"
     ],
     "ner.fine.regexner.noDefaultOverwriteLabels": "CITY",
     "depparse.model": "http://localhost:8080/exist/apps/stanford-nlp/data/edu/stanford/nlp/models/parser/nndep/english_UD.gz",
