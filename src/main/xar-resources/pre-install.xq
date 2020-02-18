@@ -22,6 +22,11 @@ declare variable $dir external;
 (: the target collection into which the app is deployed :)
 declare variable $target external;
 
+(:check available memory:)
+declare variable $mem-max := system:get-memory-max();
+(: minimum memory requirements :)
+declare variable $mem-req := 4000000000;
+
 
 declare function local:mkcol-recursive($collection, $components) {
     if (exists($components)) then
@@ -39,6 +44,21 @@ declare function local:mkcol($collection, $path) {
     local:mkcol-recursive($collection, tokenize($path, "/"))
 };
 
-(: store the collection configuration :)
-local:mkcol("/db/system/config", $target),
-xmldb:store-files-from-pattern(concat("/system/config", $target), $dir, "collection.xconf")
+(: Helper function to check the instance's memory. :)
+declare function local:check-mem-size($memory as xs:integer) as xs:boolean {
+    if ($memory > $mem-req)
+    then
+        (fn:true())
+    else
+        (fn:error(fn:QName('https://github.com/lcahlander/exist-stanford-nlp', 'err:memory-low'), 'The  memory is too low'))
+};
+
+
+if (local:check-mem-size($mem-max))
+then
+    (
+    (: store the collection configuration :)
+	local:mkcol("/db/system/config", $target),
+	xmldb:store-files-from-pattern(concat("/system/config", $target), $dir, "collection.xconf"))
+else
+    (fn:error(fn:QName('https://github.com/lcahlander/exist-stanford-nlp', 'err:pre-crash'), 'An unknown error occured during pre-install'))
