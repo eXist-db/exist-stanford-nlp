@@ -12,7 +12,7 @@ import module namespace functx = "http://www.functx.com";
 import module namespace rest = "http://exquery.org/ns/restxq";
 
 (:~
- : Generates the snippe match string to show the highlighted text for the client.
+ : Generates the snippet match string to show the highlighted text for the client.
  :
  : @param $match The match text for a snippet that contains highlighted text
  : @return A string with highlight spans encoded within the string
@@ -35,6 +35,10 @@ declare function ner:stringify($match as node()) as xs:string {
 
 
 (:~
+ : This method runs the ner:clasify($text, $properties) on the leaf nodes of the 
+ : document for the defaults for the English language.  The english defaults are
+ : in the file /db/apps/stanford-nlp/data/StanfordCoreNLP-english.json
+ : @param $request-body The document to process.
  :)
 declare
 function ner:classify-document($request-body as document-node(element())) as node() {
@@ -42,6 +46,11 @@ function ner:classify-document($request-body as document-node(element())) as nod
 };
 
 (:~
+ : This method runs the ner:clasify($text, $properties) on the leaf nodes of the 
+ : document for the language specified.
+ : @param $request-body The document to process.
+ : @param $language The two character string to identify the language to process.
+ : @see ner:properties-from-language()
  :)
 declare
 function ner:classify-document($request-body as document-node(element()), $language as xs:string) as node() {
@@ -49,6 +58,10 @@ function ner:classify-document($request-body as document-node(element()), $langu
 };
 
 (:~
+ : This method runs the ner:clasify($text, $properties) on the leaf nodes of the 
+ : XML identitied by $node for the defaults for the English language.  The english defaults are
+ : in the file /db/apps/stanford-nlp/data/StanfordCoreNLP-english.json
+ : @param $node The node to process.
  :)
 declare
 function ner:classify-node($node as node()) as node() {
@@ -56,6 +69,11 @@ function ner:classify-node($node as node()) as node() {
 };
 
 (:~
+ : This method runs the ner:clasify($text, $properties) on the leaf nodes of the 
+ : node for the language specified.
+ : @param $node The node to process.
+ : @param $language The two character string to identify the language to process.
+ : @see ner:properties-from-language()
  :)
 declare
 function ner:classify-node($node as node(), $language as xs:string) as node() {
@@ -63,6 +81,15 @@ function ner:classify-node($node as node(), $language as xs:string) as node() {
 };
 
 (:~
+ : Loads the JSON document language default file for the identified language &lt;br&gt;
+ :  en => /db/apps/stanford-nlp/data/StanfordCoreNLP-english.json &lt;br&gt;
+ :  ar => /db/apps/stanford-nlp/data/StanfordCoreNLP-arabic.json &lt;br&gt;
+ :  es => /db/apps/stanford-nlp/data/StanfordCoreNLP-spanish.json &lt;br&gt;
+ :  fr => /db/apps/stanford-nlp/data/StanfordCoreNLP-french.json &lt;br&gt;
+ :  zh => /db/apps/stanford-nlp/data/StanfordCoreNLP-chinese.json &lt;br&gt;
+ :  de => /db/apps/stanford-nlp/data/StanfordCoreNLP-german.json &lt;br&gt;
+ : Any other value loads the english defaults.
+ : @param $language The two character string to identify the language for the default JSON document.
  :)
 declare 
 function ner:properties-from-language($language as xs:string) as map(*) {
@@ -81,6 +108,11 @@ function ner:properties-from-language($language as xs:string) as map(*) {
 };
 
 (:~
+ : This method runs the ner:clasify($text, $properties) on the text passed in for the language specified.
+ : @param $text The text to process.
+ : @param $language The two character string to identify the language to process.
+ : @see ner:properties-from-language()
+ : @return An XML node
  :)
 declare
     %rest:GET
@@ -98,12 +130,17 @@ function ner:query-text-as-xml($text as xs:string*, $language as xs:string*) as 
 };
 
 (:~
+ : This method runs the ner:clasify($text, $properties) on the text passed in for the language specified.
+ : @param $text The text to process.
+ : @param $language The two character string to identify the language to process.
+ : @see ner:properties-from-language()
+ : @return A map
  :)
 declare
     %rest:GET
     %rest:path("/StanfordNLP/NER")
     %rest:query-param("text", "{$text}")
-    %rest:query-param("lang", "{$language}")
+    %rest:query-param("lang", "{$language}", "en")
     %rest:produces("application/json")
 function ner:query-text-as-json($text as xs:string*, $language as xs:string*) as map(*) {
     map { 
@@ -159,32 +196,37 @@ declare function ner:enrich($text as xs:string, $tokens as node()*) {
 };
 
 (:~
+ : This method runs the ner:clasify($text, $properties) on the leaf nodes of the 
+ : node for the properties of the language.
+ : @param $node The node to process.
+ : @param $properties The map of the values for proceessing the pipeline.
+ : @see ner:properties-from-language()
  :)
-declare function ner:dispatch($node as node()?, $annotators as map(*)) {
+declare function ner:dispatch($node as node()?, $properties as map(*)) {
     if ($node)
     then
         if (functx:has-simple-content($node))
-        then element { $node/name() } { $node/@*, ner:classify($node/text(), $annotators) }
-        else ner:pass-through($node, $annotators)
+        then element { $node/name() } { $node/@*, ner:classify($node/text(), $properties) }
+        else ner:pass-through($node, $properties)
         else ()
 };
 
 (:~
  :)
-declare function ner:pass-through($node as node()?, $annotators as map(*)) {
+declare function ner:pass-through($node as node()?, $properties as map(*)) {
     if ($node)
     then element { $node/name() } { 
         $node/@*,  
         for $cnode in $node/* 
-        return ner:dispatch($cnode, $annotators)
+        return ner:dispatch($cnode, $properties)
     }
     else ()
 };
 
 (:~
  :)
-declare function ner:classify($text as xs:string, $annotators as map(*)) {
-let $tokens := for $token in nlp:parse($text, $annotators)//token[fn:not(NER = "O")]
+declare function ner:classify($text as xs:string, $properties as map(*)) {
+let $tokens := for $token in nlp:parse($text, $properties)//token[fn:not(NER = "O")]
                 let $token-start := $token/CharacterOffsetBegin/number()
                 order by $token-start descending
             return $token
