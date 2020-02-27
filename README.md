@@ -14,10 +14,29 @@ Why
 ---
 
 Loren was between projects and at an eXist-db weekly conference call it
-came to light that the previous impementations of Stanford NLP and Named
+came to light that the previous implementations of Stanford NLP and Named
 Entity Recognition were not compatible with version 5.0 of eXist-db.
 Loren took this project on while looking for the next project, so please
 see the contributions section at the end of this article.
+
+Requirements
+============
+-   eXist-db: `5.0.0`
+
+For building from source
+---
+-   maven: `3.6.0`
+-   java: `8`
+-   node: `8`
+-   polymer-cli: `1.9.11`
+
+Building from source
+---
+
+Run `mvn clean package` to generate a `.xar` file inside the `target/` directory.
+Then follow the installation instructions below. 
+
+
 
 Getting Started
 ===============
@@ -106,7 +125,7 @@ let $properties := json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-german.j
 let $text := "Juliana kommt aus Paris. Das ist die Hauptstadt von Frankreich. " ||
              "In diesem Sommer macht sie einen Sprachkurs in Freiburg. Das ist " ||
               "eine Universitätsstadt im Süden von Deutschland."
-   
+
 return nlp:parse($text, $properties)
 ```
 
@@ -418,7 +437,7 @@ import module namespace ner = "http://exist-db.org/xquery/stanford-nlp/ner";
 let $text := "Juliana kommt aus Paris. Das ist die Hauptstadt von Frankreich. " ||
              "In diesem Sommer macht sie einen Sprachkurs in Freiburg. Das ist " ||
               "eine Universitätsstadt im Süden von Deutschland."
-   
+
 return ner:query-text($text, "de")
 ```
 
@@ -426,9 +445,9 @@ With the results
 
 ```xml
 <ner>
-    <PERSON>Juliana</PERSON> kommt aus <LOCATION>Paris</LOCATION>. 
-Das ist die Hauptstadt von <LOCATION>Frankreich</LOCATION>. 
-In diesem Sommer macht sie einen Sprachkurs in <LOCATION>Freiburg</LOCATION>. 
+    <PERSON>Juliana</PERSON> kommt aus <LOCATION>Paris</LOCATION>.
+Das ist die Hauptstadt von <LOCATION>Frankreich</LOCATION>.
+In diesem Sommer macht sie einen Sprachkurs in <LOCATION>Freiburg</LOCATION>.
 Das ist eine Universitätsstadt im Süden von <LOCATION>Deutschland</LOCATION>.</ner>
 ```
 
