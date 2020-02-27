@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/duncdrum/exist-stanford-nlp.svg?branch=master)](https://travis-ci.com/duncdrum/exist-stanford-nlp)
+
 ---
 author: 'Loren Cahlander North Carolina Unites States of America
   <loren.cahlander@easymetahub.com>'
@@ -34,7 +36,7 @@ Building from source
 ---
 
 Run `mvn clean package` to generate a `.xar` file inside the `target/` directory.
-Then follow the installation instructions below. 
+Then follow the installation instructions below.
 
 
 
