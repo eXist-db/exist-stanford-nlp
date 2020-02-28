@@ -1,7 +1,5 @@
 target/
 node/
-build/
-node_modules/
 
 *.iml
 .idea/

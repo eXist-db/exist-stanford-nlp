@@ -1,0 +1,8 @@
+images/
+index.html
+manifest.json
+node_modules/
+service-worker.js
+src/
+polymer.json
+sw-precache-config.js

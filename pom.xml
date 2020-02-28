@@ -168,12 +168,42 @@
         </excludes>
       </resource>
     </resources>
-
     <plugins>
+      <plugin>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>3.1.0</version>
+        <executions>
+          <execution>
+            <id>copy-compiled-polymer</id>
+            <!-- here the phase you need -->
+            <phase>compile</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/src/main/xar-resources</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>src/main/polymer/build/es5-bundled</directory>
+                  <filtering>false</filtering>
+                  <includes>
+                    <include>../polymer.json</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
       <plugin>
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
         <version>1.9.1</version>
+        <configuration>
+          <workingDirectory>src/main/polymer</workingDirectory>
+          <nodeVersion>${node.version}</nodeVersion>
+          <npmVersion>${npm.version}</npmVersion>
+        </configuration>
         <executions>
           <execution>
             <!-- optional: looks nicer in your build log. -->
@@ -182,14 +212,14 @@
               <goal>install-node-and-npm</goal>
             </goals>
             <!-- optional: default phase is "generate-resources" -->
-            <phase>compile</phase>
+            <phase>generate-resources</phase>
           </execution>
           <execution>
             <id>npm version bump</id>
             <goals>
               <goal>npm</goal>
             </goals>
-            <phase>compile</phase>
+            <phase>generate-resources</phase>
             <configuration>
               <arguments>version --no-git-tag-version --allow-same-version=true ${project.version}</arguments>
             </configuration>
@@ -199,7 +229,7 @@
             <goals>
               <goal>npm</goal>
             </goals>
-            <phase>compile</phase>
+            <phase>generate-resources</phase>
             <!-- Optional configuration which provides for running any npm command -->
             <configuration>
               <arguments>ci</arguments>
@@ -210,27 +240,14 @@
             <goals>
               <goal>npm</goal>
             </goals>
-            <phase>compile</phase>
+            <phase>generate-resources</phase>
             <configuration>
               <arguments>run build</arguments>
             </configuration>
           </execution>
           <!-- do not run this just yet -->
-          <!-- <execution>
-            <id>polymer tests</id>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <phase>test</phase>
-            <configuration>
-              <arguments>test</arguments>
-            </configuration>
-          </execution> -->
+          <!-- <execution> <id>polymer tests</id> <goals> <goal>npm</goal> </goals> <phase>test</phase> <configuration> <arguments>test</arguments> </configuration> </execution> -->
         </executions>
-        <configuration>
-          <nodeVersion>${node.version}</nodeVersion>
-          <npmVersion>${npm.version}</npmVersion>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
