@@ -1,121 +1,93 @@
-[![Build Status](https://travis-ci.com/duncdrum/exist-stanford-nlp.svg?branch=master)](https://travis-ci.com/duncdrum/exist-stanford-nlp)
-
 ---
 author: 'Loren Cahlander North Carolina Unites States of America
   <loren.cahlander@easymetahub.com>'
 title: 'Stanford CoreNLP Wrapper for eXist-db'
 ---
 
-Introduction
-============
+# exist-stanford-nlp
 
-This application is a wrapper around the Stanford CoreNLP pipeline. for
-eXist-db (the Open Source Native XML Database)
+[![Build Status](https://travis-ci.com/duncdrum/exist-stanford-nlp.svg?branch=master)](https://travis-ci.com/duncdrum/exist-stanford-nlp)
 
-Why
----
+## Introduction
+This application is a wrapper around the [Stanford CoreNLP](https://stanfordnlp.github.io/CoreNLP/) pipeline for
+[eXist-db](https://www.exist-db.org)
 
+### Why
 Loren was between projects and at an eXist-db weekly conference call it
 came to light that the previous implementations of Stanford NLP and Named
-Entity Recognition were not compatible with version 5.0 of eXist-db.
+Entity Recognition were not compatible with version 5.x of eXist-db.
 Loren took this project on while looking for the next project, so please
 see the contributions section at the end of this article.
 
-Requirements
-============
--   eXist-db: `5.0.0`
+## Requirements
+-   eXist-db: `5.0.0` with min `4Gb` memory
 
-For building from source
----
+### For Building from Source
 -   maven: `3.6.0`
 -   java: `8`
--   node: `8`
--   polymer-cli: `1.9.11`
+-   (node: `8`)
+-   (polymer-cli: `1.9.11`)
 
-Building from source
----
+## Building from Source
+All dependencies including node.js and polymer dependencies are managed by maven. Simply, run `mvn clean package` to generate a `.xar` file inside the `target/` directory. Then follow the installation instructions below.
 
-Run `mvn clean package` to generate a `.xar` file inside the `target/` directory.
-Then follow the installation instructions below.
+When developing web-components you can navigate to the `src/main/polymer` directory and execute polymer-cli commands.
 
+For more information see the [polymer readme](./src/main/polymer/README.md)
 
+### Testing
+To run unit tests(java, xquery, web-component) locally use: `mvn test`.
 
-Getting Started
-===============
+Support for integration tests, namely, [Web Component Tester](https://polymer-library.polymer-project.org/3.0/docs/tools/tests) is TBD.
 
-Install eXist-db
-----------------
-
-Go to <http://exist-db.org> and download version 5.2 or later.
-
-Allocate at least 4GB memory for eXist-db
-
-Installing the Application
---------------------------
-
+## Installing the Application
 1.  Open the eXist-db Dashboard
 
 2.  Login as the administrator
 
 3.  Select ***Stanford Natural Language Processing***
 
-    ![](images/installlation.png)
+    ![GUI install](images/installlation.png)
 
-Loading the Languages
----------------------
-
-The application is installed without any of the language files OOTB. The
-files need to be loaded after the installation, so there is an XQuery
+### Loading Languages
+The application is installed without language files OOTB. The
+files need to be loaded after installation. There is an XQuery
 script that will load a language specific JAR file from an external
 webiste. The JAR file is expanded and the files are store in a relative
 path in the database from the data collection within the application.
 
-Open ***/db/apps/stanford-nlp/modules/load-languages.xq*** in **eXide**
-and run as administrator
+As administrator open and run `/db/apps/stanford-nlp/modules/load-languages.xq` in **eXide**.
 
 ### Properties
-
 The properties files within the JAR file are transformed to JSON
 documents where the entries pointing to the data files that have been
 loaded into the database are transformed to the URL to that resource.
 
 #### Defaults
-
 The pipeline uses default properties that assume that the english jar
 file is loaded in the classpath. Since the english jar is loaded into
 the database it is important to have a defaults JSON document that
 points to the english files in the database.
 
 The defaults are loaded into
-***/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json***
+`/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json`
 
-User Interface
-==============
+## User Interface
 
-Named Entity Recognition
-------------------------
-
+### Named Entity Recognition
 This user interface allows the user to enter text in the textbox, select
 the language and then after it is submitted the resulting NER has a
 color coded view of the text that identities the named entities.
 
-NLP
----
+### NLP
 
-API
-===
+### RESTful API
+#### Natural Language Processing
 
-RESTful API
------------
+#### Named Entity Recognition
 
-### Natural Language Processing
-
-### Named Entity Recognition
-
-XQuery Function Modules
------------------------
-
-### Natural Language Processing
+### XQuery Function Modules
+#### Natural Language Processing
 
 ```xquery
 xquery version "3.1";
@@ -426,7 +398,7 @@ This returns an XML document of the parsed text.
 </StanfordNLP>
 ```
 
-### Named Entity Recognition
+#### Named Entity Recognition
 
 There is an XQuery library module that takes the output of the NLP
 pipeline and surrounds the named entities with the appropriate tags.
@@ -443,8 +415,7 @@ let $text := "Juliana kommt aus Paris. Das ist die Hauptstadt von Frankreich. " 
 return ner:query-text($text, "de")
 ```
 
-With the results
-
+With the results:
 ```xml
 <ner>
     <PERSON>Juliana</PERSON> kommt aus <LOCATION>Paris</LOCATION>.
@@ -453,18 +424,11 @@ In diesem Sommer macht sie einen Sprachkurs in <LOCATION>Freiburg</LOCATION>.
 Das ist eine Universitätsstadt im Süden von <LOCATION>Deutschland</LOCATION>.</ner>
 ```
 
-Future Developments
-===================
-
+### Future Developments
 Any requests for features should be submitted to
 <https://github.com/lcahlander/exist-stanford-nlp/issues>
 
-About the Author
-================
-
-Contributions
--------------
-
+### About the Author
 Loren is an independent contractor, so his contributions to the Open
 Source community are on his own time. If you appreciate his
 contributions to the NoSQL and the Natural Language Processing

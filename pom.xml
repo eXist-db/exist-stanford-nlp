@@ -64,6 +64,8 @@
     <exist.version>5.0.0</exist.version>
     <node.version>v12.16.1</node.version>
     <npm.version>6.14.1</npm.version>
+    <!-- See polymer-cli documentation -->
+    <browser.support>es5-bundled</browser.support>
 
     <!-- used in the EXPath Package Descriptor -->
     <package-name>https://exist-db.org/exist-db/nlp</package-name>
@@ -184,11 +186,8 @@
               <outputDirectory>${basedir}/src/main/xar-resources</outputDirectory>
               <resources>
                 <resource>
-                  <directory>src/main/polymer/build/es5-bundled</directory>
+                  <directory>src/main/polymer/build/${browser.support}</directory>
                   <filtering>false</filtering>
-                  <includes>
-                    <include>../polymer.json</include>
-                  </includes>
                 </resource>
               </resources>
             </configuration>
@@ -246,7 +245,7 @@
             </configuration>
           </execution>
           <!-- do not run this just yet -->
-          <!-- <execution> <id>polymer tests</id> <goals> <goal>npm</goal> </goals> <phase>test</phase> <configuration> <arguments>test</arguments> </configuration> </execution> -->
+          <!-- <execution> <id>polymer tests</id> <goals> <goal>npm</goal> </goals> <phase>integration-test</phase> <configuration> <arguments>test</arguments> </configuration> </execution> -->
         </executions>
       </plugin>
       <plugin>
