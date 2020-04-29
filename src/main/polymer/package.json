@@ -13,25 +13,25 @@
     "test:integration": "polymer build # test that psk builds without error with the CLI"
   },
   "dependencies": {
-    "@polymer/app-layout": "^3.0.0-pre.15",
-    "@polymer/app-route": "^3.0.0-pre.15",
+    "@polymer/app-layout": "^3.1.0",
+    "@polymer/app-route": "^3.0.2",
     "@polymer/iron-ajax": "^3.0.1",
-    "@polymer/iron-flex-layout": "^3.0.0-pre.15",
-    "@polymer/iron-iconset-svg": "^3.0.0-pre.15",
+    "@polymer/iron-flex-layout": "^3.0.1",
+    "@polymer/iron-iconset-svg": "^3.0.1",
     "@polymer/iron-image": "^3.0.2",
-    "@polymer/iron-media-query": "^3.0.0-pre.15",
-    "@polymer/iron-pages": "^3.0.0-pre.15",
-    "@polymer/iron-selector": "^3.0.0-pre.15",
-    "@polymer/paper-icon-button": "^3.0.0-pre.15",
+    "@polymer/iron-media-query": "^3.0.1",
+    "@polymer/iron-pages": "^3.0.1",
+    "@polymer/iron-selector": "^3.0.1",
+    "@polymer/paper-icon-button": "^3.0.2",
     "@polymer/paper-slider": "^3.0.1",
     "@polymer/paper-tabs": "^3.1.0",
-    "@polymer/polymer": "^3.0.0",
-    "@webcomponents/webcomponentsjs": "^2.0.0",
-    "jsoneditor": "^8.6.0"
+    "@polymer/polymer": "^3.4.0",
+    "@webcomponents/webcomponentsjs": "^2.4.3",
+    "jsoneditor": "^8.6.6"
   },
   "devDependencies": {
     "polymer-cli": "^1.9.11",
-    "wct-browser-legacy": "^1.0.0"
+    "wct-browser-legacy": "^1.0.2"
   },
   "engines": {
     "node": ">=8.0"
