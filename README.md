@@ -411,8 +411,8 @@ import module namespace ner = "http://exist-db.org/xquery/stanford-nlp/ner";
 let $text := "Juliana kommt aus Paris. Das ist die Hauptstadt von Frankreich. " ||
              "In diesem Sommer macht sie einen Sprachkurs in Freiburg. Das ist " ||
               "eine Universitätsstadt im Süden von Deutschland."
-
-return ner:query-text($text, "de")
+   
+return ner:query-text-as-xml($text, "de")
 ```
 
 With the results:
