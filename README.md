@@ -25,7 +25,7 @@ see the contributions section at the end of this article.
 ### For Building from Source
 -   maven: `3.6.0`
 -   java: `8`
--   (node: `8`)
+-   (node: `12`)
 -   (polymer-cli: `1.9.11`)
 
 ## Building from Source
