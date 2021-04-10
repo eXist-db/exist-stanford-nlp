@@ -69,24 +69,24 @@
         <dependencySet>
             <groupId>edu.stanford.nlp</groupId>
             <artifactId>stanford-corenlp</artifactId>
-            <version>3.9.2</version>
+            <version>${corenlp.version}</version>
         </dependencySet>
         <dependencySet>
             <groupId>edu.stanford.nlp</groupId>
             <artifactId>stanford-corenlp</artifactId>
-            <version>3.9.2</version>
+            <version>${corenlp.version}</version>
             <classifier>models</classifier>
         </dependencySet>
 <!--        <dependencySet>-->
 <!--            <groupId>edu.stanford.nlp</groupId>-->
 <!--            <artifactId>stanford-corenlp</artifactId>-->
-<!--            <version>3.9.2</version>-->
+<!--            <version>${corenlp.version}</version>-->
 <!--            <classifier>models-english</classifier>-->
 <!--        </dependencySet>-->
 <!--        <dependencySet>-->
 <!--            <groupId>edu.stanford.nlp</groupId>-->
 <!--            <artifactId>stanford-corenlp</artifactId>-->
-<!--            <version>3.9.2</version>-->
+<!--            <version>${corenlp.version}</version>-->
 <!--            <classifier>models-english-kbp</classifier>-->
 <!--        </dependencySet>-->
         <dependencySet>

@@ -8,6 +8,7 @@ import module namespace console = "http://exist-db.org/xquery/console";
 import module namespace functx = "http://www.functx.com";
 import module namespace util = "http://exist-db.org/xquery/util";
 import module namespace map = "http://www.w3.org/2005/xpath-functions/map";
+import module namespace xmldb = "http://exist-db.org/xquery/xmldb";
 
 declare function ll:mkcol-recursive($collection, $components) {
     if (exists($components)) then

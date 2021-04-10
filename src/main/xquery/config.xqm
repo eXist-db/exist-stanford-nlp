@@ -33,8 +33,11 @@ declare variable $config:repo-descriptor := doc(concat($config:app-root, "/repo.
 
 declare variable $config:expath-descriptor := doc(concat($config:app-root, "/expath-pkg.xml"))/expath:package;
 
-
 declare variable $config:data-root := concat($config:app-root, "/data");
+
+(: TODO(DP): use maven templating to construct version here :)
+declare variable $config:corenlp-version := '4.2.0';
+declare variable $config:corenlp-model-url := 'http://nlp.stanford.edu/software/stanford-corenlp-' || $config:corenlp-version ||'-models-';
 
 (:~
  : Resolve the given path using the current application context.

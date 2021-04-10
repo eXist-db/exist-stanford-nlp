@@ -12,7 +12,7 @@
 
   <groupId>org.exist-db</groupId>
   <artifactId>stanford-nlp</artifactId>
-  <version>0.6.0-SNAPSHOT</version>
+  <version>0.7.0-SNAPSHOT</version>
 
   <name>Stanford Natural Language Processing</name>
   <description>Integrates the Stanford CoreNLP annotation pipeline library into eXist-db.</description>
@@ -64,7 +64,7 @@
     <exist.version>5.0.0</exist.version>
     <node.version>v12.22.1</node.version>
     <npm.version>7.9.0</npm.version>
-    <corenlp.version>3.9.2</corenlp.version>
+    <corenlp.version>4.2.0</corenlp.version>
     <!-- See polymer-cli documentation -->
     <browser.support>es5-bundled</browser.support>
 
