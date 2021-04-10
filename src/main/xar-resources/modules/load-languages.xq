@@ -14,4 +14,6 @@ let $paths := (
             ()
         )
 
-return for $path in $paths return ll:process($path)
+for $path in $paths 
+return 
+  ll:process($path)

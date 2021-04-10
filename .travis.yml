@@ -13,8 +13,9 @@ services:
   - docker
 
 env:
-  - img=existdb/existdb:latest
-  - img=existdb/existdb:release
+  # - img=existdb/existdb:latest
+  - img=existdb/existdb:5.2.0
+  - img=existdb/existdb:5.0.0
 
 cache:
   directories:
@@ -34,8 +35,8 @@ before_script:
   - sleep 30
 
 script:
-  - mvn test
-  # - npm run cypress -- --record
+  - mvn verify
+  # - cd src/main/polymer && polymer test
 
 after_success:
   - docker ps
