@@ -1,16 +1,17 @@
 xquery version "3.1";
 
 import module namespace ll = "http://exist-db.org/xquery/stanford-nlp/load-language" at "load-language.xqm";
+import module namespace config = "http://exist-db.org/apps/stanford-nlp/config";
 
 
 let $paths := (
-            "http://nlp.stanford.edu/software/stanford-english-corenlp-2018-10-05-models.jar",
-            "http://nlp.stanford.edu/software/stanford-english-kbp-corenlp-2018-10-05-models.jar",
-            "http://nlp.stanford.edu/software/stanford-arabic-corenlp-2018-10-05-models.jar",
-            "http://nlp.stanford.edu/software/stanford-chinese-corenlp-2018-10-05-models.jar",
-            "http://nlp.stanford.edu/software/stanford-french-corenlp-2018-10-05-models.jar",
-            "http://nlp.stanford.edu/software/stanford-german-corenlp-2018-10-05-models.jar",
-            "http://nlp.stanford.edu/software/stanford-spanish-corenlp-2018-10-05-models.jar",
+            $config:corenlp-model-url || "arabic.jar",
+            $config:corenlp-model-url || "chinese.jar",
+            $config:corenlp-model-url || "english.jar",
+            $config:corenlp-model-url || "english-kbp.jar",
+            $config:corenlp-model-url || "french.jar",
+            $config:corenlp-model-url || "german.jar",
+            $config:corenlp-model-url || "spanish.jar",
             ()
         )
 
