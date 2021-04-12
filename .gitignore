@@ -87,3 +87,4 @@ nb-configuration.xml
 ## Misc
 ##############################
 node/
+node_modules/
