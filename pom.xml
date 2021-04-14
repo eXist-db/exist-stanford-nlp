@@ -76,6 +76,27 @@
   </properties>
 
   <dependencies>
+  <dependency>
+    <groupId>com.googlecode.efficient-java-matrix-library</groupId>
+    <artifactId>ejml</artifactId>
+    <version>0.23</version>
+</dependency>
+
+  <dependency>
+    <groupId>joda-time</groupId>
+    <artifactId>joda-time</artifactId>
+    <version>2.9.4</version>
+</dependency>
+  <dependency>
+  <groupId>com.io7m.xom</groupId>
+  <artifactId>xom</artifactId>
+  <version>1.2.10</version>
+</dependency>
+<dependency>
+    <groupId>com.google.protobuf</groupId>
+    <artifactId>protobuf-java</artifactId>
+    <version>3.2.0</version>
+</dependency>
     <dependency>
       <groupId>org.exist-db</groupId>
       <artifactId>exist-core</artifactId>
