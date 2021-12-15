@@ -20,16 +20,15 @@ package org.exist.xquery.nlp;
 
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
+import io.lacuna.bifurcan.IEntry;
 import org.exist.dom.QName;
 import org.exist.dom.memtree.MemTreeBuilder;
 import org.exist.xquery.*;
 import org.exist.xquery.functions.array.ArrayType;
-import org.exist.xquery.functions.map.MapType;
+import org.exist.xquery.functions.map.AbstractMapType;
 import org.exist.xquery.value.*;
 
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
@@ -80,12 +79,12 @@ public class StanfordNLPFunction extends BasicFunction {
         final Properties properties;
         properties = new Properties();
         if (getArgumentCount() == 2 && !args[1].isEmpty()) {
-            MapType entries = (MapType) args[1].itemAt(0);
-            Iterator<Map.Entry<AtomicValue, Sequence>> iterator = entries.iterator();
+            AbstractMapType entries = (AbstractMapType) args[1].itemAt(0);
+            Iterator<IEntry<AtomicValue, Sequence>> iterator = entries.iterator();
             while (iterator.hasNext()) {
-                Map.Entry<AtomicValue, Sequence> entry = iterator.next();
-                String key = String.valueOf(entry.getKey());
-                final Sequence entryValue = entry.getValue();
+                IEntry<AtomicValue, Sequence> entry = iterator.next();
+                String key = String.valueOf(entry.key());
+                final Sequence entryValue = entry.value();
                 final Item item = entryValue.itemAt(0);
 
                 StringBuffer buff = new StringBuffer();

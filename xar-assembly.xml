@@ -37,6 +37,9 @@
         <fileSet>
             <directory>${basedir}/src/main/xar-resources</directory>
         </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/main/js/frontend/build</directory>
+        </fileSet>
     </fileSets>
 
     <!-- include the XQuery Library modules written in XQuery from this project -->

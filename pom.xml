@@ -1,19 +1,20 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
     <groupId>org.exist-db</groupId>
     <artifactId>exist-apps-parent</artifactId>
-    <version>1.10.0</version>
+    <version>1.11.0</version>
     <relativePath/>
   </parent>
 
   <groupId>org.exist-db</groupId>
   <artifactId>stanford-nlp</artifactId>
-  <version>0.7.0-SNAPSHOT</version>
+  <version>0.8.0</version>
 
   <name>Stanford Natural Language Processing</name>
   <description>Integrates the Stanford CoreNLP annotation pipeline library into eXist-db.</description>
@@ -62,10 +63,10 @@
     <project.build.source>1.8</project.build.source>
     <project.build.target>1.8</project.build.target>
 
-    <exist.version>5.0.0</exist.version>
-    <node.version>v12.22.1</node.version>
-    <npm.version>7.9.0</npm.version>
-    <corenlp.version>4.2.0</corenlp.version>
+    <exist.version>5.3.0</exist.version>
+    <node.version>v17.2.0</node.version>
+    <npm.version>8.1.4</npm.version>
+    <corenlp.version>4.3.2</corenlp.version>
     <!-- See polymer-cli documentation -->
     <browser.support>es5-bundled</browser.support>
 
@@ -197,40 +198,43 @@
     </resources>
     <plugins>
       <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>3.2.0</version>
-        <executions>
-          <execution>
-            <id>copy-compiled-polymer</id>
-            <!-- here the phase you need -->
-            <phase>compile</phase>
-            <goals>
-              <goal>copy-resources</goal>
-            </goals>
-            <configuration>
-              <outputDirectory>${basedir}/src/main/xar-resources</outputDirectory>
-              <resources>
-                <resource>
-                  <directory>src/main/polymer/build/${browser.support}</directory>
-                  <filtering>false</filtering>
-                </resource>
-              </resources>
-            </configuration>
-          </execution>
-        </executions>
+        <artifactId>maven-clean-plugin</artifactId>
+        <version>2.4.1</version>
+        <configuration>
+          <filesets>
+            <fileset>
+              <directory>src/main/js/frontend/build</directory>
+            </fileset>
+          </filesets>
+        </configuration>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <compilerArgs>
+            <arg>-Xlint:unchecked</arg>
+          </compilerArgs>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>com.github.eirslett</groupId>
         <artifactId>frontend-maven-plugin</artifactId>
-        <version>1.9.1</version>
+        <!-- Use the latest released version:
+                https://repo1.maven.org/maven2/com/github/eirslett/frontend-maven-plugin/ -->
+        <version>1.12.0</version>
         <configuration>
-          <workingDirectory>src/main/polymer</workingDirectory>
-          <nodeVersion>${node.version}</nodeVersion>
-          <npmVersion>${npm.version}</npmVersion>
+          <nodeVersion>v15.7.0</nodeVersion>
+          <npmVersion>7.4.3</npmVersion>
+          <nodeDownloadRoot>https://nodejs.org/dist/</nodeDownloadRoot>
+          <npmDownloadRoot>http://registry.npmjs.org/npm/-/</npmDownloadRoot>
+          <workingDirectory>src/main/js/frontend</workingDirectory>
         </configuration>
         <executions>
           <execution>
-            <!-- optional: looks nicer in your build log. -->
+            <!-- optional: you don't really need execution ids, but it looks nice in your build log. -->
             <id>install node and npm</id>
             <goals>
               <goal>install-node-and-npm</goal>
@@ -239,38 +243,20 @@
             <phase>generate-resources</phase>
           </execution>
           <execution>
-            <id>npm version bump</id>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <phase>generate-resources</phase>
-            <configuration>
-              <arguments>version --no-git-tag-version --allow-same-version=true ${project.version}</arguments>
-            </configuration>
-          </execution>
-          <execution>
             <id>npm install</id>
             <goals>
               <goal>npm</goal>
             </goals>
-            <phase>generate-resources</phase>
-            <!-- Optional configuration which provides for running any npm command -->
-            <configuration>
-              <arguments>i</arguments>
-            </configuration>
           </execution>
           <execution>
-            <id>polymer build</id>
+            <id>Build frontend</id>
             <goals>
               <goal>npm</goal>
             </goals>
-            <phase>generate-resources</phase>
             <configuration>
               <arguments>run build</arguments>
             </configuration>
           </execution>
-          <!-- do not run this just yet -->
-          <!-- <execution> <id>polymer tests</id> <goals> <goal>npm</goal> </goals> <phase>integration-test</phase> <configuration> <arguments>test</arguments> </configuration> </execution> -->
         </executions>
       </plugin>
       <plugin>
@@ -298,6 +284,7 @@
       <plugin>
         <groupId>ro.kuberam.maven.plugins</groupId>
         <artifactId>kuberam-expath-plugin</artifactId>
+        <version>0.6.3</version>
         <executions>
           <execution>
             <id>create-xar</id>
@@ -323,8 +310,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
         <configuration>
-          <mavenExecutorId>forked-path
-          </mavenExecutorId>
+          <mavenExecutorId>forked-path </mavenExecutorId>
           <!-- avoid a bug with GPG plugin hanging http://jira.codehaus.org/browse/MGPG-9 -->
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <tagNameFormat>@{project.version}</tagNameFormat>
