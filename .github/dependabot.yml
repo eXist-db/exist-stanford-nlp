@@ -1,0 +1,11 @@
+version: 2
+updates:
+  - package-ecosystem: 'npm'
+    directory: '/src/main/js/frontend/'
+    schedule:
+      interval: 'daily'
+  - package-ecosystem: 'maven'
+    directory: '/'
+    schedule:
+      interval: 'daily'
+
