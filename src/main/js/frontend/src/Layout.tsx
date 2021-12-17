@@ -2,7 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 import React from "react";
 import SideBar from "./SideBar";
-import MagellanContent from "./MagellanContent";
+import NLPContent from "./NLPContent";
 
 export default class Layout extends React.Component<any, any> {
 
@@ -10,7 +10,7 @@ export default class Layout extends React.Component<any, any> {
         return (
             <div className={'App'}>
                 <SideBar />
-                <MagellanContent />
+                <NLPContent />
             </div>
         );
     }

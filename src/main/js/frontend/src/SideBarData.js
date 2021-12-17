@@ -3,8 +3,13 @@ import {HouseDoorFill} from 'react-bootstrap-icons';
 
 export const SideBarData = [
     {
-        title: "Home",
+        label: "Home",
         icon: <HouseDoorFill />,
-        link: "/home"
+        key: "/"
+    },
+    {
+        label: "Loading",
+        icon: <HouseDoorFill />,
+        key: "/loading"
     }
 ]
