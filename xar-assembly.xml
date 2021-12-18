@@ -24,6 +24,7 @@
 
     <prepare>pre-install.xq</prepare>
     <finish>post-install.xq</finish>
+    <permissions user="nlp" password="nlp" group="nlp" mode="rw-rw-r--"/>
 
     <!-- includes everything in src/main/xar-resources, README.md, and LICENSE -->
     <fileSets>

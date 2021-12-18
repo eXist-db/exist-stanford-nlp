@@ -2,8 +2,13 @@ import React from "react";
 import './App.css';
 import packageJson from "../package.json";
 import {SideBarData} from "./SideBarData";
+import TreeMenu from "react-simple-tree-menu";
+import { useNavigate, useLocation } from "react-router-dom";
+import '../node_modules/react-simple-tree-menu/dist/main.css';
 
 function SideBar() {
+    let navigate = useNavigate();
+    let location = useLocation();
     return (
         <div className={'SideBar'}>
             <ul className={'SideBarList'}>
@@ -23,17 +28,15 @@ function SideBar() {
                         <div style={{fontSize: "8px"}}>Version {packageJson.version}</div>
                     </div>
                 </li>
-                {SideBarData.map((val, key) => {
-                    return (
-                        <li key={key} className={'row'}>
-                            <div id={'icon'}>{val.icon}</div>
-                            {' '}
-                            <div id={'title'}>{val.title}</div>
-                        </li>
-                    )
-                })}
-
             </ul>
+            <TreeMenu
+                data={SideBarData}
+                activeKey={location.pathname}
+                onClickItem={({ key, label, ...props }) => {
+                    navigate(key);
+                }}
+                hasSearch={false}
+            />
         </div>
     )
 }
