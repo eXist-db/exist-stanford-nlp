@@ -10,14 +10,13 @@ declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 
 declare function api:schedule-language($language as xs:string*) as map(*)
 {
+    let $qq := update delete fn:doc("/db/apps/stanford-nlp/data/log.xml")//logs/log[@language = $language]
     let $a :=
     scheduler:schedule-xquery-periodic-job(
         "/db/apps/stanford-nlp/modules/load.xq",
         500,
         "nlp-load-" || $language || "-" || util:uuid(),
-        <parameters>
-            <param name="language" value="{$language}" />
-        </parameters>,
+        <parameters><param name="language" value="{$language}" /></parameters>,
         1000,
         0
     )
@@ -86,23 +85,49 @@ $language as xs:string*
 declare
 %rest:GET
 %rest:path("/stanford/nlp/logs")
+%rest:query-param("timestamp", "{$timestamp}")
 %rest:produces("application/json")
 %output:media-type("application/json")
 %output:method("json")
-function api:logs(
-) as array(*)
+function api:logs($timestamp as xs:string*) as map(*)
 {
-    array {
-        for $log in fn:doc("/db/apps/stanford-nlp/data/log.xml")//logs/log
-        let $timestamp := xs:string($log/@timestamp)
-        let $language := xs:string($log/@language)
-        let $text := $log/text()
-        order by $timestamp ascending
-        return
-            map {
-                'timestamp': $timestamp,
-                'language': $language,
-                'message': $text
-            }
-    }
+    let $allLogs := fn:doc("/db/apps/stanford-nlp/data/log.xml")//logs/log
+    let $logs := if (fn:exists($timestamp))
+                 then $allLogs[@timestamp ge $timestamp]
+                 else $allLogs
+    let $languages := fn:sort(fn:distinct-values($allLogs/@language/string()))
+    return
+        map {
+            "timestamp": fn:current-dateTime(),
+            "running": map:merge(
+                for $language in ('arabic', 'chinese', 'english', 'english-kbp', 'french', 'german', 'spanish')
+                let $running := $allLogs[@language = $language]
+                let $start := fn:max($running[. = "start"]/@timestamp/string())
+                let $end := fn:max($running[. = "end"]/@timestamp/string())
+                let $isRunning := ((fn:exists($start) and fn:not($end)) or ($end le $start))
+                return
+                    map {
+                        $language: map {
+                        "start": $start,
+                        "end": if ($isRunning) then () else $end,
+                        "isRunning": $isRunning,
+                        "isLoaded": fn:exists($end)
+                        }
+                    }
+            ),
+            "logs":
+                array {
+                    for $log in $logs
+                    let $timestamp := xs:string($log/@timestamp)
+                    let $language := xs:string($log/@language)
+                    let $text := $log/text()
+                    order by $timestamp descending
+                    return
+                        map {
+                            'timestamp': $timestamp,
+                            'language': $language,
+                            'message': $text
+                        }
+                }
+        }
 };
