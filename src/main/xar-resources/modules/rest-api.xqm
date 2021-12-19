@@ -1,6 +1,7 @@
 xquery version "3.1";
 
 module namespace api = "http://exist-db.org/xquery/stanford-nlp/api";
+import module namespace ner = "http://exist-db.org/xquery/stanford-nlp/ner";
 import module namespace scheduler = "http://exist-db.org/xquery/scheduler";
 import module namespace map = "http://www.w3.org/2005/xpath-functions/map";
 
@@ -131,3 +132,37 @@ function api:logs($timestamp as xs:string*) as map(*)
                 }
         }
 };
+
+(:~
+ : This method runs the ner:clasify($text, $properties) on the text passed in for the language specified.
+ : @param $content the properties of the source graph in a JSON object
+ : @see ner:properties-from-language()
+ : @return A map
+ : @custom:openapi-tag Natural Language Processing
+ :)
+declare
+    %rest:POST("{$content}")
+    %rest:path("/Stanford/ner")
+    %rest:consumes("application/json")
+    %rest:produces("application/json")
+    %output:media-type("application/json")
+    %output:method("json")
+function api:query-text-as-json($content as xs:string) as map(*) {
+    let $postBody := fn:parse-json(util:base64-decode($content))
+    let $properties := ner:properties-from-language($postBody?language)
+    let $classified := ner:classify($postBody?text, $properties)
+    return
+        try {
+    map {
+        'text' : ner:stringify($classified)
+    }
+        } catch * {
+            map {
+                'code': $err:code,
+                'description': $err:description,
+                'value': $err:value,
+                'properties': $properties
+            }
+        }
+};
+

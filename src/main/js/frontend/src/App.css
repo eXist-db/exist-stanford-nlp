@@ -48,11 +48,21 @@ body {
 .NLPContent {
   height: 100%;
   width: 100%;
-  background-color: lightgray;
 }
 .LoadingContent {
   height: 100%;
   width: 100%;
-  background-color: lightgoldenrodyellow;
+}
+
+.i-misc {
+  color: green;
+}
+
+.i-per {
+  color: red;
+}
+
+.i-loc {
+  color: blue;
 }
 
