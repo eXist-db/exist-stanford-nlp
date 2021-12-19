@@ -54,3 +54,15 @@ body {
   width: 100%;
 }
 
+.i-misc {
+  color: green;
+}
+
+.i-per {
+  color: red;
+}
+
+.i-loc {
+  color: blue;
+}
+

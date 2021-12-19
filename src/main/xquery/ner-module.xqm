@@ -21,9 +21,9 @@ declare namespace map = "http://www.w3.org/2005/xpath-functions/map";
  : @param $match The match text for a snippet that contains highlighted text
  : @return A string with highlight spans encoded within the string
  :)
-declare function ner:stringify($match as node()) as xs:string {
+declare function ner:stringify($match) as xs:string {
     fn:string-join(
-        for $text-or-highlight in $match/node()
+        for $text-or-highlight in $match
         return
         if ($text-or-highlight instance of element())
         then
@@ -97,18 +97,14 @@ function ner:classify-node($node as node(), $language as xs:string) as node() {
  :)
 declare
 function ner:properties-from-language($language as xs:string) as map(*) {
-    try {
-        switch ($language)
-            case "en" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
-            case "ar" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-arabic.json")
-            case "es" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-spanish.json")
-            case "fr" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-french.json")
-            case "zh" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-chinese.json")
-            case "de" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-german.json")
-            default return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
-    } catch * {
-        fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
-    }
+    switch ($language)
+        case "en" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
+        case "ar" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-arabic.json")
+        case "es" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-spanish.json")
+        case "fr" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-french.json")
+        case "zh" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-chinese.json")
+        case "de" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-german.json")
+        default return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
 };
 
 (:~

@@ -104,7 +104,7 @@ function NERContext() {
             <Row>
                 <div>Results</div>
                 <hr/>
-                <div>{namedEntities}</div>
+                <div dangerouslySetInnerHTML={{__html: namedEntities}}></div>
                 <div>{
                     nerError.code ?
                         <>

@@ -150,10 +150,11 @@ declare
 function api:query-text-as-json($content as xs:string) as map(*) {
     let $postBody := fn:parse-json(util:base64-decode($content))
     let $properties := ner:properties-from-language($postBody?language)
+    let $classified := ner:classify($postBody?text, $properties)
     return
         try {
     map {
-        'text' : ner:stringify(ner:classify($postBody?text, $properties))
+        'text' : ner:stringify($classified)
     }
         } catch * {
             map {
