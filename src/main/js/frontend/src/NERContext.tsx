@@ -2,6 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React, {useEffect, useState} from "react";
 import './App.css';
 import {Button, Col, Form, Row} from "react-bootstrap";
+import ReactJson from 'react-json-view';
 
 function NERContext() {
 
@@ -18,7 +19,7 @@ function NERContext() {
     const [language, setLanguage] = useState("en");
     const [content, setContent] = useState("");
     const [namedEntities, setNamedEntities] = useState("");
-    const [nerError, setNerError] = useState({ code: null, description: null, value: null});
+    const [nerError, setNerError] = useState({ code: null, description: null, value: null, properties: {}});
 
     useEffect(() => {
         let uri = '/exist/restxq/stanford/nlp/logs';
@@ -110,6 +111,7 @@ function NERContext() {
                             <div><b>Code</b> <span>{nerError.code}</span></div>
                             <div><b>Description</b> <span>{nerError.description}</span></div>
                             <div><b>Value</b> <span>{nerError.value}</span></div>
+                            <ReactJson src={nerError.properties} />
                         </>
                         : null
                 }</div>
