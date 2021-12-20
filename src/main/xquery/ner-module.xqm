@@ -200,6 +200,8 @@ declare function ner:pass-through($node as node()?, $properties as map(*)) {
 };
 
 (:~
+ : @param $text
+ : @param $properties
  :)
 declare function ner:classify($text as xs:string, $properties as map(*)) {
 let $tokens := for $token in nlp:parse($text, $properties)//token[fn:not(NER = "O")]

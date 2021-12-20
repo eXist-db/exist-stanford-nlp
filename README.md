@@ -51,12 +51,10 @@ Support for integration tests, namely, [Web Component Tester](https://polymer-li
 
 ### Loading Languages
 The application is installed without language files OOTB. The
-files need to be loaded after installation. There is an XQuery
-script that will load a language specific JAR file from an external
-webiste. The JAR file is expanded and the files are store in a relative
-path in the database from the data collection within the application.
+files need to be loaded after installation. Click on the Setup tab
+and then click on the language(s) that you want to load.
 
-As administrator open and run `/db/apps/stanford-nlp/modules/load-languages.xq` in **eXide**.
+When a language is loaded, then there is a checkmark in the button.
 
 ### Properties
 The properties files within the JAR file are transformed to JSON

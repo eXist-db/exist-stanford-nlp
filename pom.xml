@@ -14,7 +14,7 @@
 
   <groupId>org.exist-db</groupId>
   <artifactId>stanford-nlp</artifactId>
-  <version>0.9.0</version>
+  <version>0.9.1</version>
 
   <name>Stanford Natural Language Processing</name>
   <description>Integrates the Stanford CoreNLP annotation pipeline library into eXist-db.</description>

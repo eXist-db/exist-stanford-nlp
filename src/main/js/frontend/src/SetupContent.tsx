@@ -4,7 +4,7 @@ import './App.css';
 import {Button, Spinner} from "react-bootstrap";
 import {Check } from 'react-bootstrap-icons';
 
-function LoadingContent() {
+function SetupContent() {
     const [logs, setLogs] = useState([{
         timestamp: "",
         language: "",
@@ -76,6 +76,7 @@ function LoadingContent() {
     return (
         <div className={'LoadingContent'}>
             <h1>Load</h1>
+            <div>Click on the language button to load each language.</div>
             <Button onClick={() => loadLanguage('arabic')} disabled={running.arabic.isRunning}>
                 {
                     running.arabic.isRunning ?
@@ -158,4 +159,4 @@ function LoadingContent() {
     )
 }
 
-export default LoadingContent;
+export default SetupContent;
