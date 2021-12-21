@@ -27,9 +27,10 @@ declare function ner:stringify($match) as xs:string {
         return
         if ($text-or-highlight instance of element())
         then
-            fn:concat('<span class="',
-                      fn:lower-case($text-or-highlight/local-name()),
-                      '">',
+            fn:concat('<span',
+            ' class="', fn:lower-case($text-or-highlight/local-name()), '"',
+                   ' data-tooltip="', fn:lower-case($text-or-highlight/local-name()), '"',
+                      ' data-tooltip-position="bottom" >',
                       $text-or-highlight/text(),
                       '</span>')
         else
