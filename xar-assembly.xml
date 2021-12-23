@@ -81,18 +81,6 @@
             <version>${corenlp.version}</version>
             <classifier>models</classifier>
         </dependencySet>
-<!--        <dependencySet>-->
-<!--            <groupId>edu.stanford.nlp</groupId>-->
-<!--            <artifactId>stanford-corenlp</artifactId>-->
-<!--            <version>${corenlp.version}</version>-->
-<!--            <classifier>models-english</classifier>-->
-<!--        </dependencySet>-->
-<!--        <dependencySet>-->
-<!--            <groupId>edu.stanford.nlp</groupId>-->
-<!--            <artifactId>stanford-corenlp</artifactId>-->
-<!--            <version>${corenlp.version}</version>-->
-<!--            <classifier>models-english-kbp</classifier>-->
-<!--        </dependencySet>-->
         <dependencySet>
             <groupId>de.jollyday</groupId>
             <artifactId>jollyday</artifactId>
@@ -106,17 +94,17 @@
         <dependencySet>
             <groupId>joda-time</groupId>
             <artifactId>joda-time</artifactId>
-            <version>2.9.4</version>
+            <version>${jodatime.version}</version>
         </dependencySet>
         <dependencySet>
             <groupId>com.googlecode.efficient-java-matrix-library</groupId>
             <artifactId>ejml</artifactId>
-            <version>0.23</version>
+            <version>${javamatrix.version}</version>
         </dependencySet>
         <dependencySet>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
-            <version>3.2.0</version>
+            <version>${protobuf.version}</version>
         </dependencySet>
     </dependencySets>
 
