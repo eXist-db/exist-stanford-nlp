@@ -23,7 +23,7 @@
     "react-scripts": "5.0.0",
     "react-simple-tree-menu": "^1.1.18",
     "typescript": "^4.5.5",
-    "web-vitals": "^2.1.3"
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
     "start": "react-scripts start",
