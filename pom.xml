@@ -63,7 +63,7 @@
     <project.build.source>1.8</project.build.source>
     <project.build.target>1.8</project.build.target>
 
-    <exist.version>5.3.1</exist.version>
+    <exist.version>6.0.1</exist.version>
     <node.version>v17.2.0</node.version>
     <npm.version>8.1.4</npm.version>
     <corenlp.version>4.3.2</corenlp.version>
