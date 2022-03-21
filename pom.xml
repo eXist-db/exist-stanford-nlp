@@ -75,7 +75,7 @@
 
     <example.module.namespace>http://exist-db.org/xquery/stanford-nlp</example.module.namespace>
     <example.module.java.classname>StanfordNLPModule</example.module.java.classname>
-    <jodatime.version>2.10.13</jodatime.version>
+    <jodatime.version>2.10.14</jodatime.version>
     <javamatrix.version>0.25</javamatrix.version>
     <protobuf.version>3.19.4</protobuf.version>
   </properties>
