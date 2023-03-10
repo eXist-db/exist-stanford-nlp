@@ -18,7 +18,7 @@
     "react-bootstrap-icons": "^1.10.2",
     "react-dom": "^18.2.0",
     "react-json-view": "^1.21.3",
-    "react-router": "^6.4.5",
+    "react-router": "^6.9.0",
     "react-router-dom": "^6.4.5",
     "react-scripts": "5.0.1",
     "react-simple-tree-menu": "^1.1.18",
