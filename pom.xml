@@ -66,7 +66,7 @@
     <exist.version>6.0.1</exist.version>
     <node.version>v17.2.0</node.version>
     <npm.version>8.1.4</npm.version>
-    <corenlp.version>4.5.1</corenlp.version>
+    <corenlp.version>4.5.4</corenlp.version>
     <!-- See polymer-cli documentation -->
     <browser.support>es5-bundled</browser.support>
 
