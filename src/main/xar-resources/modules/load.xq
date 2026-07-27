@@ -53,13 +53,16 @@ declare function local:entry-data($path as xs:anyURI, $type as xs:string, $data 
                                 let $value :=
                                     if (fn:exists($after) and fn:string-length($after) gt 0)
                                     then
-                                        for $token in fn:tokenize($after, ",")
-                                        let $trimmed := functx:trim($token)
-                                        let $val :=
-                                            if (fn:starts-with($trimmed, "edu/"))
-                                            then "http://localhost:8080/exist/apps/stanford-nlp/data/" || $trimmed
-                                            else $trimmed
-                                        return $val
+                                        fn:string-join(
+                                            for $token in fn:tokenize($after, ",")
+                                            let $trimmed := functx:trim($token)
+                                            let $val :=
+                                                if (fn:starts-with($trimmed, "edu/"))
+                                                then "http://localhost:8080/exist/apps/stanford-nlp/data/" || $trimmed
+                                                else $trimmed
+                                            return $val,
+                                            ","
+                                        )
                                     else ""
                                 return map:entry($key, $value)
                             else ()
@@ -109,7 +112,18 @@ declare function local:process($path as xs:string) {
         )
 };
 
-(local:log("start"),
-local:process($config:corenlp-model-url || $local:language || ".jar"),
-local:log("end")
-)
+declare function local:run() {
+    let $path := $config:corenlp-model-url || $local:language || ".jar"
+    return
+        try {
+            (
+                local:log("start"),
+                local:process($path),
+                local:log("end")
+            )
+        } catch * {
+            local:log("error: " || $err:code || " - " || $err:description)
+        }
+};
+
+local:run()

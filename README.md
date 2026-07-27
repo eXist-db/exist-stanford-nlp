@@ -15,12 +15,12 @@ This application is a wrapper around the [Stanford CoreNLP](https://stanfordnlp.
 ### Why
 Loren was between projects and at an eXist-db weekly conference call it
 came to light that the previous implementations of Stanford NLP and Named
-Entity Recognition were not compatible with version 5.x of eXist-db.
+Entity Recognition were not compatible with earlier eXist-db releases.
 Loren took this project on while looking for the next project, so please
 see the contributions section at the end of this article.
 
 ## Requirements
--   eXist-db: `5.0.0` with min `4Gb` memory
+-   eXist-db: `7.0.0-beta3` with min `4Gb` memory
 
 ### For Building from Source
 -   maven: `3.6.0`

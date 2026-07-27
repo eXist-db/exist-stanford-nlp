@@ -726,7 +726,7 @@
             raise-error-on-failed-retrieval="no">
 
         <builtin-modules>
-            <module uri="https://my-organisation.com/exist-db/ns/app/my-java-module" class="org.exist.xquery.ner.ExampleModule"/>
+            <module uri="http://exist-db.org/xquery/stanford-nlp" class="org.exist.xquery.nlp.StanfordNLPModule"/>
         </builtin-modules>
     </xquery>
 

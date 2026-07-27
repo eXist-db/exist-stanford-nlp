@@ -1,140 +1,162 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { useState, useEffect } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import './App.css';
 import {Button, Spinner} from "react-bootstrap";
 import {Check } from 'react-bootstrap-icons';
 
+type LogEntry = {
+    timestamp: string;
+    language: string;
+    message: string;
+};
+
+type LanguageStatus = {
+    start: string | null;
+    end: string | null;
+    isRunning: boolean;
+    isLoaded: boolean;
+};
+
+type RunningState = {
+    arabic: LanguageStatus;
+    "english-kbp": LanguageStatus;
+    english: LanguageStatus;
+    chinese: LanguageStatus;
+    french: LanguageStatus;
+    german: LanguageStatus;
+    spanish: LanguageStatus;
+};
+
+type LogsResponse = {
+    logs: LogEntry[];
+    running: RunningState;
+    timestamp: string | null;
+};
+
+const EMPTY_STATUS: LanguageStatus = { start: null, end: null, isRunning: false, isLoaded: false };
+
+const INITIAL_RUNNING: RunningState = {
+    arabic: { ...EMPTY_STATUS },
+    "english-kbp": { ...EMPTY_STATUS },
+    english: { ...EMPTY_STATUS },
+    chinese: { ...EMPTY_STATUS },
+    french: { ...EMPTY_STATUS },
+    german: { ...EMPTY_STATUS },
+    spanish: { ...EMPTY_STATUS }
+};
+
+const LANGUAGE_BUTTONS: Array<{ key: keyof RunningState; label: string }> = [
+    { key: "arabic", label: "Arabic" },
+    { key: "chinese", label: "Chinese" },
+    { key: "english", label: "English" },
+    { key: "english-kbp", label: "English KBP" },
+    { key: "french", label: "French" },
+    { key: "german", label: "German" },
+    { key: "spanish", label: "Spanish" }
+];
+
 function SetupContent() {
-    const [logs, setLogs] = useState([{
-        timestamp: "",
-        language: "",
-        message: ""
-    }]);
-    const [running, setRunning] = useState({
-        "arabic": { "start": null, "end": null, "isRunning": false, isLoaded: false },
-        "english-kbp": { "start": null, "end": null, "isRunning": false, isLoaded: false },
-        "english": { "start": null, "end": null, "isRunning": false, isLoaded: false },
-        "chinese": { "start": null, "end": null, "isRunning": false, isLoaded: false },
-        "french": { "start": null, "end": null, "isRunning": false, isLoaded: false },
-        "german": { "start": null, "end": null, "isRunning": false, isLoaded: false },
-        "spanish": { "start": null, "end": null, "isRunning": false, isLoaded: false }
-    })
-    const [last, setLast] = useState(null);
-    const [counter, setCounter] = useState(0);
+    const [logs, setLogs] = useState<LogEntry[]>([]);
+    const [running, setRunning] = useState<RunningState>(INITIAL_RUNNING);
+    const lastRef = useRef<string | null>(null);
 
-    useEffect(() => {
-        const intervalVar = setInterval(fetchLogs, 10000);
-
-        return () => clearInterval(intervalVar);
-    }, [])
-
-    function fetchLogs() {
+    const fetchLogs = useCallback(() => {
         let uri = '/exist/restxq/stanford/nlp/logs';
 
-        if (last) {
-            uri += "?timestamp=" + last;
+        if (lastRef.current) {
+            uri += "?timestamp=" + encodeURIComponent(lastRef.current);
         }
 
         fetch(uri)
             .then((response) => response.json())
-            .then(
-                (result) => {
-                    if (last) {
-                        setLogs([result.logs, ...logs]);
-                    } else {
-                        setLogs(result.logs);
-                    }
+            .then((result: LogsResponse) => {
+                    setLogs((previousLogs) => {
+                        if (lastRef.current) {
+                            return [...result.logs, ...previousLogs];
+                        }
+                        return result.logs;
+                    });
                     setRunning(result.running);
-                    setLast(result.timestamp);
-                },
-                (error) => {
-
+                    lastRef.current = result.timestamp;
                 }
             )
-    }
+            .catch(() => {
+                // Keep UI stable during intermittent polling/network failures.
+            });
+    }, []);
 
-    function loadLanguage(theLanguage: string) {
-        let aRunning = running;
-        // @ts-ignore
-        aRunning[theLanguage].isRunning = true;
-        // @ts-ignore
-        aRunning[theLanguage].isLoaded = false;
-        setRunning(aRunning);
-        setCounter(counter + 1)
+    useEffect(() => {
+        fetchLogs();
+        const intervalVar = setInterval(fetchLogs, 10000);
+
+        return () => clearInterval(intervalVar);
+    }, [fetchLogs]);
+
+    function loadLanguage(theLanguage: keyof RunningState) {
+        setLogs((previousLogs) => previousLogs.filter((log) => !(log.language === theLanguage && log.message.startsWith("error:"))));
+        setRunning((previousRunning) => ({
+            ...previousRunning,
+            [theLanguage]: {
+                ...previousRunning[theLanguage],
+                isRunning: true,
+                isLoaded: false
+            }
+        }));
 
         fetch("/exist/restxq/stanford/nlp/load/" + theLanguage)
             .then((response) => response.json())
-            .then(
-                (result) => {
-                },
-                (error) => {
+            .catch(() => {
+                setRunning((previousRunning) => ({
+                    ...previousRunning,
+                    [theLanguage]: {
+                        ...previousRunning[theLanguage],
+                        isRunning: false
+                    }
+                }));
+            });
+    }
 
-                }
-            )
+    function renderLanguageStatusIcon(status: LanguageStatus) {
+        if (status.isRunning) {
+            return <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true"/>;
+        }
+
+        if (status.isLoaded) {
+            return <Check/>;
+        }
+
+        return null;
+    }
+
+    function getLanguageError(theLanguage: keyof RunningState) {
+        const latestLanguageLog = logs.find((log) => log.language === theLanguage && log.message.startsWith("error:"));
+        return latestLanguageLog ? latestLanguageLog.message : null;
     }
 
     return (
         <div className={'LoadingContent'}>
             <h1>Load</h1>
             <div>Click on the language button to load each language.</div>
-            <Button onClick={() => loadLanguage('arabic')} disabled={running.arabic.isRunning}>
-                {
-                    running.arabic.isRunning ?
-                    <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true"/>
-                    : running.arabic.isLoaded ?
-                    <Check/>
-                    :null
-                    }
-                Arabic
-            </Button>
-            <Button onClick={() => loadLanguage('chinese')} disabled={running.chinese.isRunning}>{
-                running.chinese.isRunning ?
-                    <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true"/>
-                    : running.chinese.isLoaded ?
-                        <Check/>
-                        :null
-            }
-                Chinese</Button>
-            <Button onClick={() => loadLanguage('english')} disabled={running.english.isRunning}>{
-                running.english.isRunning ?
-                    <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true"/>
-                    : running.english.isLoaded ?
-                        <Check/>
-                        :null
-            }
-                English</Button>
-            <Button onClick={() => loadLanguage('english-kbp')} disabled={running['english-kbp'].isRunning}>{
-                running['english-kbp'].isRunning ?
-                    <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true"/>
-                    : running['english-kbp'].isLoaded ?
-                        <Check/>
-                        :null
-            }
-                English KBP</Button>
-            <Button onClick={() => loadLanguage('french')} disabled={running.french.isRunning}>{
-                running.french.isRunning ?
-                    <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true"/>
-                    : running.french.isLoaded ?
-                        <Check/>
-                        :null
-            }
-                French</Button>
-            <Button onClick={() => loadLanguage('german')} disabled={running.german.isRunning}>{
-                running.german.isRunning ?
-                    <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true"/>
-                    : running.german.isLoaded ?
-                        <Check/>
-                        :null
-            }
-                German</Button>
-            <Button onClick={() => loadLanguage('spanish')} disabled={running.spanish.isRunning}>{
-                running.spanish.isRunning ?
-                    <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true"/>
-                    : running.spanish.isLoaded ?
-                        <Check/>
-                        :null
-            }
-                Spanish</Button>
+            {LANGUAGE_BUTTONS.map((languageButton) => {
+                const current = running[languageButton.key];
+                const languageError = getLanguageError(languageButton.key);
+                return (
+                    <div key={languageButton.key} style={{display: 'inline-block', marginRight: 8, marginBottom: 8}}>
+                        <Button
+                            onClick={() => loadLanguage(languageButton.key)}
+                            disabled={current.isRunning}
+                        >
+                            {renderLanguageStatusIcon(current)}
+                            {languageButton.label}
+                        </Button>
+                        {languageError ? (
+                            <div style={{color: '#b00020', fontSize: 12, marginTop: 4, maxWidth: 360}}>
+                                {languageError}
+                            </div>
+                        ) : null}
+                    </div>
+                );
+            })}
             <table>
                 <thead>
                 <tr>
@@ -144,9 +166,9 @@ function SetupContent() {
                 </tr>
                 </thead>
                 <tbody>{
-                    logs.map((log) => {
+                    logs.map((log, index) => {
                         return (
-                            <tr>
+                            <tr key={log.timestamp + '-' + log.language + '-' + index}>
                                 <td>{log.timestamp}</td>
                                 <td>{log.language}</td>
                                 <td>{log.message}</td>

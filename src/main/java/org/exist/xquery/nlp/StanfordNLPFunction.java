@@ -50,7 +50,7 @@ public class StanfordNLPFunction extends BasicFunction {
                     new SequenceType[] {
                             new FunctionParameterSequenceType("text", Type.STRING, Cardinality.EXACTLY_ONE,
                                     "String of text to analyze."),
-                            new FunctionParameterSequenceType("properties", Type.MAP, Cardinality.EXACTLY_ONE,
+                            new FunctionParameterSequenceType("properties", Type.MAP_ITEM, Cardinality.EXACTLY_ONE,
                                     "A map containing properties for the NLP pipeline. Typically, at least map { \"annotators\": \"tokenize, ssplit\" } should be provided. Properties can also be loaded from a JSON file via json-doc().")
                     },
                     new FunctionReturnSequenceType(Type.DOCUMENT, Cardinality.EXACTLY_ONE,
@@ -88,7 +88,7 @@ public class StanfordNLPFunction extends BasicFunction {
                 final Item item = entryValue.itemAt(0);
 
                 StringBuffer buff = new StringBuffer();
-                if (item.getType() == Type.ARRAY) {
+                if (item.getType() == Type.ARRAY_ITEM) {
                     ArrayType array = (ArrayType) item;
                     for (int i = 0; i < array.getSize(); i++) {
                         final Sequence member = array.get(i);

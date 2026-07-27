@@ -23,8 +23,8 @@ declare function api:schedule-language($language as xs:string*) as map(*)
     )
     return
         map {
-            "language": $language,
-            "status": $a
+            "language": fn:string($language[1]),
+            "status": fn:true()
         }
 };
 
@@ -105,14 +105,21 @@ function api:logs($timestamp as xs:string*) as map(*)
                 let $running := $allLogs[@language = $language]
                 let $start := fn:max($running[. = "start"]/@timestamp/string())
                 let $end := fn:max($running[. = "end"]/@timestamp/string())
-                let $isRunning := ((fn:exists($start) and fn:not($end)) or ($end le $start))
+                let $error := fn:max($running[fn:starts-with(., "error:")]/@timestamp/string())
+                let $isRunning :=
+                    fn:exists($start)
+                    and (
+                        (fn:not(fn:exists($end)) or $end le $start)
+                        and (fn:not(fn:exists($error)) or $error le $start)
+                    )
+                let $isLoaded := fn:exists($end) and (fn:not(fn:exists($error)) or $end ge $error)
                 return
                     map {
                         $language: map {
                         "start": $start,
                         "end": if ($isRunning) then () else $end,
                         "isRunning": $isRunning,
-                        "isLoaded": fn:exists($end)
+                        "isLoaded": $isLoaded
                         }
                     }
             ),
@@ -121,7 +128,7 @@ function api:logs($timestamp as xs:string*) as map(*)
                     for $log in $logs
                     let $timestamp := xs:string($log/@timestamp)
                     let $language := xs:string($log/@language)
-                    let $text := $log/text()
+                    let $text := fn:string-join($log/text() ! fn:string(.), "")
                     order by $timestamp descending
                     return
                         map {

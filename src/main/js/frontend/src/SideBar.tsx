@@ -1,14 +1,18 @@
-import React from "react";
+import React, { memo, useCallback } from "react";
 import './App.css';
 import packageJson from "../package.json";
 import {SideBarData} from "./SideBarData";
 import TreeMenu from "react-simple-tree-menu";
 import { useNavigate, useLocation } from "react-router-dom";
-import '../node_modules/react-simple-tree-menu/dist/main.css';
+import 'react-simple-tree-menu/dist/main.css';
 
 function SideBar() {
     let navigate = useNavigate();
     let location = useLocation();
+    const onClickItem = useCallback(({ key }: { key: string }) => {
+        navigate(key);
+    }, [navigate]);
+
     return (
         <div className={'SideBar'}>
             <ul className={'SideBarList'}>
@@ -32,13 +36,11 @@ function SideBar() {
             <TreeMenu
                 data={SideBarData}
                 activeKey={location.pathname}
-                onClickItem={({ key, label, ...props }) => {
-                    navigate(key);
-                }}
+                onClickItem={onClickItem}
                 hasSearch={false}
             />
         </div>
     )
 }
 
-export default SideBar;
+export default memo(SideBar);
