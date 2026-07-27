@@ -1,5 +1,6 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React from "react";
+import { Link } from "react-router-dom";
 import './App.css';
 
 function HomeContent() {
@@ -30,6 +31,16 @@ function HomeContent() {
                 <li>Open <b>NER</b>, pick a loaded language, then submit text.</li>
                 <li>Use the generated output in your eXist-db queries or applications.</li>
             </ol>
+
+            <h3>Quick Start</h3>
+            <div style={{display: 'flex', gap: 12, flexWrap: 'wrap'}}>
+                <Link to="/setup" className="btn btn-primary">Go to Setup</Link>
+                <Link to="/ner" className="btn btn-outline-primary">Go to NER</Link>
+                <Link to="/rag" className="btn btn-outline-secondary">Go to RAG</Link>
+            </div>
+            <p style={{marginTop: 10}}>
+                <b>RAG tip:</b> Ingest source text first, then run search queries to retrieve ranked chunks with entity-aware scoring.
+            </p>
 
             <p style={{marginTop: 20}}>
                 If a model load fails, the Setup page now shows a per-language error message to help

@@ -12,6 +12,10 @@ export const SideBarData = [
         key: "/ner"
     },
     {
+        label: "RAG",
+        key: "/rag"
+    },
+    {
         label: "Setup",
         icon: <HouseDoorFill />,
         key: "/setup"

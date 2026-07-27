@@ -4,6 +4,7 @@ import Layout from "./Layout";
 import SetupContent from "./SetupContent";
 import NERContext from "./NERContext";
 import HomeContent from "./HomeContent";
+import RagContent from "./RagContent";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
                 <Route index element={<HomeContent/>} />
                 <Route path="/setup" element={<SetupContent/>} />
                 <Route path="/ner" element={<NERContext/>} />
+                <Route path="/rag" element={<RagContent/>} />
 
             </Route>
         </Routes>

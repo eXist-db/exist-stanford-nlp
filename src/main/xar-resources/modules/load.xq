@@ -58,7 +58,7 @@ declare function local:entry-data($path as xs:anyURI, $type as xs:string, $data 
                                             let $trimmed := functx:trim($token)
                                             let $val :=
                                                 if (fn:starts-with($trimmed, "edu/"))
-                                                then "http://localhost:8080/exist/apps/stanford-nlp/data/" || $trimmed
+                                                        then "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/" || $trimmed
                                                 else $trimmed
                                             return $val,
                                             ","
@@ -98,10 +98,21 @@ declare function local:log($message as xs:string)
 declare function local:process($path as xs:string) {
     let $log0 := local:log($path)
 
-    let $req := <http:request href="{$path}" method="get"/>
+    let $req :=
+        <http:request href="{$path}" method="get" follow-redirect="true">
+            <http:header name="User-Agent" value="exist-stanford-nlp-loader"/>
+        </http:request>
 
-    let $zip := http:send-request($req)[2]
-    let $log := local:log(functx:atomic-type($zip))
+    let $response := http:send-request($req)
+    let $meta := $response[1]
+    let $status := xs:integer($meta/@status)
+    let $zip := $response[2]
+    let $log := local:log("download-status=" || $status)
+    let $check :=
+        if ($status lt 200 or $status ge 300)
+        then error(xs:QName("loader:DOWNLOAD_FAILED"), "Model download failed with HTTP status " || $status)
+        else ()
+    let $type-log := local:log(functx:atomic-type($zip))
 
     return compression:unzip(
             $zip,

@@ -27,6 +27,8 @@ type NerError = {
     properties: Record<string, unknown>;
 };
 
+type NerRequestError = Error & Partial<NerError>;
+
 const EMPTY_STATUS: LanguageStatus = { start: null, end: null, isRunning: false, isLoaded: false };
 
 const INITIAL_RUNNING: RunningState = {
@@ -41,6 +43,38 @@ const INITIAL_RUNNING: RunningState = {
 
 const INITIAL_ERROR: NerError = { code: null, description: null, value: null, properties: {} };
 
+function toNerRequestError(details: Partial<NerError>): NerRequestError {
+    const error = new Error(details.description ?? 'NER request failed') as NerRequestError;
+    error.code = details.code;
+    error.description = details.description;
+    error.value = details.value;
+    error.properties = details.properties;
+    return error;
+}
+
+const NER_SAMPLES: Array<{ label: string; language: string; text: string }> = [
+    {
+        label: "Sample 1: English news",
+        language: "en",
+        text: "Apple announced in Cupertino that Tim Cook will visit Berlin next week to discuss AI partnerships with Siemens."
+    },
+    {
+        label: "Sample 2: Spanish travel",
+        language: "es",
+        text: "Mariana viajo de Madrid a Barcelona y luego a Valencia para una conferencia de tecnologia en la Universidad Politecnica."
+    },
+    {
+        label: "Sample 3: French business",
+        language: "fr",
+        text: "Le ministre de l'Economie a rencontre des dirigeants d'Airbus a Toulouse pour parler des investissements en 2027."
+    },
+    {
+        label: "Sample 4: German research",
+        language: "de",
+        text: "Forscher der Universitat Freiburg prasentierten in Munchen neue Ergebnisse zur Verarbeitung naturlicher Sprache."
+    }
+];
+
 function NERContext() {
 
     const [running, setRunning] = useState<RunningState>(INITIAL_RUNNING);
@@ -50,6 +84,13 @@ function NERContext() {
     const [namedEntities, setNamedEntities] = useState("");
     const [nerError, setNerError] = useState<NerError>(INITIAL_ERROR);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const applySample = useCallback((sample: { language: string; text: string }) => {
+        setLanguage(sample.language);
+        setContent(sample.text);
+        setNamedEntities("");
+        setNerError(INITIAL_ERROR);
+    }, []);
 
     useEffect(() => {
         const controller = new AbortController();
@@ -102,7 +143,50 @@ function NERContext() {
         };
 
         fetch("/exist/restxq/Stanford/ner", requestOptions)
-            .then((response) => response.json())
+            .then(async (response) => {
+                const raw = await response.text();
+                let parsed: ({ text?: string } & NerError) | null = null;
+
+                try {
+                    parsed = raw ? JSON.parse(raw) as ({ text?: string } & NerError) : null;
+                } catch (_parseError) {
+                    if (!response.ok) {
+                        throw toNerRequestError({
+                            code: `HTTP_${response.status}`,
+                            description: response.statusText || 'HTTP request failed',
+                            value: raw,
+                            properties: {}
+                        });
+                    }
+
+                    throw toNerRequestError({
+                        code: "INVALID_JSON",
+                        description: "NER service did not return JSON.",
+                        value: raw,
+                        properties: {}
+                    });
+                }
+
+                if (!response.ok) {
+                    throw toNerRequestError({
+                        code: `HTTP_${response.status}`,
+                        description: response.statusText || 'HTTP request failed',
+                        value: raw,
+                        properties: parsed?.properties ?? {}
+                    });
+                }
+
+                if (!parsed) {
+                    throw toNerRequestError({
+                        code: "EMPTY_RESPONSE",
+                        description: "NER service returned an empty response.",
+                        value: "",
+                        properties: {}
+                    });
+                }
+
+                return parsed;
+            })
             .then((result: { text?: string } & NerError) => {
                 if (result.text) {
                     setNamedEntities(result.text);
@@ -117,13 +201,13 @@ function NERContext() {
                     });
                 }
             })
-            .catch(() => {
+            .catch((error: NerRequestError | undefined) => {
                 setNamedEntities("");
                 setNerError({
-                    code: "NETWORK_ERROR",
-                    description: "Unable to reach the NER service.",
-                    value: "",
-                    properties: {}
+                    code: error?.code ?? "NETWORK_ERROR",
+                    description: error?.description ?? "Unable to reach the NER service.",
+                    value: error?.value ?? "",
+                    properties: error?.properties ?? {}
                 });
             })
             .finally(() => {
@@ -133,6 +217,19 @@ function NERContext() {
 
     return (
         <div style={{padding: 35}}>
+            <h3>Examples</h3>
+            <div style={{display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16}}>
+                {NER_SAMPLES.map((sample) => (
+                    <Button
+                        key={sample.label}
+                        type="button"
+                        variant="outline-secondary"
+                        onClick={() => applySample(sample)}
+                    >
+                        {sample.label}
+                    </Button>
+                ))}
+            </div>
             <Form onSubmit={handleSubmit}>
                 <Row className={'mb-3'}>
                     <Col md={4}>

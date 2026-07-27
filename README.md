@@ -79,10 +79,56 @@ color coded view of the text that identities the named entities.
 
 ### NLP
 
+The Home page includes a Quick Start section linking directly to Setup and NER.
+
 ### RESTful API
 #### Natural Language Processing
 
+- Load language models: `GET /exist/restxq/stanford/nlp/load/{language}`
+- View load status/logs: `GET /exist/restxq/stanford/nlp/logs`
+
 #### Named Entity Recognition
+
+- Classify text and return highlighted entities (JSON):
+  `POST /exist/restxq/Stanford/ner`
+
+#### RAG Enrichment and Retrieval
+
+RAG capabilities are implemented as RESTXQ endpoints that:
+
+1. chunk source text,
+2. enrich each chunk with NER-derived entity types,
+3. store chunk metadata as JSON in `/db/apps/stanford-nlp/data/rag/chunks`,
+4. retrieve top chunks using lexical + entity overlap scoring.
+
+Ingest a document:
+
+```bash
+curl -X POST "http://localhost:8080/exist/restxq/stanford/rag/ingest" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "docId": "sample-doc-1",
+    "sourceUri": "file://sample-doc-1",
+    "language": "en",
+    "chunkSize": 120,
+    "overlap": 20,
+    "text": "Stanford NLP can enrich chunks for retrieval augmented generation workflows."
+  }'
+```
+
+Search chunks:
+
+```bash
+curl "http://localhost:8080/exist/restxq/stanford/rag/search?q=retrieval%20generation&lang=en&topK=5"
+```
+
+Clear indexed chunks:
+
+```bash
+curl "http://localhost:8080/exist/restxq/stanford/rag/clear"
+```
+
+Returned search rows include `chunkId`, `docId`, `sourceUri`, `text`, `entities`, and `score`.
 
 ### XQuery Function Modules
 #### Natural Language Processing
