@@ -5,7 +5,7 @@ import './App.css';
 
 function HomeContent() {
     return (
-        <div className={'NLPContent'} style={{padding: 35, overflowY: 'auto'}}>
+        <div className={'NLPContent page-content'}>
             <h1>Stanford NLP for eXist-db</h1>
             <p>
                 This app integrates Stanford CoreNLP with eXist-db so you can load language resources,

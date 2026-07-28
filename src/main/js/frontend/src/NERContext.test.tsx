@@ -74,6 +74,14 @@ describe('NER usability safeguards', () => {
       expect(nerContainer?.querySelector('span.person')?.textContent).toBe('Sam');
       expect(nerContainer?.querySelector('span.person')?.getAttribute('tabindex')).toBeNull();
     });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('checkbox', { name: /Enable keyboard focus for entity tooltips/i }));
+    });
+    await waitFor(() => {
+      const nerContainer = document.getElementById('NER');
+      expect(nerContainer?.querySelector('span.person')?.getAttribute('tabindex')).toBe('0');
+    });
   });
 
   test('does not show language warning before submit attempt', async () => {
@@ -89,6 +97,7 @@ describe('NER usability safeguards', () => {
       render(<NERContext />);
     });
 
+    expect(screen.getByText(/Language resources are not loaded yet/i)).toBeInTheDocument();
     expect(screen.queryByText(/Selected language is not loaded/i)).toBeNull();
   });
 });

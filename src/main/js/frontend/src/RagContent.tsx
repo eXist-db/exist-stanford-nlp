@@ -374,7 +374,7 @@ function RagContent() {
     }
 
     return (
-        <div className={'NLPContent'} style={{ padding: 35, overflowY: 'auto' }}>
+        <div className={'NLPContent page-content'}>
             <h1>RAG</h1>
             <p>Ingest text chunks with NER enrichment and search ranked results.</p>
 

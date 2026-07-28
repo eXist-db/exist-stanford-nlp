@@ -137,6 +137,11 @@ body {
   min-width: 0;
 }
 
+.page-content {
+  padding: 35px;
+  overflow-y: auto;
+}
+
 .setup-panel {
   padding: 28px;
   display: flex;
@@ -438,6 +443,10 @@ body {
   .SideBar {
     width: 100%;
     height: auto;
+  }
+
+  .page-content {
+    padding: 16px;
   }
 }
 

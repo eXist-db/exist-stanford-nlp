@@ -43,7 +43,7 @@ const INITIAL_RUNNING: RunningState = {
 
 const INITIAL_ERROR: NerError = { code: null, description: null, value: null, properties: {} };
 
-function sanitizeNerMarkup(rawMarkup: string): string {
+function sanitizeNerMarkup(rawMarkup: string, enableTooltipFocus: boolean): string {
     const parser = new DOMParser();
     const parsed = parser.parseFromString(`<div>${rawMarkup}</div>`, 'text/html');
     const sourceRoot = parsed.body.firstElementChild;
@@ -85,6 +85,9 @@ function sanitizeNerMarkup(rawMarkup: string): string {
                 if (tooltip && /^[A-Za-z0-9_\-\s]+$/.test(tooltip)) {
                     const tooltipText = tooltip.trim();
                     safeSpan.setAttribute('data-tooltip', tooltipText);
+                    if (enableTooltipFocus) {
+                        safeSpan.setAttribute('tabindex', '0');
+                    }
                     const tooltipId = `ner-tooltip-${tooltipIdCounter++}`;
                     safeSpan.setAttribute('aria-describedby', tooltipId);
                     const tooltipDescription = document.createElement('span');
@@ -165,10 +168,12 @@ function NERContext() {
 
     const [language, setLanguage] = useState("en");
     const [content, setContent] = useState("");
+    const [rawNamedEntities, setRawNamedEntities] = useState("");
     const [namedEntities, setNamedEntities] = useState("");
     const [nerError, setNerError] = useState<NerError>(INITIAL_ERROR);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
+    const [enableTooltipFocus, setEnableTooltipFocus] = useState(false);
 
     const languageFieldErrorId = 'ner-language-error';
     const textFieldErrorId = 'ner-input-error';
@@ -198,9 +203,16 @@ function NERContext() {
     const showLanguageFieldError = hasAttemptedSubmit && (!languageLoaded || nerError.code === 'LANGUAGE_NOT_LOADED');
     const showTextFieldError = hasAttemptedSubmit && nerError.code === 'EMPTY_INPUT';
 
+    useEffect(() => {
+        if (rawNamedEntities) {
+            setNamedEntities(sanitizeNerMarkup(rawNamedEntities, enableTooltipFocus));
+        }
+    }, [rawNamedEntities, enableTooltipFocus]);
+
     const applySample = useCallback((sample: { language: string; text: string }) => {
         setLanguage(sample.language);
         setContent(sample.text);
+        setRawNamedEntities("");
         setNamedEntities("");
         setNerError(INITIAL_ERROR);
         setHasAttemptedSubmit(false);
@@ -235,6 +247,7 @@ function NERContext() {
         setHasAttemptedSubmit(true);
 
         if (!content.trim()) {
+            setRawNamedEntities("");
             setNamedEntities("");
             setNerError({
                 code: "EMPTY_INPUT",
@@ -246,6 +259,7 @@ function NERContext() {
         }
 
         if (!isLanguageLoaded(language)) {
+            setRawNamedEntities("");
             setNamedEntities("");
             setNerError({
                 code: "LANGUAGE_NOT_LOADED",
@@ -315,9 +329,11 @@ function NERContext() {
             })
             .then((result: { text?: string } & NerError) => {
                 if (result.text) {
-                    setNamedEntities(sanitizeNerMarkup(result.text));
+                    setRawNamedEntities(result.text);
+                    setNamedEntities(sanitizeNerMarkup(result.text, enableTooltipFocus));
                     setNerError(INITIAL_ERROR);
                 } else {
+                    setRawNamedEntities("");
                     setNamedEntities("");
                     setNerError({
                         code: result.code ?? "UNKNOWN_ERROR",
@@ -328,6 +344,7 @@ function NERContext() {
                 }
             })
             .catch((error: NerRequestError | undefined) => {
+                setRawNamedEntities("");
                 setNamedEntities("");
                 setNerError({
                     code: error?.code ?? "NETWORK_ERROR",
@@ -339,10 +356,10 @@ function NERContext() {
             .finally(() => {
                 setIsSubmitting(false);
             });
-    }, [content, language, isLanguageLoaded]);
+    }, [content, language, isLanguageLoaded, enableTooltipFocus]);
 
     return (
-        <div style={{padding: 35}}>
+        <div className="page-content">
             <h1>Named Entity Recognition</h1>
             <h2>Examples</h2>
             <div style={{display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16}}>
@@ -377,6 +394,11 @@ function NERContext() {
                                 <option value="de" disabled={!running.german.isLoaded}>German</option>
                                 <option value="es" disabled={!running.spanish.isLoaded}>Spanish</option>
                             </Form.Select>
+                            {!languageLoaded ? (
+                                <Form.Text style={{color: '#8a6d3b'}}>
+                                    Language resources are not loaded yet. Open Setup to load this language.
+                                </Form.Text>
+                            ) : null}
                             {showLanguageFieldError ? (
                                 <Form.Text id={languageFieldErrorId} style={{color: '#b00020'}}>
                                     Selected language is not loaded. Use Setup to load it before submitting.
@@ -406,6 +428,13 @@ function NERContext() {
                         <Button type={'submit'} disabled={isSubmitting || !languageLoaded}>Submit</Button>
                     </Col>
                 </Form.Group>
+                <Form.Check
+                    type="switch"
+                    id="ner-tooltip-focus-mode"
+                    label="Enable keyboard focus for entity tooltips"
+                    checked={enableTooltipFocus}
+                    onChange={(e) => setEnableTooltipFocus(e.target.checked)}
+                />
                 {hasAttemptedSubmit && !languageLoaded ? (
                     <div role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
                         Selected language is not loaded. Use Setup to load it before submitting.
