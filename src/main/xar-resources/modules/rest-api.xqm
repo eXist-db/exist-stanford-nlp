@@ -273,7 +273,17 @@ declare
     %output:method("json")
 function nerapi:query-text-as-json($content as xs:string) as map(*) {
     let $postBody := fn:parse-json(util:base64-decode($content))
-    let $properties := ner:properties-from-language($postBody?language)
+    let $language-input := fn:lower-case(fn:normalize-space(fn:string($postBody?language)))
+    let $language :=
+        switch ($language-input)
+            case "arabic" return "ar"
+            case "chinese" return "zh"
+            case "english" return "en"
+            case "french" return "fr"
+            case "german" return "de"
+            case "spanish" return "es"
+            default return $language-input
+    let $properties := ner:properties-from-language(if ($language = "") then "en" else $language)
     let $classified := ner:classify($postBody?text, $properties)
     return
         try {

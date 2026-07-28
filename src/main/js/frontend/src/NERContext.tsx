@@ -61,7 +61,7 @@ const NER_SAMPLES: Array<{ label: string; language: string; text: string }> = [
     {
         label: "[AR] Sample 2: Arabic briefing",
         language: "ar",
-        text: "زار المدير Samir منصات Google في Dubai مع فريق Microsoft."
+        text: "زار المدير سامر شركة جوجل في دبي مع فريق مايكروسوفت لمناقشة مشروع جديد."
     },
     {
         label: "[ZH] Sample 3: Chinese technology",
@@ -99,6 +99,29 @@ function NERContext() {
     const [namedEntities, setNamedEntities] = useState("");
     const [nerError, setNerError] = useState<NerError>(INITIAL_ERROR);
     const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const isLanguageLoaded = useCallback((lang: string): boolean => {
+        switch (lang) {
+            case 'en':
+                return running.english.isLoaded;
+            case 'english-kbp':
+                return running['english-kbp'].isLoaded;
+            case 'ar':
+                return running.arabic.isLoaded;
+            case 'zh':
+                return running.chinese.isLoaded;
+            case 'fr':
+                return running.french.isLoaded;
+            case 'de':
+                return running.german.isLoaded;
+            case 'es':
+                return running.spanish.isLoaded;
+            default:
+                return false;
+        }
+    }, [running]);
+
+    const languageLoaded = isLanguageLoaded(language);
 
     const applySample = useCallback((sample: { language: string; text: string }) => {
         setLanguage(sample.language);
@@ -140,6 +163,17 @@ function NERContext() {
                 code: "EMPTY_INPUT",
                 description: "Please provide text to analyze.",
                 value: "",
+                properties: {}
+            });
+            return;
+        }
+
+        if (!isLanguageLoaded(language)) {
+            setNamedEntities("");
+            setNerError({
+                code: "LANGUAGE_NOT_LOADED",
+                description: `Language '${language}' is not loaded. Load it from Setup before running NER.`,
+                value: language,
                 properties: {}
             });
             return;
@@ -228,7 +262,7 @@ function NERContext() {
             .finally(() => {
                 setIsSubmitting(false);
             });
-    }, [content, language]);
+    }, [content, language, isLanguageLoaded]);
 
     return (
         <div style={{padding: 35}}>
@@ -268,9 +302,14 @@ function NERContext() {
                 </Form.Group>
                 <Form.Group as={Row} className={'mb-3'}>
                     <Col sm={2}>
-                        <Button type={'submit'} disabled={isSubmitting}>Submit</Button>
+                        <Button type={'submit'} disabled={isSubmitting || !languageLoaded}>Submit</Button>
                     </Col>
                 </Form.Group>
+                {!languageLoaded ? (
+                    <div style={{ marginBottom: 12, color: '#b00020' }}>
+                        Selected language is not loaded. Use Setup to load it before submitting.
+                    </div>
+                ) : null}
                 {isSubmitting ? (
                     <div style={{ marginBottom: 12, color: '#0d6efd' }} role="status" aria-live="polite">
                         Calling NER API...

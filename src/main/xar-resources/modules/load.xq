@@ -12,6 +12,31 @@ import module namespace xmldb = "http://exist-db.org/xquery/xmldb";
 
 declare variable $local:language external;
 
+declare function local:apply-arabic-ner-override() {
+    let $override := map {
+        "annotators": array { "tokenize", "ssplit", "pos", "regexner" },
+        "tokenize.language": "ar",
+        "segment.model": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/segmenter/arabic/arabic-segmenter-atb+bn+arztrain.ser.gz",
+        "ssplit.boundaryTokenRegex": "[.]|[!?]+|[!\\u061F]+",
+        "pos.model": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/pos-tagger/arabic.tagger",
+        "regexner.mapping": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/arabic-regexner.tsv",
+        "regexner.ignorecase": "false"
+    }
+    let $stored := xmldb:store(
+        "/db/apps/stanford-nlp/data",
+        "StanfordCoreNLP-arabic.json",
+        fn:serialize($override, map { "method": "json", "indent": true() })
+    )
+    return local:log("applied arabic ner override")
+};
+
+declare function local:apply-language-overrides($language as xs:string) {
+    if ($language = "arabic") then
+        local:apply-arabic-ner-override()
+    else
+        ()
+};
+
 
 declare function local:mkcol-recursive($collection, $components) {
     if (exists($components)) then
@@ -130,6 +155,7 @@ declare function local:run() {
             (
                 local:log("start"),
                 local:process($path),
+                local:apply-language-overrides($local:language),
                 local:log("end")
             )
         } catch * {

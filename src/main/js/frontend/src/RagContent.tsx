@@ -1,5 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { FormEvent, useMemo, useState } from "react";
+import React, { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import './App.css';
 import { Button, Col, Form, Row, Spinner, Table } from "react-bootstrap";
 
@@ -31,6 +31,23 @@ type SearchResponse = {
     results: SearchResult[];
 };
 
+type LanguageStatus = {
+    start: string | null;
+    end: string | null;
+    isRunning: boolean;
+    isLoaded: boolean;
+};
+
+type RunningState = {
+    arabic: LanguageStatus;
+    "english-kbp": LanguageStatus;
+    english: LanguageStatus;
+    chinese: LanguageStatus;
+    french: LanguageStatus;
+    german: LanguageStatus;
+    spanish: LanguageStatus;
+};
+
 type RagSample = {
     label: string;
     docId: string;
@@ -53,6 +70,18 @@ const LANGUAGE_OPTIONS: Array<{ value: string; label: string }> = [
     { value: 'de', label: 'German' },
     { value: 'es', label: 'Spanish' }
 ];
+
+const EMPTY_STATUS: LanguageStatus = { start: null, end: null, isRunning: false, isLoaded: false };
+
+const INITIAL_RUNNING: RunningState = {
+    arabic: { ...EMPTY_STATUS },
+    "english-kbp": { ...EMPTY_STATUS },
+    english: { ...EMPTY_STATUS },
+    chinese: { ...EMPTY_STATUS },
+    french: { ...EMPTY_STATUS },
+    german: { ...EMPTY_STATUS },
+    spanish: { ...EMPTY_STATUS }
+};
 
 const RAG_SAMPLES: RagSample[] = [
     {
@@ -142,6 +171,7 @@ const RAG_SAMPLES: RagSample[] = [
 ];
 
 function RagContent() {
+    const [running, setRunning] = useState<RunningState>(INITIAL_RUNNING);
     const [docId, setDocId] = useState('sample-doc-1');
     const [sourceUri, setSourceUri] = useState('file://sample-doc-1');
     const [ingestLanguage, setIngestLanguage] = useState('en');
@@ -164,6 +194,43 @@ function RagContent() {
 
     const queryEntities = useMemo(() => searchResponse?.queryEntities ?? [], [searchResponse]);
 
+    const isLanguageLoaded = useCallback((lang: string): boolean => {
+        switch (lang) {
+            case 'en':
+                return running.english.isLoaded;
+            case 'english-kbp':
+                return running['english-kbp'].isLoaded;
+            case 'ar':
+                return running.arabic.isLoaded;
+            case 'zh':
+                return running.chinese.isLoaded;
+            case 'fr':
+                return running.french.isLoaded;
+            case 'de':
+                return running.german.isLoaded;
+            case 'es':
+                return running.spanish.isLoaded;
+            default:
+                return false;
+        }
+    }, [running]);
+
+    const ingestLanguageLoaded = isLanguageLoaded(ingestLanguage);
+    const searchLanguageLoaded = isLanguageLoaded(searchLanguage);
+
+    useEffect(() => {
+        const controller = new AbortController();
+        fetch('/exist/restxq/stanford/nlp/logs', { signal: controller.signal })
+            .then((response) => response.json())
+            .then((result: { running: RunningState }) => {
+                setRunning(result.running);
+            })
+            .catch(() => {
+                // Keep defaults if status endpoint is temporarily unavailable.
+            });
+        return () => controller.abort();
+    }, []);
+
     function applySample(sample: RagSample) {
         setDocId(sample.docId);
         setSourceUri(sample.sourceUri);
@@ -182,6 +249,12 @@ function RagContent() {
         e.preventDefault();
         setErrorMessage('');
         setClearMessage('');
+
+        if (!isLanguageLoaded(ingestLanguage)) {
+            setErrorMessage(`Language '${ingestLanguage}' is not loaded. Load it from Setup before ingest.`);
+            return;
+        }
+
         setIngestLoading(true);
 
         try {
@@ -215,6 +288,12 @@ function RagContent() {
         e.preventDefault();
         setErrorMessage('');
         setClearMessage('');
+
+        if (!isLanguageLoaded(searchLanguage)) {
+            setErrorMessage(`Language '${searchLanguage}' is not loaded. Load it from Setup before search.`);
+            return;
+        }
+
         setSearchLoading(true);
 
         try {
@@ -295,11 +374,16 @@ function RagContent() {
                         <Form.Label>Language</Form.Label>
                         <Form.Select value={ingestLanguage} onChange={(e) => setIngestLanguage(e.target.value)}>
                             {LANGUAGE_OPTIONS.map((option) => (
-                                <option key={option.value} value={option.value}>{option.label}</option>
+                                <option key={option.value} value={option.value} disabled={!isLanguageLoaded(option.value)}>{option.label}</option>
                             ))}
                         </Form.Select>
                     </Col>
                 </Row>
+                {!ingestLanguageLoaded ? (
+                    <div style={{ marginBottom: 12, color: '#b00020' }}>
+                        Ingest language is not loaded. Use Setup to load it first.
+                    </div>
+                ) : null}
                 <Row className={'mb-3'}>
                     <Col md={2}>
                         <Form.Label>Chunk Size</Form.Label>
@@ -338,7 +422,7 @@ function RagContent() {
                         <Form.Label>Language</Form.Label>
                         <Form.Select value={searchLanguage} onChange={(e) => setSearchLanguage(e.target.value)}>
                             {LANGUAGE_OPTIONS.map((option) => (
-                                <option key={option.value} value={option.value}>{option.label}</option>
+                                <option key={option.value} value={option.value} disabled={!isLanguageLoaded(option.value)}>{option.label}</option>
                             ))}
                         </Form.Select>
                     </Col>
@@ -347,6 +431,11 @@ function RagContent() {
                         <Form.Control type="number" value={topK} onChange={(e) => setTopK(Number(e.target.value))} />
                     </Col>
                 </Row>
+                {!searchLanguageLoaded ? (
+                    <div style={{ marginBottom: 12, color: '#b00020' }}>
+                        Search language is not loaded. Use Setup to load it first.
+                    </div>
+                ) : null}
                 <Button type="submit" disabled={searchLoading}>
                     {searchLoading ? <Spinner as="span" size="sm" animation="border" /> : null} Search Chunks
                 </Button>

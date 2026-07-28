@@ -103,6 +103,7 @@ function ner:properties-from-language($language as xs:string) as map(*) {
         case "en" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
         case "english-kbp" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english-kbp.json")
         case "ar" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-arabic.json")
+        case "arabic" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-arabic.json")
         case "es" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-spanish.json")
         case "fr" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-french.json")
         case "zh" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-chinese.json")
