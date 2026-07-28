@@ -82,7 +82,10 @@ function sanitizeNerMarkup(rawMarkup: string): string {
 
                 const tooltip = childElement.getAttribute('data-tooltip');
                 if (tooltip && /^[A-Za-z0-9_\-\s]+$/.test(tooltip)) {
-                    safeSpan.setAttribute('data-tooltip', tooltip.trim());
+                    const tooltipText = tooltip.trim();
+                    safeSpan.setAttribute('data-tooltip', tooltipText);
+                    safeSpan.setAttribute('tabindex', '0');
+                    safeSpan.setAttribute('aria-label', `${tooltipText} entity`);
                 }
 
                 const tooltipPosition = childElement.getAttribute('data-tooltip-position');
@@ -342,7 +345,7 @@ function NERContext() {
             <Form onSubmit={handleSubmit}>
                 <Row className={'mb-3'}>
                     <Col md={4}>
-                        <Form.Group>
+                        <Form.Group controlId="ner-language-select">
                             <Form.Label>Select language</Form.Label>
                             <Form.Select name="language" value={language} onChange={handleLanguageChange}>
                                 <option value="en" disabled={!running.english.isLoaded}>English</option>
@@ -356,7 +359,7 @@ function NERContext() {
                         </Form.Group>
                     </Col>
                 </Row>
-                <Form.Group as={Row} className={'mb-3'}>
+                <Form.Group as={Row} className={'mb-3'} controlId="ner-input-text">
                     <Form.Label>Text to find named entities</Form.Label>
                     <Form.Control as="textarea" rows={10} value={content} onChange={handleContentChange} />
                 </Form.Group>

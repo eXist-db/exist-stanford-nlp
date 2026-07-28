@@ -14,12 +14,11 @@ function SideBar() {
     }, [navigate]);
 
     return (
-        <div className={'SideBar'}>
+        <aside className={'SideBar'}>
             <ul className={'SideBarList'}>
                 <li key={-1} className={'toprow'}>
-                    <div id={'icon'}>
+                    <div className={'icon'}>
                         <img
-                            id="icon"
                             alt="Stanford Core NLP Logo"
                             src="icon.svg"
                             style={{height: 60}}
@@ -27,19 +26,21 @@ function SideBar() {
                         />
                     </div>
                     {' '}
-                    <div id={'title'}>
-                        <div style={{fontSize: "24px"}}>Stanford NLP</div>
-                        <div style={{fontSize: "8px"}}>Version {packageJson.version}</div>
+                    <div className={'title'}>
+                        <h2 style={{fontSize: "24px", margin: 0}}>Stanford NLP</h2>
+                        <div style={{fontSize: "12px"}}>Version {packageJson.version}</div>
                     </div>
                 </li>
             </ul>
-            <TreeMenu
-                data={SideBarData}
-                activeKey={location.pathname}
-                onClickItem={onClickItem}
-                hasSearch={false}
-            />
-        </div>
+            <nav aria-label="Primary navigation">
+                <TreeMenu
+                    data={SideBarData}
+                    activeKey={location.pathname}
+                    onClickItem={onClickItem}
+                    hasSearch={false}
+                />
+            </nav>
+        </aside>
     )
 }
 

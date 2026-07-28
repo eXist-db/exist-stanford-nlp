@@ -1,6 +1,6 @@
 .App {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  min-height: 100dvh;
   display: flex;
   flex-direction: row;
 }
@@ -29,18 +29,18 @@ body {
   margin: 0;
   display: flex;
   flex-direction: row;
-  color:blacke;
+  color: black;
   justify-content: center;
   align-items: center;
   font-family: "Trebuchet MS", "Lucida Grande", "Lucia Sans", Arial, sans-serif;
 }
-.toprow #icon {
+.toprow .icon {
   flex: 33%;
   display: grid;
   place-items: center;
 }
 
-.toprow #title {
+.toprow .title {
   flex: 67%;
   text-align: center;
 }
@@ -54,7 +54,7 @@ body {
   width: 100%;
 }
 
-div.NER span {
+#NER span {
   background-color: lightgray;
 }
 
@@ -120,6 +120,11 @@ div.NER span {
   cursor: help;
   text-decoration: underline;
   padding: 4px;
+}
+
+[data-tooltip]:focus-visible {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
 }
 /* Tooltip styling */
 [data-tooltip]:before {
@@ -212,9 +217,25 @@ div.NER span {
   border-width: 6px 0 6px 6px;
   border-left-color: #000;
 }
-/* Show the tooltip when hovering */
+/* Show the tooltip when hovering or keyboard focusing */
 [data-tooltip]:hover:before,
-[data-tooltip]:hover:after {
+[data-tooltip]:hover:after,
+[data-tooltip]:focus:before,
+[data-tooltip]:focus:after,
+[data-tooltip]:focus-visible:before,
+[data-tooltip]:focus-visible:after {
   display: block;
   z-index: 50;
 }
+
+@media (max-width: 900px) {
+  .App {
+    flex-direction: column;
+  }
+
+  .SideBar {
+    width: 100%;
+    height: auto;
+  }
+}
+

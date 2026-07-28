@@ -163,8 +163,8 @@ function SetupContent() {
                 </div>
             ) : null}
             {lastUpdated ? (
-                <div style={{fontSize: 12, marginBottom: 8}}>
-                    Last updated: {lastUpdated}
+                <div role="status" aria-live="polite" style={{fontSize: 12, marginBottom: 8}}>
+                    Last updated: <time dateTime={lastUpdated}>{lastUpdated}</time>
                 </div>
             ) : null}
             {LANGUAGE_BUTTONS.map((languageButton) => {
@@ -188,15 +188,20 @@ function SetupContent() {
                 );
             })}
             <table>
+                <caption>Language loader activity log.</caption>
                 <thead>
                 <tr>
-                    <th>Timestamp</th>
-                    <th>Language</th>
-                    <th>Log</th>
+                    <th scope="col">Timestamp</th>
+                    <th scope="col">Language</th>
+                    <th scope="col">Log</th>
                 </tr>
                 </thead>
                 <tbody>{
-                    logs.map((log, index) => {
+                    logs.length === 0 ? (
+                        <tr>
+                            <td colSpan={3}>No log entries yet.</td>
+                        </tr>
+                    ) : logs.map((log, index) => {
                         return (
                             <tr key={log.timestamp + '-' + log.language + '-' + index}>
                                 <td>{log.timestamp}</td>

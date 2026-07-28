@@ -69,7 +69,7 @@ function OpenApiContent() {
             ) : null}
 
             {error ? (
-                <div style={{ color: '#b00020', marginBottom: 12 }}>{error}</div>
+                <div role="alert" style={{ color: '#b00020', marginBottom: 12 }}>{error}</div>
             ) : null}
 
             {doc ? (
@@ -93,15 +93,20 @@ function OpenApiContent() {
 
                     <h3>Operations</h3>
                     <Table striped bordered hover size="sm">
+                        <caption>OpenAPI operations discovered from the live backend document.</caption>
                         <thead>
                         <tr>
-                            <th>Method</th>
-                            <th>Path</th>
-                            <th>Summary</th>
+                            <th scope="col">Method</th>
+                            <th scope="col">Path</th>
+                            <th scope="col">Summary</th>
                         </tr>
                         </thead>
                         <tbody>
-                        {operations.map((operation) => (
+                        {operations.length === 0 ? (
+                            <tr>
+                                <td colSpan={3}>No operations found in the OpenAPI document.</td>
+                            </tr>
+                        ) : operations.map((operation) => (
                             <tr key={`${operation.method}-${operation.path}`}>
                                 <td><code>{operation.method}</code></td>
                                 <td><code>{operation.path}</code></td>

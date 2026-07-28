@@ -370,26 +370,32 @@ function RagContent() {
             </div>
 
             {errorMessage ? <div role="alert" style={{ color: '#b00020', marginBottom: 12 }}>{errorMessage}</div> : null}
-            {clearMessage ? <div style={{ color: '#0a7a0a', marginBottom: 12 }}>{clearMessage}</div> : null}
+            {clearMessage ? <div role="status" aria-live="polite" style={{ color: '#0a7a0a', marginBottom: 12 }}>{clearMessage}</div> : null}
 
             <h3>Ingest</h3>
             <Form onSubmit={handleIngest}>
                 <Row className={'mb-3'}>
                     <Col md={4}>
-                        <Form.Label>Doc ID</Form.Label>
-                        <Form.Control value={docId} onChange={(e) => setDocId(e.target.value)} />
+                        <Form.Group controlId="rag-doc-id">
+                            <Form.Label>Doc ID</Form.Label>
+                            <Form.Control value={docId} onChange={(e) => setDocId(e.target.value)} />
+                        </Form.Group>
                     </Col>
                     <Col md={4}>
-                        <Form.Label>Source URI</Form.Label>
-                        <Form.Control value={sourceUri} onChange={(e) => setSourceUri(e.target.value)} />
+                        <Form.Group controlId="rag-source-uri">
+                            <Form.Label>Source URI</Form.Label>
+                            <Form.Control value={sourceUri} onChange={(e) => setSourceUri(e.target.value)} />
+                        </Form.Group>
                     </Col>
                     <Col md={2}>
-                        <Form.Label>Language</Form.Label>
-                        <Form.Select value={ingestLanguage} onChange={(e) => setIngestLanguage(e.target.value)}>
-                            {LANGUAGE_OPTIONS.map((option) => (
-                                <option key={option.value} value={option.value} disabled={!isLanguageLoaded(option.value)}>{option.label}</option>
-                            ))}
-                        </Form.Select>
+                        <Form.Group controlId="rag-ingest-language">
+                            <Form.Label>Language</Form.Label>
+                            <Form.Select value={ingestLanguage} onChange={(e) => setIngestLanguage(e.target.value)}>
+                                {LANGUAGE_OPTIONS.map((option) => (
+                                    <option key={option.value} value={option.value} disabled={!isLanguageLoaded(option.value)}>{option.label}</option>
+                                ))}
+                            </Form.Select>
+                        </Form.Group>
                     </Col>
                 </Row>
                 {!ingestLanguageLoaded ? (
@@ -399,12 +405,16 @@ function RagContent() {
                 ) : null}
                 <Row className={'mb-3'}>
                     <Col md={2}>
-                        <Form.Label>Chunk Size</Form.Label>
-                        <Form.Control type="number" min={1} step={1} value={chunkSize} onChange={(e) => setChunkSize(Number(e.target.value))} />
+                        <Form.Group controlId="rag-chunk-size">
+                            <Form.Label>Chunk Size</Form.Label>
+                            <Form.Control type="number" min={1} step={1} value={chunkSize} onChange={(e) => setChunkSize(Number(e.target.value))} />
+                        </Form.Group>
                     </Col>
                     <Col md={2}>
-                        <Form.Label>Overlap</Form.Label>
-                        <Form.Control type="number" min={0} step={1} value={overlap} onChange={(e) => setOverlap(Number(e.target.value))} />
+                        <Form.Group controlId="rag-overlap">
+                            <Form.Label>Overlap</Form.Label>
+                            <Form.Control type="number" min={0} step={1} value={overlap} onChange={(e) => setOverlap(Number(e.target.value))} />
+                        </Form.Group>
                     </Col>
                 </Row>
                 {!ingestNumbersValid ? (
@@ -412,7 +422,7 @@ function RagContent() {
                         Chunk Size must be greater than zero and Overlap cannot be negative.
                     </div>
                 ) : null}
-                <Form.Group className={'mb-3'}>
+                <Form.Group className={'mb-3'} controlId="rag-ingest-text">
                     <Form.Label>Text</Form.Label>
                     <Form.Control as="textarea" rows={6} value={ingestText} onChange={(e) => setIngestText(e.target.value)} />
                 </Form.Group>
@@ -422,7 +432,7 @@ function RagContent() {
             </Form>
 
             {ingestResponse?.status ? (
-                <div style={{ marginTop: 12 }}>
+                <div role="status" aria-live="polite" style={{ marginTop: 12 }}>
                     <b>Ingested:</b> {ingestResponse.chunksIngested ?? 0} chunk(s) for <code>{ingestResponse.docId}</code>
                 </div>
             ) : null}
@@ -433,20 +443,26 @@ function RagContent() {
             <Form onSubmit={handleSearch}>
                 <Row className={'mb-3'}>
                     <Col md={7}>
-                        <Form.Label>Query</Form.Label>
-                        <Form.Control value={query} onChange={(e) => setQuery(e.target.value)} />
+                        <Form.Group controlId="rag-search-query">
+                            <Form.Label>Query</Form.Label>
+                            <Form.Control value={query} onChange={(e) => setQuery(e.target.value)} />
+                        </Form.Group>
                     </Col>
                     <Col md={2}>
-                        <Form.Label>Language</Form.Label>
-                        <Form.Select value={searchLanguage} onChange={(e) => setSearchLanguage(e.target.value)}>
-                            {LANGUAGE_OPTIONS.map((option) => (
-                                <option key={option.value} value={option.value} disabled={!isLanguageLoaded(option.value)}>{option.label}</option>
-                            ))}
-                        </Form.Select>
+                        <Form.Group controlId="rag-search-language">
+                            <Form.Label>Language</Form.Label>
+                            <Form.Select value={searchLanguage} onChange={(e) => setSearchLanguage(e.target.value)}>
+                                {LANGUAGE_OPTIONS.map((option) => (
+                                    <option key={option.value} value={option.value} disabled={!isLanguageLoaded(option.value)}>{option.label}</option>
+                                ))}
+                            </Form.Select>
+                        </Form.Group>
                     </Col>
                     <Col md={2}>
-                        <Form.Label>Top K</Form.Label>
-                        <Form.Control type="number" min={1} step={1} value={topK} onChange={(e) => setTopK(Number(e.target.value))} />
+                        <Form.Group controlId="rag-top-k">
+                            <Form.Label>Top K</Form.Label>
+                            <Form.Control type="number" min={1} step={1} value={topK} onChange={(e) => setTopK(Number(e.target.value))} />
+                        </Form.Group>
                     </Col>
                 </Row>
                 {!topKValid ? (
@@ -480,17 +496,22 @@ function RagContent() {
             ) : null}
 
             <Table striped bordered hover size="sm" style={{ marginTop: 16 }}>
+                <caption>Ranked RAG search results with score, chunk metadata, and matched text.</caption>
                 <thead>
                 <tr>
-                    <th>Score</th>
-                    <th>Chunk</th>
-                    <th>Doc</th>
-                    <th>Entities</th>
-                    <th>Text</th>
+                    <th scope="col">Score</th>
+                    <th scope="col">Chunk</th>
+                    <th scope="col">Doc</th>
+                    <th scope="col">Entities</th>
+                    <th scope="col">Text</th>
                 </tr>
                 </thead>
                 <tbody>
-                {(searchResponse?.results ?? []).map((result) => (
+                {(searchResponse?.results ?? []).length === 0 ? (
+                    <tr>
+                        <td colSpan={5}>No results yet. Run a search after ingesting content.</td>
+                    </tr>
+                ) : (searchResponse?.results ?? []).map((result) => (
                     <tr key={result.chunkId}>
                         <td>{result.score}</td>
                         <td>{result.chunkId}</td>
