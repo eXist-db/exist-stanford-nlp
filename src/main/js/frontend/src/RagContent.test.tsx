@@ -84,6 +84,16 @@ describe('RAG form validation', () => {
     expect(screen.queryByText(/Ingest language is not loaded/i)).toBeNull();
     expect(screen.queryByText(/Search language is not loaded/i)).toBeNull();
   });
+
+  test('shows a status fetch alert when language status request fails', async () => {
+    vi.spyOn(global, 'fetch').mockRejectedValue(new Error('offline'));
+
+    await act(async () => {
+      render(<RagContent />);
+    });
+
+    expect(await screen.findByText(/Language status is temporarily unavailable/i)).toBeInTheDocument();
+  });
 });
 
 

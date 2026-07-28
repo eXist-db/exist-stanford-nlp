@@ -2,6 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { FormEvent, useCallback, useEffect, useState } from "react";
 import './App.css';
 import {Button, Col, Form, Row} from "react-bootstrap";
+import { API_ENDPOINTS } from './apiConfig';
 
 type LanguageStatus = {
     start: string | null;
@@ -174,6 +175,7 @@ function NERContext() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
     const [enableTooltipFocus, setEnableTooltipFocus] = useState(false);
+    const [statusFetchError, setStatusFetchError] = useState<string | null>(null);
 
     const languageFieldErrorId = 'ner-language-error';
     const textFieldErrorId = 'ner-input-error';
@@ -220,15 +222,19 @@ function NERContext() {
 
     useEffect(() => {
         const controller = new AbortController();
-        const uri = '/exist/restxq/stanford/nlp/logs';
+        const uri = API_ENDPOINTS.logs;
 
         fetch(uri, { signal: controller.signal })
             .then((response) => response.json())
             .then((result: { running: RunningState }) => {
                 setRunning(result.running);
+                setStatusFetchError(null);
             })
-            .catch(() => {
-                // Ignore one-off availability failures and keep defaults.
+            .catch((error: unknown) => {
+                if (error instanceof DOMException && error.name === 'AbortError') {
+                    return;
+                }
+                setStatusFetchError('Language status is temporarily unavailable. Retry shortly or open Setup to refresh language state.');
             });
 
         return () => controller.abort();
@@ -282,7 +288,7 @@ function NERContext() {
             })
         };
 
-        fetch("/exist/restxq/Stanford/ner", requestOptions)
+        fetch(API_ENDPOINTS.ner, requestOptions)
             .then(async (response) => {
                 const raw = await response.text();
                 let parsed: ({ text?: string } & NerError) | null = null;
@@ -374,6 +380,11 @@ function NERContext() {
                     </Button>
                 ))}
             </div>
+            {statusFetchError ? (
+                <div role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
+                    {statusFetchError}
+                </div>
+            ) : null}
             <Form onSubmit={handleSubmit}>
                 <Row className={'mb-3'}>
                     <Col md={4}>

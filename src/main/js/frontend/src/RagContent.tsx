@@ -2,6 +2,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import './App.css';
 import { Button, Col, Form, Row, Spinner, Table } from "react-bootstrap";
+import { API_ENDPOINTS } from './apiConfig';
 
 type IngestResponse = {
     status: boolean;
@@ -195,6 +196,7 @@ function RagContent() {
     const [searchResponse, setSearchResponse] = useState<SearchResponse | null>(null);
     const [clearMessage, setClearMessage] = useState<string>('');
     const [errorMessage, setErrorMessage] = useState<string>('');
+    const [statusFetchError, setStatusFetchError] = useState<string | null>(null);
 
     const queryEntities = useMemo(() => searchResponse?.queryEntities ?? [], [searchResponse]);
 
@@ -240,13 +242,17 @@ function RagContent() {
 
     useEffect(() => {
         const controller = new AbortController();
-        fetch('/exist/restxq/stanford/nlp/logs', { signal: controller.signal })
+        fetch(API_ENDPOINTS.logs, { signal: controller.signal })
             .then((response) => response.json())
             .then((result: { running: RunningState }) => {
                 setRunning(result.running);
+                setStatusFetchError(null);
             })
-            .catch(() => {
-                // Keep defaults if status endpoint is temporarily unavailable.
+            .catch((error: unknown) => {
+                if (error instanceof DOMException && error.name === 'AbortError') {
+                    return;
+                }
+                setStatusFetchError('Language status is temporarily unavailable. Retry shortly or open Setup to refresh language state.');
             });
         return () => controller.abort();
     }, []);
@@ -288,7 +294,7 @@ function RagContent() {
         setIngestLoading(true);
 
         try {
-            const response = await fetch('/exist/restxq/stanford/rag/ingest', {
+            const response = await fetch(API_ENDPOINTS.ragIngest, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -338,7 +344,7 @@ function RagContent() {
                 lang: searchLanguage,
                 topK: String(topK)
             });
-            const response = await fetch(`/exist/restxq/stanford/rag/search?${params.toString()}`);
+            const response = await fetch(`${API_ENDPOINTS.ragSearch}?${params.toString()}`);
             const payload = await response.json() as SearchResponse;
             setSearchResponse(payload);
 
@@ -357,7 +363,7 @@ function RagContent() {
         setClearLoading(true);
 
         try {
-            const response = await fetch('/exist/restxq/stanford/rag/clear');
+            const response = await fetch(API_ENDPOINTS.ragClear);
             const payload = await response.json() as { status?: boolean; removed?: number };
             if (payload.status) {
                 setSearchResponse(null);
@@ -391,6 +397,8 @@ function RagContent() {
                     </Button>
                 ))}
             </div>
+
+            {statusFetchError ? <div role="alert" style={{ color: '#b00020', marginBottom: 12 }}>{statusFetchError}</div> : null}
 
             {errorMessage ? <div role="alert" style={{ color: '#b00020', marginBottom: 12 }}>{errorMessage}</div> : null}
             {clearMessage ? <div role="status" aria-live="polite" style={{ color: '#0a7a0a', marginBottom: 12 }}>{clearMessage}</div> : null}

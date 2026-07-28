@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import './App.css';
 import {Button, Spinner} from "react-bootstrap";
 import {Check } from 'react-bootstrap-icons';
+import { API_ENDPOINTS } from './apiConfig';
 
 type LogEntry = {
     timestamp: string;
@@ -63,7 +64,7 @@ function SetupContent() {
     const lastRef = useRef<string | null>(null);
 
     const fetchLogs = useCallback(() => {
-        let uri = '/exist/restxq/stanford/nlp/logs';
+        let uri = API_ENDPOINTS.logs;
 
         if (lastRef.current) {
             uri += "?timestamp=" + encodeURIComponent(lastRef.current);
@@ -110,7 +111,7 @@ function SetupContent() {
         }));
 
         try {
-            const response = await fetch("/exist/restxq/stanford/nlp/load/" + theLanguage);
+            const response = await fetch(API_ENDPOINTS.loadLanguage(theLanguage));
             const payload = await response.json() as { status?: boolean; error?: string };
 
             if (!response.ok || payload.status !== true) {

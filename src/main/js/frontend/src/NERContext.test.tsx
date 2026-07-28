@@ -100,5 +100,15 @@ describe('NER usability safeguards', () => {
     expect(screen.getByText(/Language resources are not loaded yet/i)).toBeInTheDocument();
     expect(screen.queryByText(/Selected language is not loaded/i)).toBeNull();
   });
+
+  test('shows a status fetch alert when language status request fails', async () => {
+    vi.spyOn(global, 'fetch').mockRejectedValue(new Error('offline'));
+
+    await act(async () => {
+      render(<NERContext />);
+    });
+
+    expect(await screen.findByText(/Language status is temporarily unavailable/i)).toBeInTheDocument();
+  });
 });
 
