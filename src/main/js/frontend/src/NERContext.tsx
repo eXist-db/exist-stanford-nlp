@@ -169,6 +169,7 @@ function NERContext() {
     const [namedEntities, setNamedEntities] = useState("");
     const [nerError, setNerError] = useState<NerError>(INITIAL_ERROR);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
 
     const languageFieldErrorId = 'ner-language-error';
     const textFieldErrorId = 'ner-input-error';
@@ -195,14 +196,15 @@ function NERContext() {
     }, [running]);
 
     const languageLoaded = isLanguageLoaded(language);
-    const showLanguageFieldError = !languageLoaded || nerError.code === 'LANGUAGE_NOT_LOADED';
-    const showTextFieldError = nerError.code === 'EMPTY_INPUT';
+    const showLanguageFieldError = hasAttemptedSubmit && (!languageLoaded || nerError.code === 'LANGUAGE_NOT_LOADED');
+    const showTextFieldError = hasAttemptedSubmit && nerError.code === 'EMPTY_INPUT';
 
     const applySample = useCallback((sample: { language: string; text: string }) => {
         setLanguage(sample.language);
         setContent(sample.text);
         setNamedEntities("");
         setNerError(INITIAL_ERROR);
+        setHasAttemptedSubmit(false);
     }, []);
 
     useEffect(() => {
@@ -231,6 +233,7 @@ function NERContext() {
 
     const handleSubmit = useCallback((e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setHasAttemptedSubmit(true);
 
         if (!content.trim()) {
             setNamedEntities("");
@@ -404,7 +407,7 @@ function NERContext() {
                         <Button type={'submit'} disabled={isSubmitting || !languageLoaded}>Submit</Button>
                     </Col>
                 </Form.Group>
-                {!languageLoaded ? (
+                {hasAttemptedSubmit && !languageLoaded ? (
                     <div role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
                         Selected language is not loaded. Use Setup to load it before submitting.
                     </div>

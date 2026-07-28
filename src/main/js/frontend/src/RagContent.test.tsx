@@ -21,6 +21,24 @@ function createLogsResponse(): Response {
   } as Response;
 }
 
+function createUnloadedLogsResponse(): Response {
+  return {
+    ok: true,
+    status: 200,
+    json: async () => ({
+      running: {
+        arabic: { start: null, end: null, isRunning: false, isLoaded: false },
+        'english-kbp': { start: null, end: null, isRunning: false, isLoaded: false },
+        english: { start: null, end: null, isRunning: false, isLoaded: false },
+        chinese: { start: null, end: null, isRunning: false, isLoaded: false },
+        french: { start: null, end: null, isRunning: false, isLoaded: false },
+        german: { start: null, end: null, isRunning: false, isLoaded: false },
+        spanish: { start: null, end: null, isRunning: false, isLoaded: false }
+      }
+    })
+  } as Response;
+}
+
 describe('RAG form validation', () => {
   afterEach(() => {
     vi.restoreAllMocks();
@@ -48,6 +66,23 @@ describe('RAG form validation', () => {
     fireEvent.change(topKInput, { target: { value: '0' } });
     expect(screen.getByRole('button', { name: /Search Chunks/i })).toBeDisabled();
     expect(screen.getByText(/Top K must be at least 1/i)).toBeInTheDocument();
+  });
+
+  test('does not show language alerts before submit attempts', async () => {
+    vi.spyOn(global, 'fetch').mockImplementation((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes('/exist/restxq/stanford/nlp/logs')) {
+        return Promise.resolve(createUnloadedLogsResponse());
+      }
+      return Promise.reject(new Error(`Unexpected URL: ${url}`));
+    });
+
+    await act(async () => {
+      render(<RagContent />);
+    });
+
+    expect(screen.queryByText(/Ingest language is not loaded/i)).toBeNull();
+    expect(screen.queryByText(/Search language is not loaded/i)).toBeNull();
   });
 });
 

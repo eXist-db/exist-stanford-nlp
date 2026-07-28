@@ -15,16 +15,16 @@ type MockLogsResponse = {
   };
 };
 
-function createLogsResponse(): Response {
+function createLogsResponse(isLoaded = true): Response {
   const payload: MockLogsResponse = {
     running: {
-      arabic: { start: null, end: null, isRunning: false, isLoaded: true },
-      'english-kbp': { start: null, end: null, isRunning: false, isLoaded: true },
-      english: { start: null, end: null, isRunning: false, isLoaded: true },
-      chinese: { start: null, end: null, isRunning: false, isLoaded: true },
-      french: { start: null, end: null, isRunning: false, isLoaded: true },
-      german: { start: null, end: null, isRunning: false, isLoaded: true },
-      spanish: { start: null, end: null, isRunning: false, isLoaded: true }
+      arabic: { start: null, end: null, isRunning: false, isLoaded },
+      'english-kbp': { start: null, end: null, isRunning: false, isLoaded },
+      english: { start: null, end: null, isRunning: false, isLoaded },
+      chinese: { start: null, end: null, isRunning: false, isLoaded },
+      french: { start: null, end: null, isRunning: false, isLoaded },
+      german: { start: null, end: null, isRunning: false, isLoaded },
+      spanish: { start: null, end: null, isRunning: false, isLoaded }
     }
   };
 
@@ -73,6 +73,22 @@ describe('NER usability safeguards', () => {
       expect(nerContainer?.querySelector('script')).toBeNull();
       expect(nerContainer?.querySelector('span.person')?.textContent).toBe('Sam');
     });
+  });
+
+  test('does not show language warning before submit attempt', async () => {
+    vi.spyOn(global, 'fetch').mockImplementation((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes('/exist/restxq/stanford/nlp/logs')) {
+        return Promise.resolve(createLogsResponse(false));
+      }
+      return Promise.reject(new Error(`Unexpected URL: ${url}`));
+    });
+
+    await act(async () => {
+      render(<NERContext />);
+    });
+
+    expect(screen.queryByText(/Selected language is not loaded/i)).toBeNull();
   });
 });
 

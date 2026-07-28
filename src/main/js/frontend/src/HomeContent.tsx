@@ -12,7 +12,7 @@ function HomeContent() {
                 process text, and extract named entities directly in your database-backed workflows.
             </p>
 
-            <h3>What you can do here</h3>
+            <h2>What you can do here</h2>
             <ul>
                 <li>
                     <b>Setup</b>: Download and load language models into the app data collection.
@@ -25,14 +25,14 @@ function HomeContent() {
                 </li>
             </ul>
 
-            <h3>Typical workflow</h3>
+            <h2>Typical workflow</h2>
             <ol>
                 <li>Open <b>Setup</b> and load one or more languages.</li>
                 <li>Open <b>NER</b>, pick a loaded language, then submit text.</li>
                 <li>Use the generated output in your eXist-db queries or applications.</li>
             </ol>
 
-            <h3>Quick Start</h3>
+            <h2>Quick Start</h2>
             <div style={{display: 'flex', gap: 12, flexWrap: 'wrap'}}>
                 <Link to="/setup" className="btn btn-primary">Go to Setup</Link>
                 <Link to="/ner" className="btn btn-outline-primary">Go to NER</Link>

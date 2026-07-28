@@ -91,7 +91,7 @@ function OpenApiContent() {
                         </Button>
                     </div>
 
-                    <h3>Operations</h3>
+                    <h2>Operations</h2>
                     <div className="table-responsive">
                         <Table striped bordered hover size="sm">
                             <caption>OpenAPI operations discovered from the live backend document.</caption>
@@ -118,7 +118,7 @@ function OpenApiContent() {
                         </Table>
                     </div>
 
-                    <h3>Document</h3>
+                    <h2>Document</h2>
                     <pre style={{whiteSpace: 'pre-wrap'}}>{JSON.stringify(doc, null, 2)}</pre>
                 </>
             ) : null}

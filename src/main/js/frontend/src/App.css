@@ -191,6 +191,7 @@ body {
 }
 
 .rag-col-id,
+.rag-col-uri,
 .rag-col-entities,
 .rag-col-text {
   overflow-wrap: anywhere;

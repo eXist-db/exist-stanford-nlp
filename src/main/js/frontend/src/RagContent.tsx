@@ -186,6 +186,10 @@ function RagContent() {
     const [ingestLoading, setIngestLoading] = useState(false);
     const [searchLoading, setSearchLoading] = useState(false);
     const [clearLoading, setClearLoading] = useState(false);
+    const [hasAttemptedIngestSubmit, setHasAttemptedIngestSubmit] = useState(false);
+    const [hasAttemptedSearchSubmit, setHasAttemptedSearchSubmit] = useState(false);
+    const [hasTouchedIngestNumbers, setHasTouchedIngestNumbers] = useState(false);
+    const [hasTouchedTopK, setHasTouchedTopK] = useState(false);
 
     const [ingestResponse, setIngestResponse] = useState<IngestResponse | null>(null);
     const [searchResponse, setSearchResponse] = useState<SearchResponse | null>(null);
@@ -224,11 +228,15 @@ function RagContent() {
 
     const ingestLanguageLoaded = isLanguageLoaded(ingestLanguage);
     const searchLanguageLoaded = isLanguageLoaded(searchLanguage);
-    const ingestLanguageDescribedBy = !ingestLanguageLoaded ? ingestLanguageErrorId : undefined;
-    const chunkSizeDescribedBy = !ingestNumbersValid ? ingestNumbersErrorId : undefined;
-    const overlapDescribedBy = !ingestNumbersValid ? ingestNumbersErrorId : undefined;
-    const searchLanguageDescribedBy = !searchLanguageLoaded ? searchLanguageErrorId : undefined;
-    const topKDescribedBy = !topKValid ? topKErrorId : undefined;
+    const showIngestLanguageError = hasAttemptedIngestSubmit && !ingestLanguageLoaded;
+    const showIngestNumbersError = (hasAttemptedIngestSubmit || hasTouchedIngestNumbers) && !ingestNumbersValid;
+    const showSearchLanguageError = hasAttemptedSearchSubmit && !searchLanguageLoaded;
+    const showTopKError = (hasAttemptedSearchSubmit || hasTouchedTopK) && !topKValid;
+    const ingestLanguageDescribedBy = showIngestLanguageError ? ingestLanguageErrorId : undefined;
+    const chunkSizeDescribedBy = showIngestNumbersError ? ingestNumbersErrorId : undefined;
+    const overlapDescribedBy = showIngestNumbersError ? ingestNumbersErrorId : undefined;
+    const searchLanguageDescribedBy = showSearchLanguageError ? searchLanguageErrorId : undefined;
+    const topKDescribedBy = showTopKError ? topKErrorId : undefined;
 
     useEffect(() => {
         const controller = new AbortController();
@@ -255,10 +263,15 @@ function RagContent() {
         setTopK(sample.topK);
         setErrorMessage('');
         setClearMessage('');
+        setHasAttemptedIngestSubmit(false);
+        setHasAttemptedSearchSubmit(false);
+        setHasTouchedIngestNumbers(false);
+        setHasTouchedTopK(false);
     }
 
     async function handleIngest(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
+        setHasAttemptedIngestSubmit(true);
         setErrorMessage('');
         setClearMessage('');
 
@@ -303,6 +316,7 @@ function RagContent() {
 
     async function handleSearch(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
+        setHasAttemptedSearchSubmit(true);
         setErrorMessage('');
         setClearMessage('');
 
@@ -364,7 +378,7 @@ function RagContent() {
             <h1>RAG</h1>
             <p>Ingest text chunks with NER enrichment and search ranked results.</p>
 
-            <h3>Examples</h3>
+            <h2>Examples</h2>
             <div style={{display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16}}>
                 {RAG_SAMPLES.map((sample) => (
                     <Button
@@ -381,7 +395,7 @@ function RagContent() {
             {errorMessage ? <div role="alert" style={{ color: '#b00020', marginBottom: 12 }}>{errorMessage}</div> : null}
             {clearMessage ? <div role="status" aria-live="polite" style={{ color: '#0a7a0a', marginBottom: 12 }}>{clearMessage}</div> : null}
 
-            <h3>Ingest</h3>
+            <h2>Ingest</h2>
             <Form onSubmit={handleIngest}>
                 <Row className={'mb-3'}>
                     <Col md={4}>
@@ -402,7 +416,7 @@ function RagContent() {
                             <Form.Select
                                 value={ingestLanguage}
                                 onChange={(e) => setIngestLanguage(e.target.value)}
-                                aria-invalid={!ingestLanguageLoaded ? true : undefined}
+                                aria-invalid={showIngestLanguageError ? true : undefined}
                                 aria-describedby={ingestLanguageDescribedBy}
                             >
                                 {LANGUAGE_OPTIONS.map((option) => (
@@ -412,7 +426,7 @@ function RagContent() {
                         </Form.Group>
                     </Col>
                 </Row>
-                {!ingestLanguageLoaded ? (
+                {showIngestLanguageError ? (
                     <div id={ingestLanguageErrorId} role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
                         Ingest language is not loaded. Use Setup to load it first.
                     </div>
@@ -426,8 +440,11 @@ function RagContent() {
                                 min={1}
                                 step={1}
                                 value={chunkSize}
-                                onChange={(e) => setChunkSize(Number(e.target.value))}
-                                aria-invalid={!ingestNumbersValid ? true : undefined}
+                                onChange={(e) => {
+                                    setHasTouchedIngestNumbers(true);
+                                    setChunkSize(Number(e.target.value));
+                                }}
+                                aria-invalid={showIngestNumbersError ? true : undefined}
                                 aria-describedby={chunkSizeDescribedBy}
                             />
                         </Form.Group>
@@ -440,14 +457,17 @@ function RagContent() {
                                 min={0}
                                 step={1}
                                 value={overlap}
-                                onChange={(e) => setOverlap(Number(e.target.value))}
-                                aria-invalid={!ingestNumbersValid ? true : undefined}
+                                onChange={(e) => {
+                                    setHasTouchedIngestNumbers(true);
+                                    setOverlap(Number(e.target.value));
+                                }}
+                                aria-invalid={showIngestNumbersError ? true : undefined}
                                 aria-describedby={overlapDescribedBy}
                             />
                         </Form.Group>
                     </Col>
                 </Row>
-                {!ingestNumbersValid ? (
+                {showIngestNumbersError ? (
                     <div id={ingestNumbersErrorId} role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
                         Chunk Size must be greater than zero and Overlap cannot be negative.
                     </div>
@@ -469,7 +489,7 @@ function RagContent() {
 
             <hr />
 
-            <h3>Search</h3>
+            <h2>Search</h2>
             <Form onSubmit={handleSearch}>
                 <Row className={'mb-3'}>
                     <Col md={7}>
@@ -484,7 +504,7 @@ function RagContent() {
                             <Form.Select
                                 value={searchLanguage}
                                 onChange={(e) => setSearchLanguage(e.target.value)}
-                                aria-invalid={!searchLanguageLoaded ? true : undefined}
+                                aria-invalid={showSearchLanguageError ? true : undefined}
                                 aria-describedby={searchLanguageDescribedBy}
                             >
                                 {LANGUAGE_OPTIONS.map((option) => (
@@ -501,19 +521,22 @@ function RagContent() {
                                 min={1}
                                 step={1}
                                 value={topK}
-                                onChange={(e) => setTopK(Number(e.target.value))}
-                                aria-invalid={!topKValid ? true : undefined}
+                                onChange={(e) => {
+                                    setHasTouchedTopK(true);
+                                    setTopK(Number(e.target.value));
+                                }}
+                                aria-invalid={showTopKError ? true : undefined}
                                 aria-describedby={topKDescribedBy}
                             />
                         </Form.Group>
                     </Col>
                 </Row>
-                {!topKValid ? (
+                {showTopKError ? (
                     <div id={topKErrorId} role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
                         Top K must be at least 1.
                     </div>
                 ) : null}
-                {!searchLanguageLoaded ? (
+                {showSearchLanguageError ? (
                     <div id={searchLanguageErrorId} role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
                         Search language is not loaded. Use Setup to load it first.
                     </div>
@@ -546,6 +569,7 @@ function RagContent() {
                         <th scope="col" className="rag-col-score">Score</th>
                         <th scope="col" className="rag-col-id">Chunk</th>
                         <th scope="col" className="rag-col-id">Doc</th>
+                        <th scope="col" className="rag-col-uri">Source URI</th>
                         <th scope="col" className="rag-col-entities">Entities</th>
                         <th scope="col" className="rag-col-text">Text</th>
                     </tr>
@@ -553,13 +577,14 @@ function RagContent() {
                     <tbody>
                     {(searchResponse?.results ?? []).length === 0 ? (
                         <tr>
-                            <td colSpan={5}>No results yet. Run a search after ingesting content.</td>
+                            <td colSpan={6}>No results yet. Run a search after ingesting content.</td>
                         </tr>
                     ) : (searchResponse?.results ?? []).map((result) => (
                         <tr key={result.chunkId}>
                             <td className="rag-col-score">{result.score}</td>
                             <td className="rag-col-id">{result.chunkId}</td>
                             <td className="rag-col-id">{result.docId}</td>
+                            <td className="rag-col-uri">{result.sourceUri}</td>
                             <td className="rag-col-entities">{(result.entities ?? []).join(', ')}</td>
                             <td className="rag-col-text">{result.text}</td>
                         </tr>
