@@ -5,6 +5,7 @@ import SetupContent from "./SetupContent";
 import NERContext from "./NERContext";
 import HomeContent from "./HomeContent";
 import RagContent from "./RagContent";
+import OpenApiContent from "./OpenApiContent";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
                 <Route path="/setup" element={<SetupContent/>} />
                 <Route path="/ner" element={<NERContext/>} />
                 <Route path="/rag" element={<RagContent/>} />
+                <Route path="/api-docs" element={<OpenApiContent/>} />
 
             </Route>
         </Routes>

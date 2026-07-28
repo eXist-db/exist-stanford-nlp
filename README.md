@@ -110,6 +110,7 @@ The Home page includes a Quick Start section linking directly to Setup and NER.
 
 - Load language models: `GET /exist/restxq/stanford/nlp/load/{language}`
 - View load status/logs: `GET /exist/restxq/stanford/nlp/logs`
+- OpenAPI JSON: `GET /exist/restxq/stanford/openapi`
 
 #### Named Entity Recognition
 
@@ -153,6 +154,11 @@ curl "http://localhost:8080/exist/restxq/stanford/rag/clear"
 ```
 
 Returned search rows include `chunkId`, `docId`, `sourceUri`, `text`, `entities`, and `score`.
+
+### OpenAPI in the UI
+
+The frontend now includes an **API Docs** page (sidebar: `API Docs`) that fetches and renders
+the OpenAPI document from `/exist/restxq/stanford/openapi`.
 
 ### XQuery Function Modules
 #### Natural Language Processing

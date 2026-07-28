@@ -16,6 +16,10 @@ export const SideBarData = [
     key: '/rag'
   },
   {
+    label: 'API Docs',
+    key: '/api-docs'
+  },
+  {
     label: 'Setup',
     icon: <HouseDoorFill />,
     key: '/setup'

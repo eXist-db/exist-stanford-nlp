@@ -37,6 +37,7 @@ function HomeContent() {
                 <Link to="/setup" className="btn btn-primary">Go to Setup</Link>
                 <Link to="/ner" className="btn btn-outline-primary">Go to NER</Link>
                 <Link to="/rag" className="btn btn-outline-secondary">Go to RAG</Link>
+                <Link to="/api-docs" className="btn btn-outline-dark">Open API Docs</Link>
             </div>
             <p style={{marginTop: 10}}>
                 <b>RAG tip:</b> Ingest source text first, then run search queries to retrieve ranked chunks with entity-aware scoring.
