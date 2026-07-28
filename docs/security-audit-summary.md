@@ -33,11 +33,11 @@ Date: 2026-07-27
 - Suggested fixes point to `vite@8`, `vitest@4`, and `react-router@7`.
 - `vite@8.1.5` requires Node `^20.19.0 || >=22.12.0` and
   `vitest@4.1.10` requires Node `^20 || ^22 || >=24`.
-- Current build pins Node `v18.20.4`, so a runtime uplift is required first.
+- Current build pins Node `v20.20.2`; remaining highs are tracked in the React Router family risk acceptance record.
 
 ## Recommended Next Step
 
-Plan a follow-up dependency track for Node runtime uplift and major upgrades (`vite`, `vitest`, `react-router`), then re-run audit and regression tests.
+Monitor React Router advisory updates, apply the first compatible fixed release path, then re-run audit and regression tests.
 
 ## Risk Acceptance Record
 

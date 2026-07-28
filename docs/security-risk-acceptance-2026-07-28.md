@@ -16,6 +16,9 @@ Affected packages:
 - `react-router` (high)
 - `react-router-dom` (high)
 
+Open advisory tracked for this acceptance:
+- `GHSA-qwww-vcr4-c8h2` (`react-router` family)
+
 Baseline before uplift (for traceability):
 
 - Total: 7
@@ -33,6 +36,14 @@ Accepted temporarily for the current release line, with compensating controls, u
 - The prior critical/high findings were remediated by upgrading to Node 20 and major-safe toolchain versions (`vite@8`, `vitest@4`, `@vitejs/plugin-react@6`).
 - Remaining high findings are tied to `react-router`/`react-router-dom` advisory ranges where the `npm audit` recommended downgrade target is known to reintroduce broader historical findings.
 - No clean non-breaking dependency path currently yields zero high findings in this dependency family for this app.
+
+## Advisory Detail (Open)
+
+- Advisory: `GHSA-qwww-vcr4-c8h2`
+- Family: `react-router` / `react-router-dom`
+- Current pin in this project: `react-router-dom@7.18.1`
+- `npm audit` currently reports vulnerable range `>=7.12.0 <8.3.0`; as of this review, no `8.3.0` release is available from the npm registry for `react-router-dom`.
+- The audit tool's suggested downgrade path (`7.11.0`) is not accepted because it introduces multiple additional historical findings in the same dependency family.
 
 ## Compensating Controls in Place
 
@@ -54,8 +65,14 @@ Accepted temporarily for the current release line, with compensating controls, u
 ## Exit Criteria (Remove Acceptance)
 
 - Monitor `react-router` and `react-router-dom` advisories for a fix path that does not regress to older vulnerable ranges.
-- Apply and validate the first compatible dependency set that removes remaining highs.
+- Apply and validate the first compatible dependency set that removes remaining highs (or documented upstream correction to advisory range).
 - `npm audit` rerun with no critical/high findings.
+
+## Monitoring / Revalidation Trigger
+
+- Re-check immediately when a new `react-router-dom` release is published.
+- Re-check immediately if GitHub Security Advisory data for `GHSA-qwww-vcr4-c8h2` changes.
+- Re-run `npm audit`, `npm test`, `npm run build`, and Maven package verification after any router-family change.
 
 ## Review Date
 

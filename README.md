@@ -1,12 +1,12 @@
 ---
-author: 'Loren Cahlander North Carolina Unites States of America
-  <loren.cahlander@easymetahub.com>'
+author: 'Loren Cahlander New Richmond, Wisconsin
+  <loren@magellanmeta.ai> | <loren.cahlander@gmail.com>'
 title: 'Stanford CoreNLP Wrapper for eXist-db'
 ---
 
 # exist-stanford-nlp
 
-[![Build Status](https://travis-ci.com/duncdrum/exist-stanford-nlp.svg?branch=master)](https://travis-ci.com/duncdrum/exist-stanford-nlp)
+[![Build Status](https://travis-ci.com/eXist-db/exist-stanford-nlp.svg?branch=develop)](https://travis-ci.com/eXist-db/exist-stanford-nlp)
 
 ## Introduction
 This application is a wrapper around the [Stanford CoreNLP](https://stanfordnlp.github.io/CoreNLP/) pipeline for
@@ -25,15 +25,14 @@ see the contributions section at the end of this article.
 ### For Building from Source
 -   maven: `3.6.0`
 -   java: `8`
--   node: `18.20.4`
--   (polymer-cli: `1.9.11`)
+-   node: `20.20.2`
 
 ## Building from Source
 All dependencies including node.js and polymer dependencies are managed by maven. Simply, run `mvn clean package` to generate a `.xar` file inside the `target/` directory. Then follow the installation instructions below.
 
-When developing web-components you can navigate to the `src/main/polymer` directory and execute polymer-cli commands.
+When developing the frontend you can navigate to the `src/main/js/frontend` directory and run npm scripts (`npm test`, `npm run build`, `npm start`).
 
-For more information see the [polymer readme](./src/main/polymer/README.md)
+For more information see the [frontend readme](./src/main/js/frontend/README.md)
 
 ### Testing
 To run unit tests(java, xquery, web-component) locally use: `mvn test`.
@@ -520,11 +519,11 @@ Das ist eine Universitätsstadt im Süden von <LOCATION>Deutschland</LOCATION>.<
 
 ### Future Developments
 Any requests for features should be submitted to
-<https://github.com/lcahlander/exist-stanford-nlp/issues>
+<https://github.com/eXist-db/exist-stanford-nlp/issues>
 
 ### About the Author
-Loren is an independent contractor, so his contributions to the Open
-Source community are on his own time. If you appreciate his
-contributions to the NoSQL and the Natural Language Processing
-communities, then please either contract him for a project or submit a
-contribution to his PayPal at <loren.cahlander@gmail.com>.
+Loren is an independent contractor based in New Richmond, Wisconsin, so
+his contributions to the Open Source community are on his own time. If
+you appreciate his contributions to the NoSQL and the Natural Language
+Processing communities, then please either contract him for a project or
+reach out at <loren@magellanmeta.ai> or <loren.cahlander@gmail.com>.

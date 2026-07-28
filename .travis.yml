@@ -14,7 +14,7 @@ services:
 
 env:
   global:
-    - NODE_VERSION=v18.20.4
+    - NODE_VERSION=v20.20.2
   # - img=existdb/existdb:latest
   - img=existdb/existdb:5.2.0
   - img=existdb/existdb:5.0.0
@@ -22,9 +22,9 @@ env:
 jobs:
   include:
     - jdk: openjdk11
-      env: img=existdb/existdb:5.2.0 NODE_VERSION=v20.19.0
+      env: img=existdb/existdb:5.2.0 NODE_VERSION=v20.20.2
     - jdk: openjdk11
-      env: img=existdb/existdb:5.0.0 NODE_VERSION=v20.19.0
+      env: img=existdb/existdb:5.0.0 NODE_VERSION=v20.20.2
 
 cache:
   directories:
