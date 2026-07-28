@@ -196,6 +196,10 @@ function RagContent() {
 
     const ingestNumbersValid = Number.isInteger(chunkSize) && chunkSize > 0 && Number.isInteger(overlap) && overlap >= 0;
     const topKValid = Number.isInteger(topK) && topK >= 1;
+    const ingestLanguageErrorId = 'rag-ingest-language-error';
+    const ingestNumbersErrorId = 'rag-ingest-numbers-error';
+    const searchLanguageErrorId = 'rag-search-language-error';
+    const topKErrorId = 'rag-topk-error';
 
     const isLanguageLoaded = useCallback((lang: string): boolean => {
         switch (lang) {
@@ -220,6 +224,11 @@ function RagContent() {
 
     const ingestLanguageLoaded = isLanguageLoaded(ingestLanguage);
     const searchLanguageLoaded = isLanguageLoaded(searchLanguage);
+    const ingestLanguageDescribedBy = !ingestLanguageLoaded ? ingestLanguageErrorId : undefined;
+    const chunkSizeDescribedBy = !ingestNumbersValid ? ingestNumbersErrorId : undefined;
+    const overlapDescribedBy = !ingestNumbersValid ? ingestNumbersErrorId : undefined;
+    const searchLanguageDescribedBy = !searchLanguageLoaded ? searchLanguageErrorId : undefined;
+    const topKDescribedBy = !topKValid ? topKErrorId : undefined;
 
     useEffect(() => {
         const controller = new AbortController();
@@ -390,7 +399,12 @@ function RagContent() {
                     <Col md={2}>
                         <Form.Group controlId="rag-ingest-language">
                             <Form.Label>Language</Form.Label>
-                            <Form.Select value={ingestLanguage} onChange={(e) => setIngestLanguage(e.target.value)}>
+                            <Form.Select
+                                value={ingestLanguage}
+                                onChange={(e) => setIngestLanguage(e.target.value)}
+                                aria-invalid={!ingestLanguageLoaded ? true : undefined}
+                                aria-describedby={ingestLanguageDescribedBy}
+                            >
                                 {LANGUAGE_OPTIONS.map((option) => (
                                     <option key={option.value} value={option.value} disabled={!isLanguageLoaded(option.value)}>{option.label}</option>
                                 ))}
@@ -399,7 +413,7 @@ function RagContent() {
                     </Col>
                 </Row>
                 {!ingestLanguageLoaded ? (
-                    <div role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
+                    <div id={ingestLanguageErrorId} role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
                         Ingest language is not loaded. Use Setup to load it first.
                     </div>
                 ) : null}
@@ -407,18 +421,34 @@ function RagContent() {
                     <Col md={2}>
                         <Form.Group controlId="rag-chunk-size">
                             <Form.Label>Chunk Size</Form.Label>
-                            <Form.Control type="number" min={1} step={1} value={chunkSize} onChange={(e) => setChunkSize(Number(e.target.value))} />
+                            <Form.Control
+                                type="number"
+                                min={1}
+                                step={1}
+                                value={chunkSize}
+                                onChange={(e) => setChunkSize(Number(e.target.value))}
+                                aria-invalid={!ingestNumbersValid ? true : undefined}
+                                aria-describedby={chunkSizeDescribedBy}
+                            />
                         </Form.Group>
                     </Col>
                     <Col md={2}>
                         <Form.Group controlId="rag-overlap">
                             <Form.Label>Overlap</Form.Label>
-                            <Form.Control type="number" min={0} step={1} value={overlap} onChange={(e) => setOverlap(Number(e.target.value))} />
+                            <Form.Control
+                                type="number"
+                                min={0}
+                                step={1}
+                                value={overlap}
+                                onChange={(e) => setOverlap(Number(e.target.value))}
+                                aria-invalid={!ingestNumbersValid ? true : undefined}
+                                aria-describedby={overlapDescribedBy}
+                            />
                         </Form.Group>
                     </Col>
                 </Row>
                 {!ingestNumbersValid ? (
-                    <div role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
+                    <div id={ingestNumbersErrorId} role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
                         Chunk Size must be greater than zero and Overlap cannot be negative.
                     </div>
                 ) : null}
@@ -451,7 +481,12 @@ function RagContent() {
                     <Col md={2}>
                         <Form.Group controlId="rag-search-language">
                             <Form.Label>Language</Form.Label>
-                            <Form.Select value={searchLanguage} onChange={(e) => setSearchLanguage(e.target.value)}>
+                            <Form.Select
+                                value={searchLanguage}
+                                onChange={(e) => setSearchLanguage(e.target.value)}
+                                aria-invalid={!searchLanguageLoaded ? true : undefined}
+                                aria-describedby={searchLanguageDescribedBy}
+                            >
                                 {LANGUAGE_OPTIONS.map((option) => (
                                     <option key={option.value} value={option.value} disabled={!isLanguageLoaded(option.value)}>{option.label}</option>
                                 ))}
@@ -461,17 +496,25 @@ function RagContent() {
                     <Col md={2}>
                         <Form.Group controlId="rag-top-k">
                             <Form.Label>Top K</Form.Label>
-                            <Form.Control type="number" min={1} step={1} value={topK} onChange={(e) => setTopK(Number(e.target.value))} />
+                            <Form.Control
+                                type="number"
+                                min={1}
+                                step={1}
+                                value={topK}
+                                onChange={(e) => setTopK(Number(e.target.value))}
+                                aria-invalid={!topKValid ? true : undefined}
+                                aria-describedby={topKDescribedBy}
+                            />
                         </Form.Group>
                     </Col>
                 </Row>
                 {!topKValid ? (
-                    <div role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
+                    <div id={topKErrorId} role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
                         Top K must be at least 1.
                     </div>
                 ) : null}
                 {!searchLanguageLoaded ? (
-                    <div role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
+                    <div id={searchLanguageErrorId} role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
                         Search language is not loaded. Use Setup to load it first.
                     </div>
                 ) : null}

@@ -170,6 +170,9 @@ function NERContext() {
     const [nerError, setNerError] = useState<NerError>(INITIAL_ERROR);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    const languageFieldErrorId = 'ner-language-error';
+    const textFieldErrorId = 'ner-input-error';
+
     const isLanguageLoaded = useCallback((lang: string): boolean => {
         switch (lang) {
             case 'en':
@@ -192,6 +195,8 @@ function NERContext() {
     }, [running]);
 
     const languageLoaded = isLanguageLoaded(language);
+    const showLanguageFieldError = !languageLoaded || nerError.code === 'LANGUAGE_NOT_LOADED';
+    const showTextFieldError = nerError.code === 'EMPTY_INPUT';
 
     const applySample = useCallback((sample: { language: string; text: string }) => {
         setLanguage(sample.language);
@@ -336,7 +341,8 @@ function NERContext() {
 
     return (
         <div style={{padding: 35}}>
-            <h3>Examples</h3>
+            <h1>Named Entity Recognition</h1>
+            <h2>Examples</h2>
             <div style={{display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 16}}>
                 {NER_SAMPLES.map((sample) => (
                     <Button
@@ -354,7 +360,13 @@ function NERContext() {
                     <Col md={4}>
                         <Form.Group controlId="ner-language-select">
                             <Form.Label>Select language</Form.Label>
-                            <Form.Select name="language" value={language} onChange={handleLanguageChange}>
+                            <Form.Select
+                                name="language"
+                                value={language}
+                                onChange={handleLanguageChange}
+                                aria-invalid={showLanguageFieldError ? true : undefined}
+                                aria-describedby={showLanguageFieldError ? languageFieldErrorId : undefined}
+                            >
                                 <option value="en" disabled={!running.english.isLoaded}>English</option>
                                 <option value="english-kbp" disabled={!running["english-kbp"].isLoaded}>English KBP</option>
                                 <option value="ar" disabled={!running.arabic.isLoaded}>Arabic</option>
@@ -363,12 +375,29 @@ function NERContext() {
                                 <option value="de" disabled={!running.german.isLoaded}>German</option>
                                 <option value="es" disabled={!running.spanish.isLoaded}>Spanish</option>
                             </Form.Select>
+                            {showLanguageFieldError ? (
+                                <Form.Text id={languageFieldErrorId} style={{color: '#b00020'}}>
+                                    Selected language is not loaded. Use Setup to load it before submitting.
+                                </Form.Text>
+                            ) : null}
                         </Form.Group>
                     </Col>
                 </Row>
                 <Form.Group as={Row} className={'mb-3'} controlId="ner-input-text">
                     <Form.Label>Text to find named entities</Form.Label>
-                    <Form.Control as="textarea" rows={10} value={content} onChange={handleContentChange} />
+                    <Form.Control
+                        as="textarea"
+                        rows={10}
+                        value={content}
+                        onChange={handleContentChange}
+                        aria-invalid={showTextFieldError ? true : undefined}
+                        aria-describedby={showTextFieldError ? textFieldErrorId : undefined}
+                    />
+                    {showTextFieldError ? (
+                        <Form.Text id={textFieldErrorId} style={{color: '#b00020'}}>
+                            Please provide text to analyze.
+                        </Form.Text>
+                    ) : null}
                 </Form.Group>
                 <Form.Group as={Row} className={'mb-3'}>
                     <Col sm={2}>
@@ -387,7 +416,7 @@ function NERContext() {
                 ) : null}
             </Form>
             <Row>
-                <div>Results</div>
+                <h2>Results</h2>
                 <hr/>
                 <div id="NER" dangerouslySetInnerHTML={{__html: namedEntities}}></div>
                 <div role={nerError.code ? 'alert' : undefined} aria-live={nerError.code ? 'assertive' : undefined}>{

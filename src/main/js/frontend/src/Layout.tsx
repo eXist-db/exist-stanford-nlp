@@ -5,9 +5,13 @@ import SideBar from "./SideBar";
 import NLPContent from "./NLPContent";
 
 function Layout() {
+    function focusMainContent() {
+        document.getElementById('main-content')?.focus();
+    }
+
     return (
         <div className={'App'}>
-            <a href="#main-content" className="skip-link">Skip to main content</a>
+            <button type="button" className="skip-link" onClick={focusMainContent}>Skip to main content</button>
             <SideBar />
             <NLPContent />
         </div>
