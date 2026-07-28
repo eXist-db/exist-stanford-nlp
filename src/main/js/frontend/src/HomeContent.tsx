@@ -12,6 +12,13 @@ function HomeContent() {
                 process text, and extract named entities directly in your database-backed workflows.
             </p>
 
+            <h2>Before you begin</h2>
+            <ul>
+                <li>Use the <b>Setup</b> page to load at least one language model before running NER or RAG.</li>
+                <li>Confirm your eXist-db app is reachable under <code>/exist/restxq</code>.</li>
+                <li>For API integration, review request and response shapes in <b>API Docs</b>.</li>
+            </ul>
+
             <h2>What you can do here</h2>
             <ul>
                 <li>
@@ -32,6 +39,11 @@ function HomeContent() {
                 <li>Use the generated output in your eXist-db queries or applications.</li>
             </ol>
 
+            <h2>Supported languages</h2>
+            <p>
+                Arabic, Chinese, English, English KBP, French, German, and Spanish are supported for loading and analysis.
+            </p>
+
             <h2>Quick Start</h2>
             <div style={{display: 'flex', gap: 12, flexWrap: 'wrap'}}>
                 <Link to="/setup" className="btn btn-primary">Go to Setup</Link>
@@ -46,6 +58,10 @@ function HomeContent() {
             <p style={{marginTop: 20}}>
                 If a model load fails, the Setup page now shows a per-language error message to help
                 with troubleshooting.
+            </p>
+            <p>
+                You can also check loader and runtime status in the Setup activity log backed by
+                <code> /exist/restxq/stanford/nlp/logs</code>.
             </p>
         </div>
     );

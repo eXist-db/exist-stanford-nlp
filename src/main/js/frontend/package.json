@@ -1,6 +1,6 @@
 {
   "name": "stanford-npl",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "private": true,
   "dependencies": {
     "@testing-library/jest-dom": "^6.4.8",
