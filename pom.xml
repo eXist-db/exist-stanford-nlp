@@ -64,7 +64,7 @@
     <project.build.target>1.8</project.build.target>
 
     <exist.version>7.0.0-beta3</exist.version>
-    <node.version>v18.20.4</node.version>
+    <node.version>v20.20.2</node.version>
     <npm.version>10.8.2</npm.version>
     <corenlp.version>4.5.10</corenlp.version>
     <!-- See polymer-cli documentation -->
