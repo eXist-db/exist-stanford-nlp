@@ -39,3 +39,8 @@ Date: 2026-07-27
 
 Plan a follow-up dependency track for Node runtime uplift and major upgrades (`vite`, `vitest`, `react-router`), then re-run audit and regression tests.
 
+## Risk Acceptance Record
+
+See `docs/security-risk-acceptance-2026-07-28.md` for accepted residual risk,
+compensating controls, and exit criteria.
+

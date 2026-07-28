@@ -8,6 +8,7 @@ export default defineConfig({
     outDir: 'build'
   },
   server: {
+    host: '127.0.0.1',
     proxy: {
       '/exist': {
         target: 'http://localhost:8080',
@@ -18,6 +19,7 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     globals: true,
+    ui: false,
     setupFiles: './src/setupTests.ts'
   }
 });

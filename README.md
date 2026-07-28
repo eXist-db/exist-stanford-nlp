@@ -58,6 +58,9 @@ For release hardening gates (logs, security triage, rollback checks), use
 Latest frontend dependency audit snapshot is documented in
 `docs/security-audit-summary.md`.
 
+Current accepted residual security risk and controls are documented in
+`docs/security-risk-acceptance-2026-07-28.md`.
+
 Node runtime uplift and dependency-major sequencing is documented in
 `docs/node-20-uplift-plan.md`.
 

@@ -27,11 +27,11 @@
     "@vitejs/plugin-react": "^4.3.1"
   },
   "scripts": {
-    "start": "vite",
+    "start": "vite --host 127.0.0.1",
     "build": "vite build",
     "test": "vitest run",
     "test:watch": "vitest",
-    "preview": "vite preview"
+    "preview": "vite preview --host 127.0.0.1"
   },
   "browserslist": {
     "production": [

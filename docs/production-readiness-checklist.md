@@ -47,6 +47,8 @@ npm audit --json > ../../../../npm-audit-report.json
 
 - [ ] Resolve non-breaking vulnerabilities (`npm audit fix`) and retest.
 - [ ] Triage remaining findings that require breaking upgrades; document accepted risk and mitigation.
+- [ ] If findings remain, link a signed decision record (for example,
+  `docs/security-risk-acceptance-2026-07-28.md`).
 
 ## 5) Data Safety and Operations
 
