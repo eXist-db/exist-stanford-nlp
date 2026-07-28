@@ -1,7 +1,7 @@
 xquery version "3.1";
 
 module namespace nerapi = "http://exist-db.org/xquery/stanford-nlp/api";
-import module namespace ner = "http://exist-db.org/xquery/stanford-nlp/ner";
+import module namespace ner = "http://exist-db.org/xquery/stanford-nlp/ner" at "/db/apps/stanford-nlp/content/ner-module.xqm";
 import module namespace scheduler = "http://exist-db.org/xquery/scheduler";
 import module namespace xmldb = "http://exist-db.org/xquery/xmldb";
 import module namespace util = "http://exist-db.org/xquery/util";

@@ -44,9 +44,19 @@ type RagSample = {
     topK: number;
 };
 
+const LANGUAGE_OPTIONS: Array<{ value: string; label: string }> = [
+    { value: 'en', label: 'English' },
+    { value: 'english-kbp', label: 'English KBP' },
+    { value: 'ar', label: 'Arabic' },
+    { value: 'zh', label: 'Chinese' },
+    { value: 'fr', label: 'French' },
+    { value: 'de', label: 'German' },
+    { value: 'es', label: 'Spanish' }
+];
+
 const RAG_SAMPLES: RagSample[] = [
     {
-        label: "Sample 1: Product launch",
+        label: "[EN] Sample 1: Product launch",
         docId: "sample-product-launch",
         sourceUri: "file://sample-product-launch",
         ingestLanguage: "en",
@@ -58,39 +68,75 @@ const RAG_SAMPLES: RagSample[] = [
         topK: 5
     },
     {
-        label: "Sample 2: Clinical notes",
-        docId: "sample-clinical-notes",
-        sourceUri: "file://sample-clinical-notes",
-        ingestLanguage: "en",
-        chunkSize: 90,
+        label: "[AR] Sample 2: Arabic health report",
+        docId: "sample-arabic-health-report",
+        sourceUri: "file://sample-arabic-health-report",
+        ingestLanguage: "ar",
+        chunkSize: 100,
         overlap: 15,
-        ingestText: "Dr. Elena Ruiz reviewed patient records at St. Mary Hospital in Denver. She noted that retrieval systems should keep references to people, locations, and dates for safer answers.",
-        query: "Which hospital and city were mentioned?",
-        searchLanguage: "en",
+        ingestText: "Ajra al fariq al tibbi fi Mustashfa Al Salam fi Amman muraqaba li halat marid yadum alma min mudat usbua.",
+        query: "Ayna ajra al fariq altibbi almuraqaba?",
+        searchLanguage: "ar",
         topK: 4
     },
     {
-        label: "Sample 3: Finance summary",
-        docId: "sample-finance-summary",
-        sourceUri: "file://sample-finance-summary",
-        ingestLanguage: "en",
+        label: "[ZH] Sample 3: Chinese logistics",
+        docId: "sample-chinese-logistics",
+        sourceUri: "file://sample-chinese-logistics",
+        ingestLanguage: "zh",
+        chunkSize: 95,
+        overlap: 15,
+        ingestText: "Shenzhen de Haiyun Wuliu gongsi zai Guangzhou qidong xin peisong zhongxin bing yu Nanfang Daxue hezuo ceshi jiansuo liucheng.",
+        query: "Nage chengshi qidong le xin peisong zhongxin?",
+        searchLanguage: "zh",
+        topK: 4
+    },
+    {
+        label: "[EN-KBP] Sample 4: English KBP incident",
+        docId: "sample-english-kbp-incident",
+        sourceUri: "file://sample-english-kbp-incident",
+        ingestLanguage: "english-kbp",
         chunkSize: 110,
         overlap: 20,
-        ingestText: "In Q3, Orion Bank partnered with Nova Analytics in London to pilot a retrieval pipeline for anti fraud analysts. The team compared baseline semantic search with entity boosted retrieval.",
-        query: "Who partnered in London and what did they pilot?",
-        searchLanguage: "en",
+        ingestText: "Authorities reported that Vega Systems coordinated with Interpol in Madrid to investigate a network tied to forged travel records.",
+        query: "Which organization coordinated with Interpol and in what city?",
+        searchLanguage: "english-kbp",
         topK: 5
     },
     {
-        label: "Sample 4: Research digest",
-        docId: "sample-research-digest",
-        sourceUri: "file://sample-research-digest",
-        ingestLanguage: "en",
+        label: "[FR] Sample 5: French transport",
+        docId: "sample-french-transport",
+        sourceUri: "file://sample-french-transport",
+        ingestLanguage: "fr",
+        chunkSize: 110,
+        overlap: 20,
+        ingestText: "La mairie de Lyon a annonce un partenariat avec TransMobilite pour moderniser les lignes de bus avant les Jeux regionaux.",
+        query: "Quelle ville a annonce le partenariat avec TransMobilite?",
+        searchLanguage: "fr",
+        topK: 5
+    },
+    {
+        label: "[DE] Sample 6: German manufacturing",
+        docId: "sample-german-manufacturing",
+        sourceUri: "file://sample-german-manufacturing",
+        ingestLanguage: "de",
         chunkSize: 100,
         overlap: 10,
-        ingestText: "A team from the University of Zurich and ETH Zurich published a report on multilingual retrieval in 2026. Their experiments favored chunk overlap and named entity cues for higher precision.",
-        query: "Which institutions published the 2026 report?",
-        searchLanguage: "en",
+        ingestText: "Das Werk in Stuttgart arbeitet seit 2026 mit der Firma NordTech zusammen, um ein System fur industrielle Wissenssuche einzufuhren.",
+        query: "Mit welcher Firma arbeitet das Werk in Stuttgart zusammen?",
+        searchLanguage: "de",
+        topK: 3
+    },
+    {
+        label: "[ES] Sample 7: Spanish tourism",
+        docId: "sample-spanish-tourism",
+        sourceUri: "file://sample-spanish-tourism",
+        ingestLanguage: "es",
+        chunkSize: 100,
+        overlap: 10,
+        ingestText: "La Oficina de Turismo de Sevilla colaboro con Viajes Sur para lanzar una guia digital enfocada en visitantes de America Latina.",
+        query: "Que ciudad colaboro con Viajes Sur?",
+        searchLanguage: "es",
         topK: 3
     }
 ];
@@ -247,7 +293,11 @@ function RagContent() {
                     </Col>
                     <Col md={2}>
                         <Form.Label>Language</Form.Label>
-                        <Form.Control value={ingestLanguage} onChange={(e) => setIngestLanguage(e.target.value)} />
+                        <Form.Select value={ingestLanguage} onChange={(e) => setIngestLanguage(e.target.value)}>
+                            {LANGUAGE_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
+                        </Form.Select>
                     </Col>
                 </Row>
                 <Row className={'mb-3'}>
@@ -286,7 +336,11 @@ function RagContent() {
                     </Col>
                     <Col md={2}>
                         <Form.Label>Language</Form.Label>
-                        <Form.Control value={searchLanguage} onChange={(e) => setSearchLanguage(e.target.value)} />
+                        <Form.Select value={searchLanguage} onChange={(e) => setSearchLanguage(e.target.value)}>
+                            {LANGUAGE_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
+                        </Form.Select>
                     </Col>
                     <Col md={2}>
                         <Form.Label>Top K</Form.Label>

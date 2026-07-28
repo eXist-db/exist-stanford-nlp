@@ -25,7 +25,7 @@ see the contributions section at the end of this article.
 ### For Building from Source
 -   maven: `3.6.0`
 -   java: `8`
--   (node: `12`)
+-   node: `18.20.4`
 -   (polymer-cli: `1.9.11`)
 
 ## Building from Source
@@ -39,6 +39,27 @@ For more information see the [polymer readme](./src/main/polymer/README.md)
 To run unit tests(java, xquery, web-component) locally use: `mvn test`.
 
 Support for integration tests, namely, [Web Component Tester](https://polymer-library.polymer-project.org/3.0/docs/tools/tests) is TBD.
+
+### Production Readiness
+
+Run a full local validation with:
+
+```bash
+mvn clean verify
+./scripts/rag-smoke.sh
+```
+
+CI also enforces the RAG smoke test in `.travis.yml`; keep the local command
+for manual verification and debugging.
+
+For release hardening gates (logs, security triage, rollback checks), use
+`docs/production-readiness-checklist.md`.
+
+Latest frontend dependency audit snapshot is documented in
+`docs/security-audit-summary.md`.
+
+Node runtime uplift and dependency-major sequencing is documented in
+`docs/node-20-uplift-plan.md`.
 
 ## Installing the Application
 1.  Open the eXist-db Dashboard

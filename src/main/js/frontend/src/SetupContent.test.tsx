@@ -1,5 +1,6 @@
 import React, { act } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { vi } from 'vitest';
 import SetupContent from './SetupContent';
 
 type MockResponse = {
@@ -34,13 +35,13 @@ function createLoadResponse(language: string): MockResponse {
 
 describe('Setup language flow', () => {
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   test('calls load endpoint for every supported language', async () => {
     const loadResponsePayloads: Array<{ language: string; status: boolean }> = [];
 
-    const fetchSpy = jest.spyOn(global, 'fetch').mockImplementation((input: RequestInfo | URL) => {
+    const fetchSpy = vi.spyOn(global, 'fetch').mockImplementation((input: RequestInfo | URL) => {
       const url = String(input);
       if (url.includes('/exist/restxq/stanford/nlp/logs')) {
         return Promise.resolve(createLogsResponse() as Response);

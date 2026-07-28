@@ -1,0 +1,21 @@
+{
+    "annotators": [
+        "tokenize",
+        "ssplit",
+        "mwt",
+        "pos",
+        "ner",
+        "depparse"
+    ],
+    "tokenize.language": "de",
+    "tokenize.postProcessor": "edu.stanford.nlp.international.german.process.GermanTokenizerPostProcessor",
+    "mwt.mappingFile": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/mwt/german/german-mwt.tsv",
+    "pos.model": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/pos-tagger/german-ud.tagger",
+    "ner.model": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/ner/german.distsim.crf.ser.gz",
+    "ner.applyNumericClassifiers": "false",
+    "ner.applyFineGrained": "false",
+    "ner.useSUTime": "false",
+    "parse.model": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/srparser/germanSR.beam.ser.gz",
+    "depparse.model": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/parser/nndep/UD_German.gz"
+}
+
