@@ -171,12 +171,15 @@ function SetupContent() {
                 {LANGUAGE_BUTTONS.map((languageButton) => {
                     const current = running[languageButton.key];
                     const languageError = getLanguageError(languageButton.key);
+                    const errorId = `setup-lang-error-${languageButton.key}`;
                     return (
                         <div key={languageButton.key} className="setup-language-item">
                             <Button
                                 className="setup-language-button"
                                 onClick={() => loadLanguage(languageButton.key)}
                                 disabled={current.isRunning}
+                                aria-describedby={languageError ? errorId : undefined}
+                                aria-invalid={languageError ? true : undefined}
                             >
                                 <span className="setup-language-button-label">
                                     {renderLanguageStatusIcon(current)}
@@ -184,7 +187,7 @@ function SetupContent() {
                                 </span>
                             </Button>
                             {languageError ? (
-                                <div className="setup-language-error">
+                                <div id={errorId} className="setup-language-error">
                                     {languageError}
                                 </div>
                             ) : null}

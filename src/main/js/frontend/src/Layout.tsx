@@ -7,6 +7,7 @@ import NLPContent from "./NLPContent";
 function Layout() {
     return (
         <div className={'App'}>
+            <a href="#main-content" className="skip-link">Skip to main content</a>
             <SideBar />
             <NLPContent />
         </div>

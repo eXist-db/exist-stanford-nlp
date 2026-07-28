@@ -495,33 +495,35 @@ function RagContent() {
                 </div>
             ) : null}
 
-            <Table striped bordered hover size="sm" style={{ marginTop: 16 }}>
-                <caption>Ranked RAG search results with score, chunk metadata, and matched text.</caption>
-                <thead>
-                <tr>
-                    <th scope="col">Score</th>
-                    <th scope="col">Chunk</th>
-                    <th scope="col">Doc</th>
-                    <th scope="col">Entities</th>
-                    <th scope="col">Text</th>
-                </tr>
-                </thead>
-                <tbody>
-                {(searchResponse?.results ?? []).length === 0 ? (
+            <div className="table-responsive" style={{ marginTop: 16 }}>
+                <Table striped bordered hover size="sm">
+                    <caption>Ranked RAG search results with score, chunk metadata, and matched text.</caption>
+                    <thead>
                     <tr>
-                        <td colSpan={5}>No results yet. Run a search after ingesting content.</td>
+                        <th scope="col">Score</th>
+                        <th scope="col">Chunk</th>
+                        <th scope="col">Doc</th>
+                        <th scope="col">Entities</th>
+                        <th scope="col">Text</th>
                     </tr>
-                ) : (searchResponse?.results ?? []).map((result) => (
-                    <tr key={result.chunkId}>
-                        <td>{result.score}</td>
-                        <td>{result.chunkId}</td>
-                        <td>{result.docId}</td>
-                        <td>{(result.entities ?? []).join(', ')}</td>
-                        <td>{result.text}</td>
-                    </tr>
-                ))}
-                </tbody>
-            </Table>
+                    </thead>
+                    <tbody>
+                    {(searchResponse?.results ?? []).length === 0 ? (
+                        <tr>
+                            <td colSpan={5}>No results yet. Run a search after ingesting content.</td>
+                        </tr>
+                    ) : (searchResponse?.results ?? []).map((result) => (
+                        <tr key={result.chunkId}>
+                            <td>{result.score}</td>
+                            <td>{result.chunkId}</td>
+                            <td>{result.docId}</td>
+                            <td>{(result.entities ?? []).join(', ')}</td>
+                            <td>{result.text}</td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </Table>
+            </div>
         </div>
     );
 }

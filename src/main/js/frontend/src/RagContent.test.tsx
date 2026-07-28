@@ -39,13 +39,12 @@ describe('RAG form validation', () => {
       render(<RagContent />);
     });
 
-    const numberInputs = screen.getAllByRole('spinbutton');
-    const chunkSizeInput = numberInputs[0];
+    const chunkSizeInput = screen.getByLabelText(/Chunk Size/i);
     fireEvent.change(chunkSizeInput, { target: { value: '0' } });
     expect(screen.getByRole('button', { name: /Ingest Chunks/i })).toBeDisabled();
     expect(screen.getByText(/Chunk Size must be greater than zero/i)).toBeInTheDocument();
 
-    const topKInput = numberInputs[2];
+    const topKInput = screen.getByLabelText(/Top K/i);
     fireEvent.change(topKInput, { target: { value: '0' } });
     expect(screen.getByRole('button', { name: /Search Chunks/i })).toBeDisabled();
     expect(screen.getByText(/Top K must be at least 1/i)).toBeInTheDocument();

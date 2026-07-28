@@ -2,8 +2,8 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders app title in sidebar', () => {
+test('renders skip link and main content landmark', () => {
   render(<App />);
-  const titleElement = screen.getByRole('heading', { name: /stanford nlp for exist-db/i });
-  expect(titleElement).toBeInTheDocument();
+  expect(screen.getByRole('link', { name: /skip to main content/i })).toBeInTheDocument();
+  expect(screen.getByRole('main')).toBeInTheDocument();
 });
