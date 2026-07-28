@@ -17,7 +17,7 @@ declare function nerapi:openapi-spec() as map(*) {
         "openapi": "3.0.3",
         "info": map {
             "title": "Stanford NLP REST API",
-            "version": "0.9.6",
+            "version": "0.10.0",
             "description": "RESTXQ endpoints for language loading, NER, and RAG workflows."
         },
         "servers": array {
