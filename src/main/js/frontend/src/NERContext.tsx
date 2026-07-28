@@ -85,7 +85,6 @@ function sanitizeNerMarkup(rawMarkup: string): string {
                 if (tooltip && /^[A-Za-z0-9_\-\s]+$/.test(tooltip)) {
                     const tooltipText = tooltip.trim();
                     safeSpan.setAttribute('data-tooltip', tooltipText);
-                    safeSpan.setAttribute('tabindex', '0');
                     const tooltipId = `ner-tooltip-${tooltipIdCounter++}`;
                     safeSpan.setAttribute('aria-describedby', tooltipId);
                     const tooltipDescription = document.createElement('span');

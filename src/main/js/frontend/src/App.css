@@ -57,6 +57,46 @@ body {
   width: 100%;
 }
 
+.SideBarNavList {
+  list-style: none;
+  margin: 8px 0 0 0;
+  padding: 0;
+}
+
+.SideBarNavItem {
+  margin: 0;
+}
+
+.SideBarNavLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  color: #111;
+  text-decoration: none;
+  border-left: 3px solid transparent;
+}
+
+.SideBarNavLink:hover {
+  background: #f6f3de;
+}
+
+.SideBarNavLink.is-active {
+  font-weight: 600;
+  background: #efe9c8;
+  border-left-color: #0d6efd;
+}
+
+.SideBarNavLink:focus-visible {
+  outline: 2px solid #0d6efd;
+  outline-offset: -2px;
+}
+
+.SideBarNavIcon {
+  display: inline-flex;
+  align-items: center;
+}
+
 .SideBarList .toprow {
   width: 100%;
   height: 60px;
@@ -206,6 +246,14 @@ body {
 .openapi-col-summary {
   overflow-wrap: anywhere;
   word-break: break-word;
+}
+
+.openapi-raw-wrap {
+  max-height: 420px;
+  overflow: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px;
 }
 
 #NER span {

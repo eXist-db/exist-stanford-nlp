@@ -119,7 +119,9 @@ function OpenApiContent() {
                     </div>
 
                     <h2>Document</h2>
-                    <pre style={{whiteSpace: 'pre-wrap'}}>{JSON.stringify(doc, null, 2)}</pre>
+                    <div className="openapi-raw-wrap">
+                        <pre style={{whiteSpace: 'pre-wrap'}}>{JSON.stringify(doc, null, 2)}</pre>
+                    </div>
                 </>
             ) : null}
         </div>

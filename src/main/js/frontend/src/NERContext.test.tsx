@@ -72,6 +72,7 @@ describe('NER usability safeguards', () => {
       expect(nerContainer?.querySelector('img')).toBeNull();
       expect(nerContainer?.querySelector('script')).toBeNull();
       expect(nerContainer?.querySelector('span.person')?.textContent).toBe('Sam');
+      expect(nerContainer?.querySelector('span.person')?.getAttribute('tabindex')).toBeNull();
     });
   });
 

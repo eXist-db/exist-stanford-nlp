@@ -1,18 +1,10 @@
-import React, { memo, useCallback } from "react";
+import React, { memo } from "react";
 import './App.css';
 import packageJson from "../package.json";
 import {SideBarData} from "./SideBarData";
-import TreeMenu from "react-simple-tree-menu";
-import { useNavigate, useLocation } from "react-router-dom";
-import 'react-simple-tree-menu/dist/main.css';
+import { NavLink } from "react-router-dom";
 
 function SideBar() {
-    let navigate = useNavigate();
-    let location = useLocation();
-    const onClickItem = useCallback(({ key }: { key: string }) => {
-        navigate(key);
-    }, [navigate]);
-
     return (
         <aside className={'SideBar'}>
             <ul className={'SideBarList'}>
@@ -33,12 +25,20 @@ function SideBar() {
                 </li>
             </ul>
             <nav aria-label="Primary navigation">
-                <TreeMenu
-                    data={SideBarData}
-                    activeKey={location.pathname}
-                    onClickItem={onClickItem}
-                    hasSearch={false}
-                />
+                <ul className="SideBarNavList">
+                    {SideBarData.map((item) => (
+                        <li key={item.key} className="SideBarNavItem">
+                            <NavLink
+                                to={item.key}
+                                end={item.key === '/'}
+                                className={({ isActive }) => `SideBarNavLink${isActive ? ' is-active' : ''}`}
+                            >
+                                {item.icon ? <span className="SideBarNavIcon">{item.icon}</span> : null}
+                                <span>{item.label}</span>
+                            </NavLink>
+                        </li>
+                    ))}
+                </ul>
             </nav>
         </aside>
     )

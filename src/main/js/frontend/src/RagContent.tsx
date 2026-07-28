@@ -468,7 +468,7 @@ function RagContent() {
                     </Col>
                 </Row>
                 {showIngestNumbersError ? (
-                    <div id={ingestNumbersErrorId} role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
+                    <div id={ingestNumbersErrorId} role="status" aria-live="polite" style={{ marginBottom: 12, color: '#b00020' }}>
                         Chunk Size must be greater than zero and Overlap cannot be negative.
                     </div>
                 ) : null}
@@ -532,7 +532,7 @@ function RagContent() {
                     </Col>
                 </Row>
                 {showTopKError ? (
-                    <div id={topKErrorId} role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
+                    <div id={topKErrorId} role="status" aria-live="polite" style={{ marginBottom: 12, color: '#b00020' }}>
                         Top K must be at least 1.
                     </div>
                 ) : null}
