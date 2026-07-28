@@ -58,6 +58,8 @@ const LANGUAGE_BUTTONS: Array<{ key: keyof RunningState; label: string }> = [
 function SetupContent() {
     const [logs, setLogs] = useState<LogEntry[]>([]);
     const [running, setRunning] = useState<RunningState>(INITIAL_RUNNING);
+    const [pollError, setPollError] = useState<string | null>(null);
+    const [lastUpdated, setLastUpdated] = useState<string | null>(null);
     const lastRef = useRef<string | null>(null);
 
     const fetchLogs = useCallback(() => {
@@ -77,11 +79,15 @@ function SetupContent() {
                         return result.logs;
                     });
                     setRunning(result.running);
+                    setPollError(null);
                     lastRef.current = result.timestamp;
+                    if (result.timestamp) {
+                        setLastUpdated(result.timestamp);
+                    }
                 }
             )
             .catch(() => {
-                // Keep UI stable during intermittent polling/network failures.
+                setPollError('Language status is temporarily unavailable. Retrying automatically.');
             });
     }, []);
 
@@ -92,7 +98,7 @@ function SetupContent() {
         return () => clearInterval(intervalVar);
     }, [fetchLogs]);
 
-    function loadLanguage(theLanguage: keyof RunningState) {
+    async function loadLanguage(theLanguage: keyof RunningState) {
         setLogs((previousLogs) => previousLogs.filter((log) => !(log.language === theLanguage && log.message.startsWith("error:"))));
         setRunning((previousRunning) => ({
             ...previousRunning,
@@ -103,17 +109,31 @@ function SetupContent() {
             }
         }));
 
-        fetch("/exist/restxq/stanford/nlp/load/" + theLanguage)
-            .then((response) => response.json())
-            .catch(() => {
-                setRunning((previousRunning) => ({
-                    ...previousRunning,
-                    [theLanguage]: {
-                        ...previousRunning[theLanguage],
-                        isRunning: false
-                    }
-                }));
-            });
+        try {
+            const response = await fetch("/exist/restxq/stanford/nlp/load/" + theLanguage);
+            const payload = await response.json() as { status?: boolean; error?: string };
+
+            if (!response.ok || payload.status !== true) {
+                throw new Error(payload.error ?? `HTTP ${response.status}`);
+            }
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unable to start language load.';
+            setRunning((previousRunning) => ({
+                ...previousRunning,
+                [theLanguage]: {
+                    ...previousRunning[theLanguage],
+                    isRunning: false
+                }
+            }));
+            setLogs((previousLogs) => [
+                {
+                    timestamp: new Date().toISOString(),
+                    language: theLanguage,
+                    message: `error: ${message}`
+                },
+                ...previousLogs
+            ]);
+        }
     }
 
     function renderLanguageStatusIcon(status: LanguageStatus) {
@@ -137,6 +157,16 @@ function SetupContent() {
         <div className={'LoadingContent'}>
             <h1>Load</h1>
             <div>Click on the language button to load each language.</div>
+            {pollError ? (
+                <div role="alert" style={{color: '#b00020', marginTop: 8, marginBottom: 8}}>
+                    {pollError}
+                </div>
+            ) : null}
+            {lastUpdated ? (
+                <div style={{fontSize: 12, marginBottom: 8}}>
+                    Last updated: {lastUpdated}
+                </div>
+            ) : null}
             {LANGUAGE_BUTTONS.map((languageButton) => {
                 const current = running[languageButton.key];
                 const languageError = getLanguageError(languageButton.key);

@@ -4,6 +4,8 @@ import { vi } from 'vitest';
 import SetupContent from './SetupContent';
 
 type MockResponse = {
+  ok: boolean;
+  status: number;
   json: () => Promise<unknown>;
 };
 
@@ -11,8 +13,10 @@ const languages = ['arabic', 'chinese', 'english', 'english-kbp', 'french', 'ger
 
 function createLogsResponse(): MockResponse {
   return {
+    ok: true,
+    status: 200,
     json: async () => ({
-      timestamp: null,
+      timestamp: '2026-07-28T00:00:00Z',
       running: {
         arabic: { start: null, end: null, isRunning: false, isLoaded: false },
         'english-kbp': { start: null, end: null, isRunning: false, isLoaded: false },
@@ -27,9 +31,11 @@ function createLogsResponse(): MockResponse {
   };
 }
 
-function createLoadResponse(language: string): MockResponse {
+function createLoadResponse(language: string, status = true): MockResponse {
   return {
-    json: async () => ({ language, status: true })
+    ok: status,
+    status: status ? 200 : 500,
+    json: async () => ({ language, status })
   };
 }
 
@@ -50,7 +56,7 @@ describe('Setup language flow', () => {
         const language = url.split('/').pop() ?? '';
         const payload = { language, status: true };
         loadResponsePayloads.push(payload);
-        return Promise.resolve(createLoadResponse(language) as Response);
+        return Promise.resolve(createLoadResponse(language, true) as Response);
       }
       return Promise.reject(new Error(`Unexpected URL: ${url}`));
     });
@@ -81,6 +87,43 @@ describe('Setup language flow', () => {
         expect(loadResponsePayloads).toContainEqual({ language, status: true });
       }
     });
+  });
+
+  test('shows polling error banner when logs request fails', async () => {
+    vi.spyOn(global, 'fetch').mockRejectedValue(new Error('network down'));
+
+    await act(async () => {
+      render(<SetupContent />);
+    });
+
+    expect(await screen.findByRole('alert')).toHaveTextContent('Language status is temporarily unavailable');
+  });
+
+  test('shows per-language error when load request fails immediately', async () => {
+    const fetchSpy = vi.spyOn(global, 'fetch').mockImplementation((input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes('/exist/restxq/stanford/nlp/logs')) {
+        return Promise.resolve(createLogsResponse() as Response);
+      }
+      if (url.includes('/exist/restxq/stanford/nlp/load/arabic')) {
+        return Promise.resolve(createLoadResponse('arabic', false) as Response);
+      }
+      return Promise.reject(new Error(`Unexpected URL: ${url}`));
+    });
+
+    await act(async () => {
+      render(<SetupContent />);
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: /^Arabic$/i }));
+    });
+
+    await waitFor(() => {
+      expect(fetchSpy).toHaveBeenCalledWith('/exist/restxq/stanford/nlp/load/arabic');
+    });
+
+    expect((await screen.findAllByText(/error: HTTP 500/i)).length).toBeGreaterThan(0);
   });
 });
 

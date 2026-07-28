@@ -194,6 +194,9 @@ function RagContent() {
 
     const queryEntities = useMemo(() => searchResponse?.queryEntities ?? [], [searchResponse]);
 
+    const ingestNumbersValid = Number.isInteger(chunkSize) && chunkSize > 0 && Number.isInteger(overlap) && overlap >= 0;
+    const topKValid = Number.isInteger(topK) && topK >= 1;
+
     const isLanguageLoaded = useCallback((lang: string): boolean => {
         switch (lang) {
             case 'en':
@@ -255,6 +258,11 @@ function RagContent() {
             return;
         }
 
+        if (!ingestNumbersValid) {
+            setErrorMessage('Chunk Size must be > 0 and Overlap must be >= 0.');
+            return;
+        }
+
         setIngestLoading(true);
 
         try {
@@ -291,6 +299,11 @@ function RagContent() {
 
         if (!isLanguageLoaded(searchLanguage)) {
             setErrorMessage(`Language '${searchLanguage}' is not loaded. Load it from Setup before search.`);
+            return;
+        }
+
+        if (!topKValid) {
+            setErrorMessage('Top K must be at least 1.');
             return;
         }
 
@@ -356,7 +369,7 @@ function RagContent() {
                 ))}
             </div>
 
-            {errorMessage ? <div style={{ color: '#b00020', marginBottom: 12 }}>{errorMessage}</div> : null}
+            {errorMessage ? <div role="alert" style={{ color: '#b00020', marginBottom: 12 }}>{errorMessage}</div> : null}
             {clearMessage ? <div style={{ color: '#0a7a0a', marginBottom: 12 }}>{clearMessage}</div> : null}
 
             <h3>Ingest</h3>
@@ -387,18 +400,23 @@ function RagContent() {
                 <Row className={'mb-3'}>
                     <Col md={2}>
                         <Form.Label>Chunk Size</Form.Label>
-                        <Form.Control type="number" value={chunkSize} onChange={(e) => setChunkSize(Number(e.target.value))} />
+                        <Form.Control type="number" min={1} step={1} value={chunkSize} onChange={(e) => setChunkSize(Number(e.target.value))} />
                     </Col>
                     <Col md={2}>
                         <Form.Label>Overlap</Form.Label>
-                        <Form.Control type="number" value={overlap} onChange={(e) => setOverlap(Number(e.target.value))} />
+                        <Form.Control type="number" min={0} step={1} value={overlap} onChange={(e) => setOverlap(Number(e.target.value))} />
                     </Col>
                 </Row>
+                {!ingestNumbersValid ? (
+                    <div style={{ marginBottom: 12, color: '#b00020' }}>
+                        Chunk Size must be greater than zero and Overlap cannot be negative.
+                    </div>
+                ) : null}
                 <Form.Group className={'mb-3'}>
                     <Form.Label>Text</Form.Label>
                     <Form.Control as="textarea" rows={6} value={ingestText} onChange={(e) => setIngestText(e.target.value)} />
                 </Form.Group>
-                <Button type="submit" disabled={ingestLoading}>
+                <Button type="submit" disabled={ingestLoading || !ingestNumbersValid}>
                     {ingestLoading ? <Spinner as="span" size="sm" animation="border" /> : null} Ingest Chunks
                 </Button>
             </Form>
@@ -428,15 +446,20 @@ function RagContent() {
                     </Col>
                     <Col md={2}>
                         <Form.Label>Top K</Form.Label>
-                        <Form.Control type="number" value={topK} onChange={(e) => setTopK(Number(e.target.value))} />
+                        <Form.Control type="number" min={1} step={1} value={topK} onChange={(e) => setTopK(Number(e.target.value))} />
                     </Col>
                 </Row>
+                {!topKValid ? (
+                    <div style={{ marginBottom: 12, color: '#b00020' }}>
+                        Top K must be at least 1.
+                    </div>
+                ) : null}
                 {!searchLanguageLoaded ? (
                     <div style={{ marginBottom: 12, color: '#b00020' }}>
                         Search language is not loaded. Use Setup to load it first.
                     </div>
                 ) : null}
-                <Button type="submit" disabled={searchLoading}>
+                <Button type="submit" disabled={searchLoading || !topKValid}>
                     {searchLoading ? <Spinner as="span" size="sm" animation="border" /> : null} Search Chunks
                 </Button>
                 <Button

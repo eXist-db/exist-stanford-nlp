@@ -43,6 +43,66 @@ const INITIAL_RUNNING: RunningState = {
 
 const INITIAL_ERROR: NerError = { code: null, description: null, value: null, properties: {} };
 
+function sanitizeNerMarkup(rawMarkup: string): string {
+    const parser = new DOMParser();
+    const parsed = parser.parseFromString(`<div>${rawMarkup}</div>`, 'text/html');
+    const sourceRoot = parsed.body.firstElementChild;
+    const safeRoot = document.createElement('div');
+
+    if (!sourceRoot) {
+        return '';
+    }
+
+    const safeTooltipPositions = new Set(['top', 'right', 'bottom', 'left']);
+
+    const copySafeNodes = (sourceNode: Node, targetNode: HTMLElement) => {
+        sourceNode.childNodes.forEach((childNode) => {
+            if (childNode.nodeType === Node.TEXT_NODE) {
+                targetNode.appendChild(document.createTextNode(childNode.textContent ?? ''));
+                return;
+            }
+
+            if (childNode.nodeType !== Node.ELEMENT_NODE) {
+                return;
+            }
+
+            const childElement = childNode as HTMLElement;
+            const tagName = childElement.tagName.toLowerCase();
+
+            if (tagName === 'script' || tagName === 'style' || tagName === 'iframe' || tagName === 'object') {
+                return;
+            }
+
+            if (tagName === 'span') {
+                const safeSpan = document.createElement('span');
+                const className = childElement.getAttribute('class');
+                if (className && /^[A-Za-z0-9_\-\s]+$/.test(className)) {
+                    safeSpan.setAttribute('class', className.trim());
+                }
+
+                const tooltip = childElement.getAttribute('data-tooltip');
+                if (tooltip && /^[A-Za-z0-9_\-\s]+$/.test(tooltip)) {
+                    safeSpan.setAttribute('data-tooltip', tooltip.trim());
+                }
+
+                const tooltipPosition = childElement.getAttribute('data-tooltip-position');
+                if (tooltipPosition && safeTooltipPositions.has(tooltipPosition)) {
+                    safeSpan.setAttribute('data-tooltip-position', tooltipPosition);
+                }
+
+                copySafeNodes(childElement, safeSpan);
+                targetNode.appendChild(safeSpan);
+                return;
+            }
+
+            copySafeNodes(childElement, targetNode);
+        });
+    };
+
+    copySafeNodes(sourceRoot, safeRoot);
+    return safeRoot.innerHTML;
+}
+
 function toNerRequestError(details: Partial<NerError>): NerRequestError {
     const error = new Error(details.description ?? 'NER request failed') as NerRequestError;
     error.code = details.code;
@@ -238,7 +298,7 @@ function NERContext() {
             })
             .then((result: { text?: string } & NerError) => {
                 if (result.text) {
-                    setNamedEntities(result.text);
+                    setNamedEntities(sanitizeNerMarkup(result.text));
                     setNerError(INITIAL_ERROR);
                 } else {
                     setNamedEntities("");
@@ -320,7 +380,7 @@ function NERContext() {
                 <div>Results</div>
                 <hr/>
                 <div id="NER" dangerouslySetInnerHTML={{__html: namedEntities}}></div>
-                <div>{
+                <div role={nerError.code ? 'alert' : undefined} aria-live={nerError.code ? 'assertive' : undefined}>{
                     nerError.code ?
                         <>
                             <div><b>Code</b> <span>{nerError.code}</span></div>
