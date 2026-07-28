@@ -527,4 +527,4 @@ Loren is an independent contractor, so his contributions to the Open
 Source community are on his own time. If you appreciate his
 contributions to the NoSQL and the Natural Language Processing
 communities, then please either contract him for a project or submit a
-contribution to his company PayPal at <loren.cahlander@easymetahub.com>.
+contribution to his PayPal at <loren.cahlander@gmail.com>.
