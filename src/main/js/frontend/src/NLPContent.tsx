@@ -5,9 +5,9 @@ import './App.css';
 
 function NLPContent() {
     return (
-        <div className={'NLPContent'}>
+        <main id="main-content" tabIndex={-1} className={'NLPContent'}>
             <Outlet/>
-        </div>
+        </main>
     )
 }
 

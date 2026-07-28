@@ -1,0 +1,15 @@
+{
+    "annotators": [
+        "tokenize",
+        "ssplit",
+        "pos",
+        "regexner"
+    ],
+    "tokenize.language": "ar",
+    "segment.model": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/segmenter/arabic/arabic-segmenter-atb+bn+arztrain.ser.gz",
+    "ssplit.boundaryTokenRegex": "[.]|[!?]+|[!\\u061F]+",
+    "pos.model": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/pos-tagger/arabic.tagger",
+    "regexner.mapping": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/arabic-regexner.tsv",
+    "regexner.ignorecase": "false"
+}
+

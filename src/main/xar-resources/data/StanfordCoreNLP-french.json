@@ -1,0 +1,23 @@
+{
+    "annotators": [
+        "tokenize",
+        "ssplit",
+        "mwt",
+        "pos",
+        "ner",
+        "depparse"
+    ],
+    "tokenize.language": "fr",
+    "mwt.mappingFile": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/mwt/french/french-mwt.tsv",
+    "mwt.pos.model": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/mwt/french/french-mwt.tagger",
+    "mwt.statisticalMappingFile": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/mwt/french/french-mwt-statistical.tsv",
+    "mwt.preserveCasing": "false",
+    "pos.model": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/pos-tagger/french-ud.tagger",
+    "ner.model": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/ner/french-wikiner-4class.crf.ser.gz",
+    "ner.applyFineGrained": "false",
+    "ner.applyNumericClassifiers": "false",
+    "ner.useSUTime": "false",
+    "parse.model": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/srparser/frenchSR.beam.ser.gz",
+    "depparse.model": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/parser/nndep/UD_French.gz"
+}
+

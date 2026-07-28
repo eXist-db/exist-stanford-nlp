@@ -1,21 +1,16 @@
-import React from "react";
+import React, { memo } from "react";
 import './App.css';
 import packageJson from "../package.json";
 import {SideBarData} from "./SideBarData";
-import TreeMenu from "react-simple-tree-menu";
-import { useNavigate, useLocation } from "react-router-dom";
-import '../node_modules/react-simple-tree-menu/dist/main.css';
+import { NavLink } from "react-router-dom";
 
 function SideBar() {
-    let navigate = useNavigate();
-    let location = useLocation();
     return (
-        <div className={'SideBar'}>
+        <aside className={'SideBar'}>
             <ul className={'SideBarList'}>
                 <li key={-1} className={'toprow'}>
-                    <div id={'icon'}>
+                    <div className={'icon'}>
                         <img
-                            id="icon"
                             alt="Stanford Core NLP Logo"
                             src="icon.svg"
                             style={{height: 60}}
@@ -23,22 +18,30 @@ function SideBar() {
                         />
                     </div>
                     {' '}
-                    <div id={'title'}>
-                        <div style={{fontSize: "24px"}}>Stanford NLP</div>
-                        <div style={{fontSize: "8px"}}>Version {packageJson.version}</div>
+                    <div className={'title'}>
+                        <h2 style={{fontSize: "24px", margin: 0}}>Stanford NLP</h2>
+                        <div style={{fontSize: "12px"}}>Version {packageJson.version}</div>
                     </div>
                 </li>
             </ul>
-            <TreeMenu
-                data={SideBarData}
-                activeKey={location.pathname}
-                onClickItem={({ key, label, ...props }) => {
-                    navigate(key);
-                }}
-                hasSearch={false}
-            />
-        </div>
+            <nav aria-label="Primary navigation">
+                <ul className="SideBarNavList">
+                    {SideBarData.map((item) => (
+                        <li key={item.key} className="SideBarNavItem">
+                            <NavLink
+                                to={item.key}
+                                end={item.key === '/'}
+                                className={({ isActive }) => `SideBarNavLink${isActive ? ' is-active' : ''}`}
+                            >
+                                {item.icon ? <span className="SideBarNavIcon">{item.icon}</span> : null}
+                                <span>{item.label}</span>
+                            </NavLink>
+                        </li>
+                    ))}
+                </ul>
+            </nav>
+        </aside>
     )
 }
 
-export default SideBar;
+export default memo(SideBar);

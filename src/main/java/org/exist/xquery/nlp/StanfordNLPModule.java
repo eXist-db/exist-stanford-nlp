@@ -46,7 +46,7 @@ public class StanfordNLPModule extends AbstractInternalModule {
      * @param parameters
      */
     public StanfordNLPModule(Map<String, List<? extends Object>> parameters) {
-        super(functions, parameters, false);
+        super(functions, parameters);
     }
 
     /**

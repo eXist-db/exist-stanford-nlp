@@ -12,6 +12,31 @@ import module namespace xmldb = "http://exist-db.org/xquery/xmldb";
 
 declare variable $local:language external;
 
+declare function local:apply-arabic-ner-override() {
+    let $override := map {
+        "annotators": array { "tokenize", "ssplit", "pos", "regexner" },
+        "tokenize.language": "ar",
+        "segment.model": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/segmenter/arabic/arabic-segmenter-atb+bn+arztrain.ser.gz",
+        "ssplit.boundaryTokenRegex": "[.]|[!?]+|[!\\u061F]+",
+        "pos.model": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/pos-tagger/arabic.tagger",
+        "regexner.mapping": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/arabic-regexner.tsv",
+        "regexner.ignorecase": "false"
+    }
+    let $stored := xmldb:store(
+        "/db/apps/stanford-nlp/data",
+        "StanfordCoreNLP-arabic.json",
+        fn:serialize($override, map { "method": "json", "indent": true() })
+    )
+    return local:log("applied arabic ner override")
+};
+
+declare function local:apply-language-overrides($language as xs:string) {
+    if ($language = "arabic") then
+        local:apply-arabic-ner-override()
+    else
+        ()
+};
+
 
 declare function local:mkcol-recursive($collection, $components) {
     if (exists($components)) then
@@ -53,13 +78,16 @@ declare function local:entry-data($path as xs:anyURI, $type as xs:string, $data 
                                 let $value :=
                                     if (fn:exists($after) and fn:string-length($after) gt 0)
                                     then
-                                        for $token in fn:tokenize($after, ",")
-                                        let $trimmed := functx:trim($token)
-                                        let $val :=
-                                            if (fn:starts-with($trimmed, "edu/"))
-                                            then "http://localhost:8080/exist/apps/stanford-nlp/data/" || $trimmed
-                                            else $trimmed
-                                        return $val
+                                        fn:string-join(
+                                            for $token in fn:tokenize($after, ",")
+                                            let $trimmed := functx:trim($token)
+                                            let $val :=
+                                                if (fn:starts-with($trimmed, "edu/"))
+                                                        then "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/" || $trimmed
+                                                else $trimmed
+                                            return $val,
+                                            ","
+                                        )
                                     else ""
                                 return map:entry($key, $value)
                             else ()
@@ -95,10 +123,21 @@ declare function local:log($message as xs:string)
 declare function local:process($path as xs:string) {
     let $log0 := local:log($path)
 
-    let $req := <http:request href="{$path}" method="get"/>
+    let $req :=
+        <http:request href="{$path}" method="get" follow-redirect="true">
+            <http:header name="User-Agent" value="exist-stanford-nlp-loader"/>
+        </http:request>
 
-    let $zip := http:send-request($req)[2]
-    let $log := local:log(functx:atomic-type($zip))
+    let $response := http:send-request($req)
+    let $meta := $response[1]
+    let $status := xs:integer($meta/@status)
+    let $zip := $response[2]
+    let $log := local:log("download-status=" || $status)
+    let $check :=
+        if ($status lt 200 or $status ge 300)
+        then error(xs:QName("loader:DOWNLOAD_FAILED"), "Model download failed with HTTP status " || $status)
+        else ()
+    let $type-log := local:log(functx:atomic-type($zip))
 
     return compression:unzip(
             $zip,
@@ -109,7 +148,19 @@ declare function local:process($path as xs:string) {
         )
 };
 
-(local:log("start"),
-local:process($config:corenlp-model-url || $local:language || ".jar"),
-local:log("end")
-)
+declare function local:run() {
+    let $path := $config:corenlp-model-url || $local:language || ".jar"
+    return
+        try {
+            (
+                local:log("start"),
+                local:process($path),
+                local:apply-language-overrides($local:language),
+                local:log("end")
+            )
+        } catch * {
+            local:log("error: " || $err:code || " - " || $err:description)
+        }
+};
+
+local:run()

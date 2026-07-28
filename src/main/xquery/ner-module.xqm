@@ -88,6 +88,7 @@ function ner:classify-node($node as node(), $language as xs:string) as node() {
 (:~
  : Loads the JSON document language default file for the identified language &lt;br&gt;
  :  en => /db/apps/stanford-nlp/data/StanfordCoreNLP-english.json &lt;br&gt;
+ :  english-kbp => /db/apps/stanford-nlp/data/StanfordCoreNLP-english-kbp.json &lt;br&gt;
  :  ar => /db/apps/stanford-nlp/data/StanfordCoreNLP-arabic.json &lt;br&gt;
  :  es => /db/apps/stanford-nlp/data/StanfordCoreNLP-spanish.json &lt;br&gt;
  :  fr => /db/apps/stanford-nlp/data/StanfordCoreNLP-french.json &lt;br&gt;
@@ -100,7 +101,9 @@ declare
 function ner:properties-from-language($language as xs:string) as map(*) {
     switch ($language)
         case "en" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english.json")
+        case "english-kbp" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-english-kbp.json")
         case "ar" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-arabic.json")
+        case "arabic" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-arabic.json")
         case "es" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-spanish.json")
         case "fr" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-french.json")
         case "zh" return fn:json-doc("/db/apps/stanford-nlp/data/StanfordCoreNLP-chinese.json")
@@ -165,9 +168,16 @@ declare function ner:enrich($text as xs:string, $tokens as node()*) {
         let $after := fn:substring($text, $end)
         let $ner-text := fn:substring($text, $start, $length)
         let $next := fn:subsequence($tokens, fn:index-of($tokens, $sibling-token) + 1)
+        let $label-raw := fn:normalize-space(fn:string($last-token/NER[1]))
+        let $label-no-bio := fn:replace($label-raw, '^[BIO]-', '')
+        let $label-normalized := fn:lower-case(fn:replace($label-no-bio, '[^A-Za-z0-9_-]', '-'))
+        let $element-name :=
+            if (fn:matches($label-normalized, '^[A-Za-z_][A-Za-z0-9_.-]*$'))
+            then $label-normalized
+            else 'entity'
         return (
             ner:enrich($before, $next),
-            element { $last-token/NER/text() } { $ner-text },
+            element { $element-name } { $ner-text },
             if (fn:string-length($after) gt 0) then $after else ())
 
 };
@@ -205,7 +215,12 @@ declare function ner:pass-through($node as node()?, $properties as map(*)) {
  : @param $properties
  :)
 declare function ner:classify($text as xs:string, $properties as map(*)) {
-let $tokens := for $token in nlp:parse($text, $properties)//token[fn:not(NER = "O")]
+let $tokens :=
+            for $token in nlp:parse($text, $properties)//token[
+                fn:exists(NER)
+                and fn:normalize-space(fn:string(NER[1])) ne ""
+                and fn:string(NER[1]) ne "O"
+            ]
                 let $token-start := $token/CharacterOffsetBegin/number()
                 order by $token-start descending
             return $token

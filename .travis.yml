@@ -13,9 +13,18 @@ services:
   - docker
 
 env:
+  global:
+    - NODE_VERSION=v18.20.4
   # - img=existdb/existdb:latest
   - img=existdb/existdb:5.2.0
   - img=existdb/existdb:5.0.0
+
+jobs:
+  include:
+    - jdk: openjdk11
+      env: img=existdb/existdb:5.2.0 NODE_VERSION=v20.19.0
+    - jdk: openjdk11
+      env: img=existdb/existdb:5.0.0 NODE_VERSION=v20.19.0
 
 cache:
   directories:
@@ -26,7 +35,7 @@ before_install:
   - docker create  --name exist-ci -p 8080:8080 -m 4500m $img
 
 install:
-  - mvn clean package -DskipTests -q
+  - mvn clean package -DskipTests -Dnode.version=$NODE_VERSION -q
 
 before_script:
   - docker cp ./target/*.xar exist-ci:exist/autodeploy/111.xar
@@ -35,7 +44,9 @@ before_script:
   - sleep 30
 
 script:
-  - mvn verify
+  - cd src/main/js/frontend && ./node/node ./node/node_modules/npm/bin/npm-cli.js test && cd ../../../../
+  - mvn verify -Dnode.version=$NODE_VERSION
+  - ./scripts/rag-smoke.sh http://localhost:8080/exist/restxq
   # - cd src/main/polymer && polymer test
 
 after_success:

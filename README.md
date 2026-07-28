@@ -15,17 +15,17 @@ This application is a wrapper around the [Stanford CoreNLP](https://stanfordnlp.
 ### Why
 Loren was between projects and at an eXist-db weekly conference call it
 came to light that the previous implementations of Stanford NLP and Named
-Entity Recognition were not compatible with version 5.x of eXist-db.
+Entity Recognition were not compatible with earlier eXist-db releases.
 Loren took this project on while looking for the next project, so please
 see the contributions section at the end of this article.
 
 ## Requirements
--   eXist-db: `5.0.0` with min `4Gb` memory
+-   eXist-db: `7.0.0-beta3` with min `4Gb` memory
 
 ### For Building from Source
 -   maven: `3.6.0`
 -   java: `8`
--   (node: `12`)
+-   node: `18.20.4`
 -   (polymer-cli: `1.9.11`)
 
 ## Building from Source
@@ -39,6 +39,30 @@ For more information see the [polymer readme](./src/main/polymer/README.md)
 To run unit tests(java, xquery, web-component) locally use: `mvn test`.
 
 Support for integration tests, namely, [Web Component Tester](https://polymer-library.polymer-project.org/3.0/docs/tools/tests) is TBD.
+
+### Production Readiness
+
+Run a full local validation with:
+
+```bash
+mvn clean verify
+./scripts/rag-smoke.sh
+```
+
+CI also enforces the RAG smoke test in `.travis.yml`; keep the local command
+for manual verification and debugging.
+
+For release hardening gates (logs, security triage, rollback checks), use
+`docs/production-readiness-checklist.md`.
+
+Latest frontend dependency audit snapshot is documented in
+`docs/security-audit-summary.md`.
+
+Current accepted residual security risk and controls are documented in
+`docs/security-risk-acceptance-2026-07-28.md`.
+
+Node runtime uplift and dependency-major sequencing is documented in
+`docs/node-20-uplift-plan.md`.
 
 ## Installing the Application
 1.  Open the eXist-db Dashboard
@@ -79,10 +103,62 @@ color coded view of the text that identities the named entities.
 
 ### NLP
 
+The Home page includes a Quick Start section linking directly to Setup and NER.
+
 ### RESTful API
 #### Natural Language Processing
 
+- Load language models: `GET /exist/restxq/stanford/nlp/load/{language}`
+- View load status/logs: `GET /exist/restxq/stanford/nlp/logs`
+- OpenAPI JSON: `GET /exist/restxq/stanford/openapi`
+
 #### Named Entity Recognition
+
+- Classify text and return highlighted entities (JSON):
+  `POST /exist/restxq/Stanford/ner`
+
+#### RAG Enrichment and Retrieval
+
+RAG capabilities are implemented as RESTXQ endpoints that:
+
+1. chunk source text,
+2. enrich each chunk with NER-derived entity types,
+3. store chunk metadata as JSON in `/db/apps/stanford-nlp/data/rag/chunks`,
+4. retrieve top chunks using lexical + entity overlap scoring.
+
+Ingest a document:
+
+```bash
+curl -X POST "http://localhost:8080/exist/restxq/stanford/rag/ingest" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "docId": "sample-doc-1",
+    "sourceUri": "file://sample-doc-1",
+    "language": "en",
+    "chunkSize": 120,
+    "overlap": 20,
+    "text": "Stanford NLP can enrich chunks for retrieval augmented generation workflows."
+  }'
+```
+
+Search chunks:
+
+```bash
+curl "http://localhost:8080/exist/restxq/stanford/rag/search?q=retrieval%20generation&lang=en&topK=5"
+```
+
+Clear indexed chunks:
+
+```bash
+curl "http://localhost:8080/exist/restxq/stanford/rag/clear"
+```
+
+Returned search rows include `chunkId`, `docId`, `sourceUri`, `text`, `entities`, and `score`.
+
+### OpenAPI in the UI
+
+The frontend now includes an **API Docs** page (sidebar: `API Docs`) that fetches and renders
+the OpenAPI document from `/exist/restxq/stanford/openapi`.
 
 ### XQuery Function Modules
 #### Natural Language Processing
