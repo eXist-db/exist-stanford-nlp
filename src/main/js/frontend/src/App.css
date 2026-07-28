@@ -306,6 +306,148 @@ body {
   margin-top: 12px;
 }
 
+.ner-subsection-title {
+  margin-top: 14px;
+  margin-bottom: 8px;
+  color: #2e3f5f;
+  font-size: 1.05rem;
+}
+
+.ner-pos-output {
+  min-height: 70px;
+  border: 1px solid #c6d3ea;
+  border-radius: 6px;
+  background: #fcfdff;
+  padding: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ner-pos-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ner-pos-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--pos-border, #b5bfd5);
+  background: var(--pos-bg, #eef2ff);
+  color: var(--pos-text, #2a3140);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 12px;
+}
+
+.ner-pos-legend-item b {
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 1px 6px;
+}
+
+.ner-pos-token {
+  --pos-bg: #e5e7eb;
+  --pos-border: #94a3b8;
+  --pos-text: #1f2937;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 52px;
+}
+
+.ner-pos-tag {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  color: var(--pos-text);
+  background: var(--pos-bg);
+  border: 1px solid var(--pos-border);
+  border-radius: 3px;
+  padding: 1px 5px;
+}
+
+.ner-pos-word {
+  margin-top: 3px;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.ner-pos-noun {
+  --pos-bg: #dbeafe;
+  --pos-border: #7aa8df;
+  --pos-text: #0f3b73;
+}
+
+.ner-pos-verb {
+  --pos-bg: #dcfce7;
+  --pos-border: #86c29d;
+  --pos-text: #14532d;
+}
+
+.ner-pos-adjective {
+  --pos-bg: #ffedd5;
+  --pos-border: #e5a86d;
+  --pos-text: #7c2d12;
+}
+
+.ner-pos-adverb {
+  --pos-bg: #fee2e2;
+  --pos-border: #e39a9a;
+  --pos-text: #7f1d1d;
+}
+
+.ner-pos-pronoun {
+  --pos-bg: #fce7f3;
+  --pos-border: #d8a7bf;
+  --pos-text: #831843;
+}
+
+.ner-pos-determiner {
+  --pos-bg: #fef9c3;
+  --pos-border: #d6cd7f;
+  --pos-text: #713f12;
+}
+
+.ner-pos-adposition {
+  --pos-bg: #e0f2fe;
+  --pos-border: #8bb8d6;
+  --pos-text: #0c4a6e;
+}
+
+.ner-pos-conjunction {
+  --pos-bg: #ede9fe;
+  --pos-border: #b3a6dd;
+  --pos-text: #4c1d95;
+}
+
+.ner-pos-particle {
+  --pos-bg: #cffafe;
+  --pos-border: #81c8d0;
+  --pos-text: #155e75;
+}
+
+.ner-pos-numeral {
+  --pos-bg: #ffe4e6;
+  --pos-border: #d59ba4;
+  --pos-text: #881337;
+}
+
+.ner-pos-punctuation {
+  --pos-bg: #f3f4f6;
+  --pos-border: #c5cad3;
+  --pos-text: #374151;
+}
+
+.ner-pos-other {
+  --pos-bg: #e2e8f0;
+  --pos-border: #aeb8c6;
+  --pos-text: #334155;
+}
+
 #NER span {
   display: inline-block;
   margin: 2px 3px;

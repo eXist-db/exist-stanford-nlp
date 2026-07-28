@@ -51,7 +51,11 @@ describe('NER usability safeguards', () => {
           ok: true,
           status: 200,
           text: async () => JSON.stringify({
-            text: 'Hello <img src=x onerror=alert(1)><script>alert(1)</script><span class="person" data-tooltip="person" data-tooltip-position="bottom">Sam</span>'
+            text: 'Hello <img src=x onerror=alert(1)><script>alert(1)</script><span class="person" data-tooltip="person" data-tooltip-position="bottom">Sam</span>',
+            pos: [
+              { token: 'Hello', tag: 'UH' },
+              { token: 'Sam', tag: 'NNP' }
+            ]
           })
         } as Response);
       }
@@ -73,6 +77,11 @@ describe('NER usability safeguards', () => {
       expect(nerContainer?.querySelector('script')).toBeNull();
       expect(nerContainer?.querySelector('span.person')?.textContent).toBe('Sam');
       expect(nerContainer?.querySelector('span.person')?.getAttribute('tabindex')).toBeNull();
+      expect(screen.getByTestId('ner-pos-output')).toBeInTheDocument();
+      expect(screen.getByLabelText(/Parts of speech tag legend/i)).toBeInTheDocument();
+      expect(screen.getByText(/Proper noun, singular/i)).toBeInTheDocument();
+      expect(screen.getAllByText('UH').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('NNP').length).toBeGreaterThan(0);
     });
 
     await act(async () => {
