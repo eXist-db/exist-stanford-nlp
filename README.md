@@ -100,6 +100,8 @@ The defaults are loaded into
 This user interface allows the user to enter text in the textbox, select
 the language and then after it is submitted the resulting NER has a
 color coded view of the text that identities the named entities.
+The same result view also includes parts-of-speech (POS) tags and a
+legend so token classes are easier to interpret.
 
 ### NLP
 
@@ -114,8 +116,24 @@ The Home page includes a Quick Start section linking directly to Setup and NER.
 
 #### Named Entity Recognition
 
-- Classify text and return highlighted entities (JSON):
+- Classify text and return highlighted entities plus POS tags (JSON):
   `POST /exist/restxq/Stanford/ner`
+
+Example response payload:
+
+```json
+{
+  "text": "<span class=\"person\" data-tooltip=\"person\" data-tooltip-position=\"bottom\">Marie</span> was born in <span class=\"location\" data-tooltip=\"location\" data-tooltip-position=\"bottom\">Paris</span>.",
+  "pos": [
+    { "token": "Marie", "tag": "NNP" },
+    { "token": "was", "tag": "VBD" },
+    { "token": "born", "tag": "VBN" },
+    { "token": "in", "tag": "IN" },
+    { "token": "Paris", "tag": "NNP" },
+    { "token": ".", "tag": "." }
+  ]
+}
+```
 
 #### RAG Enrichment and Retrieval
 
@@ -476,6 +494,8 @@ This returns an XML document of the parsed text.
 
 There is an XQuery library module that takes the output of the NLP
 pipeline and surrounds the named entities with the appropriate tags.
+The JSON endpoint also emits token-level POS tags so downstream code can
+combine entity and grammatical information.
 
 ```xquery
 xquery version "3.1";

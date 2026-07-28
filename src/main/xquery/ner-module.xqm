@@ -226,3 +226,22 @@ let $tokens :=
             return $token
 return ner:enrich($text, $tokens)
 };
+
+(:~
+ : Returns token-level part-of-speech annotations for the supplied text.
+ :
+ : @param $text Text to parse
+ : @param $properties Stanford CoreNLP pipeline properties
+ : @return A sequence of maps with token + part-of-speech tag
+ :)
+declare function ner:pos-tags($text as xs:string, $properties as map(*)) as map(*)* {
+    for $token in nlp:parse($text, $properties)//token
+    let $word := fn:normalize-space(fn:string($token/word[1]))
+    let $pos := fn:normalize-space(fn:string($token/POS[1]))
+    where $word ne ""
+    return map {
+        "token": $word,
+        "tag": $pos
+    }
+};
+

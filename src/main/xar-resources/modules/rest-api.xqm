@@ -17,7 +17,7 @@ declare function nerapi:openapi-spec() as map(*) {
         "openapi": "3.0.3",
         "info": map {
             "title": "Stanford NLP REST API",
-            "version": "0.9.6",
+            "version": "0.10.0",
             "description": "RESTXQ endpoints for language loading, NER, and RAG workflows."
         },
         "servers": array {
@@ -103,7 +103,7 @@ declare function nerapi:openapi-spec() as map(*) {
             "/Stanford/ner": map {
                 "post": map {
                     "tags": array { "Named Entity Recognition" },
-                    "summary": "Classify text and return highlighted entities",
+                    "summary": "Classify text and return highlighted entities plus POS tags",
                     "requestBody": map {
                         "required": true(),
                         "content": map {
@@ -114,7 +114,7 @@ declare function nerapi:openapi-spec() as map(*) {
                     },
                     "responses": map {
                         "200": map {
-                            "description": "HTML-like highlighted response in JSON",
+                            "description": "JSON response containing highlighted NER markup and token-level POS tags",
                             "content": map {
                                 "application/json": map {
                                     "schema": map { "$ref": "#/components/schemas/NerResponse" }
@@ -273,7 +273,27 @@ declare function nerapi:openapi-spec() as map(*) {
                 "NerResponse": map {
                     "type": "object",
                     "properties": map {
-                        "text": map { "type": "string" },
+                        "text": map {
+                            "type": "string",
+                            "description": "HTML-like text where entity spans are wrapped with class and tooltip attributes"
+                        },
+                        "pos": map {
+                            "type": "array",
+                            "description": "Token-level part-of-speech annotations in sentence order",
+                            "items": map {
+                                "type": "object",
+                                "properties": map {
+                                    "token": map {
+                                        "type": "string",
+                                        "description": "Original token text"
+                                    },
+                                    "tag": map {
+                                        "type": "string",
+                                        "description": "Penn Treebank POS tag"
+                                    }
+                                }
+                            }
+                        },
                         "code": map { "type": "string" },
                         "description": map { "type": "string" },
                         "value": map { "type": "string" },
@@ -610,7 +630,8 @@ function nerapi:logs($timestamp as xs:string*) as map(*)
 };
 
 (:~
- : This method runs the ner:clasify($text, $properties) on the text passed in for the language specified.
+ : This method runs the ner:clasify($text, $properties) on the text passed in for the language specified
+ : and returns both highlighted NER spans and token-level parts-of-speech tags.
  : @param $content the properties of the source graph in a JSON object
  : @see ner:properties-from-language()
  : @return A map
@@ -637,10 +658,12 @@ function nerapi:query-text-as-json($content as xs:string) as map(*) {
             default return $language-input
     let $properties := ner:properties-from-language(if ($language = "") then "en" else $language)
     let $classified := ner:classify($postBody?text, $properties)
+    let $pos := ner:pos-tags($postBody?text, $properties)
     return
         try {
     map {
-        'text' : ner:stringify($classified)
+        'text' : ner:stringify($classified),
+        'pos': array { $pos }
     }
         } catch * {
             map {

@@ -9,7 +9,7 @@ function HomeContent() {
             <h1>Stanford NLP for eXist-db</h1>
             <p>
                 This app integrates Stanford CoreNLP with eXist-db so you can load language resources,
-                process text, and extract named entities directly in your database-backed workflows.
+                process text, and extract named entities plus parts-of-speech tags directly in your database-backed workflows.
             </p>
 
             <h2>Before you begin</h2>
@@ -25,7 +25,7 @@ function HomeContent() {
                     <b>Setup</b>: Download and load language models into the app data collection.
                 </li>
                 <li>
-                    <b>NER</b>: Submit text and view highlighted named entities in the result.
+                    <b>NER</b>: Submit text and view highlighted named entities and parts-of-speech tags in the result.
                 </li>
                 <li>
                     <b>API/XQuery</b>: Use RESTXQ endpoints and XQuery modules for automation.
@@ -36,7 +36,7 @@ function HomeContent() {
             <ol>
                 <li>Open <b>Setup</b> and load one or more languages.</li>
                 <li>Open <b>NER</b>, pick a loaded language, then submit text.</li>
-                <li>Use the generated output in your eXist-db queries or applications.</li>
+                <li>Use the generated entities and POS tags in your eXist-db queries or applications.</li>
             </ol>
 
             <h2>Supported languages</h2>

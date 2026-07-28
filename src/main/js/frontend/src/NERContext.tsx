@@ -1,5 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { FormEvent, useCallback, useEffect, useState } from "react";
+import React, { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import './App.css';
 import {Button, Col, Form, Row} from "react-bootstrap";
 import { API_ENDPOINTS } from './apiConfig';
@@ -29,6 +29,30 @@ type NerError = {
 };
 
 type NerRequestError = Error & Partial<NerError>;
+
+type PosToken = {
+    token: string;
+    tag: string;
+};
+
+type PosCategory =
+    | 'noun'
+    | 'verb'
+    | 'adjective'
+    | 'adverb'
+    | 'pronoun'
+    | 'determiner'
+    | 'adposition'
+    | 'conjunction'
+    | 'particle'
+    | 'numeral'
+    | 'punctuation'
+    | 'other';
+
+type NerResponse = {
+    text?: string;
+    pos?: PosToken[];
+} & NerError;
 
 const EMPTY_STATUS: LanguageStatus = { start: null, end: null, isRunning: false, isLoaded: false };
 
@@ -163,6 +187,58 @@ const NER_SAMPLES: Array<{ label: string; language: string; text: string }> = [
     }
 ];
 
+const POS_TAG_DETAILS: Record<string, { label: string; category: PosCategory }> = {
+    CC: { label: 'Coordinating conjunction', category: 'conjunction' },
+    CD: { label: 'Cardinal number', category: 'numeral' },
+    DT: { label: 'Determiner', category: 'determiner' },
+    EX: { label: 'Existential there', category: 'pronoun' },
+    FW: { label: 'Foreign word', category: 'other' },
+    IN: { label: 'Preposition/subordinating conjunction', category: 'adposition' },
+    JJ: { label: 'Adjective', category: 'adjective' },
+    JJR: { label: 'Adjective, comparative', category: 'adjective' },
+    JJS: { label: 'Adjective, superlative', category: 'adjective' },
+    LS: { label: 'List item marker', category: 'other' },
+    MD: { label: 'Modal', category: 'verb' },
+    NN: { label: 'Noun, singular or mass', category: 'noun' },
+    NNS: { label: 'Noun, plural', category: 'noun' },
+    NNP: { label: 'Proper noun, singular', category: 'noun' },
+    NNPS: { label: 'Proper noun, plural', category: 'noun' },
+    PDT: { label: 'Predeterminer', category: 'determiner' },
+    POS: { label: 'Possessive ending', category: 'particle' },
+    PRP: { label: 'Personal pronoun', category: 'pronoun' },
+    'PRP$': { label: 'Possessive pronoun', category: 'pronoun' },
+    RB: { label: 'Adverb', category: 'adverb' },
+    RBR: { label: 'Adverb, comparative', category: 'adverb' },
+    RBS: { label: 'Adverb, superlative', category: 'adverb' },
+    RP: { label: 'Particle', category: 'particle' },
+    SYM: { label: 'Symbol', category: 'other' },
+    TO: { label: 'to', category: 'particle' },
+    UH: { label: 'Interjection', category: 'other' },
+    VB: { label: 'Verb, base form', category: 'verb' },
+    VBD: { label: 'Verb, past tense', category: 'verb' },
+    VBG: { label: 'Verb, gerund/present participle', category: 'verb' },
+    VBN: { label: 'Verb, past participle', category: 'verb' },
+    VBP: { label: 'Verb, non-3rd person singular present', category: 'verb' },
+    VBZ: { label: 'Verb, 3rd person singular present', category: 'verb' },
+    WDT: { label: 'Wh-determiner', category: 'determiner' },
+    WP: { label: 'Wh-pronoun', category: 'pronoun' },
+    'WP$': { label: 'Possessive wh-pronoun', category: 'pronoun' },
+    WRB: { label: 'Wh-adverb', category: 'adverb' },
+    '.': { label: 'Sentence-final punctuation', category: 'punctuation' },
+    ',': { label: 'Comma', category: 'punctuation' },
+    ':': { label: 'Colon or ellipsis', category: 'punctuation' },
+    ';': { label: 'Semicolon', category: 'punctuation' },
+    '``': { label: 'Opening quotation mark', category: 'punctuation' },
+    "''": { label: 'Closing quotation mark', category: 'punctuation' },
+    '-LRB-': { label: 'Left round bracket', category: 'punctuation' },
+    '-RRB-': { label: 'Right round bracket', category: 'punctuation' }
+};
+
+function getPosTagDetails(tag: string): { label: string; category: PosCategory } {
+    const normalized = tag.trim().toUpperCase();
+    return POS_TAG_DETAILS[normalized] ?? { label: 'Unknown tag', category: 'other' };
+}
+
 function NERContext() {
 
     const [running, setRunning] = useState<RunningState>(INITIAL_RUNNING);
@@ -171,6 +247,7 @@ function NERContext() {
     const [content, setContent] = useState("");
     const [rawNamedEntities, setRawNamedEntities] = useState("");
     const [namedEntities, setNamedEntities] = useState("");
+    const [partsOfSpeech, setPartsOfSpeech] = useState<PosToken[]>([]);
     const [nerError, setNerError] = useState<NerError>(INITIAL_ERROR);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
@@ -204,6 +281,31 @@ function NERContext() {
     const languageLoaded = isLanguageLoaded(language);
     const showLanguageFieldError = hasAttemptedSubmit && (!languageLoaded || nerError.code === 'LANGUAGE_NOT_LOADED');
     const showTextFieldError = hasAttemptedSubmit && nerError.code === 'EMPTY_INPUT';
+    const entityTypes = useMemo(() => {
+        if (!namedEntities) {
+            return [] as string[];
+        }
+
+        const parser = new DOMParser();
+        const parsed = parser.parseFromString(`<div>${namedEntities}</div>`, 'text/html');
+        const values = new Set<string>();
+        parsed.querySelectorAll('[data-tooltip]').forEach((element) => {
+            const tooltip = element.getAttribute('data-tooltip');
+            if (tooltip) {
+                values.add(tooltip.toUpperCase());
+            }
+        });
+        return Array.from(values).sort();
+    }, [namedEntities]);
+    const posLegend = useMemo(() => {
+        const uniqueTags = Array.from(new Set(partsOfSpeech.map((entry) => (entry.tag || 'UNK').trim().toUpperCase())));
+        return uniqueTags
+            .sort((a, b) => a.localeCompare(b))
+            .map((tag) => ({
+                tag,
+                ...getPosTagDetails(tag)
+            }));
+    }, [partsOfSpeech]);
 
     useEffect(() => {
         if (rawNamedEntities) {
@@ -216,6 +318,7 @@ function NERContext() {
         setContent(sample.text);
         setRawNamedEntities("");
         setNamedEntities("");
+        setPartsOfSpeech([]);
         setNerError(INITIAL_ERROR);
         setHasAttemptedSubmit(false);
     }, []);
@@ -255,6 +358,7 @@ function NERContext() {
         if (!content.trim()) {
             setRawNamedEntities("");
             setNamedEntities("");
+            setPartsOfSpeech([]);
             setNerError({
                 code: "EMPTY_INPUT",
                 description: "Please provide text to analyze.",
@@ -267,6 +371,7 @@ function NERContext() {
         if (!isLanguageLoaded(language)) {
             setRawNamedEntities("");
             setNamedEntities("");
+            setPartsOfSpeech([]);
             setNerError({
                 code: "LANGUAGE_NOT_LOADED",
                 description: `Language '${language}' is not loaded. Load it from Setup before running NER.`,
@@ -291,10 +396,10 @@ function NERContext() {
         fetch(API_ENDPOINTS.ner, requestOptions)
             .then(async (response) => {
                 const raw = await response.text();
-                let parsed: ({ text?: string } & NerError) | null = null;
+                let parsed: NerResponse | null = null;
 
                 try {
-                    parsed = raw ? JSON.parse(raw) as ({ text?: string } & NerError) : null;
+                    parsed = raw ? JSON.parse(raw) as NerResponse : null;
                 } catch (_parseError) {
                     if (!response.ok) {
                         throw toNerRequestError({
@@ -333,14 +438,16 @@ function NERContext() {
 
                 return parsed;
             })
-            .then((result: { text?: string } & NerError) => {
+            .then((result: NerResponse) => {
                 if (result.text) {
                     setRawNamedEntities(result.text);
                     setNamedEntities(sanitizeNerMarkup(result.text, enableTooltipFocus));
+                    setPartsOfSpeech(Array.isArray(result.pos) ? result.pos : []);
                     setNerError(INITIAL_ERROR);
                 } else {
                     setRawNamedEntities("");
                     setNamedEntities("");
+                    setPartsOfSpeech([]);
                     setNerError({
                         code: result.code ?? "UNKNOWN_ERROR",
                         description: result.description ?? "The service returned an error.",
@@ -352,6 +459,7 @@ function NERContext() {
             .catch((error: NerRequestError | undefined) => {
                 setRawNamedEntities("");
                 setNamedEntities("");
+                setPartsOfSpeech([]);
                 setNerError({
                     code: error?.code ?? "NETWORK_ERROR",
                     description: error?.description ?? "Unable to reach the NER service.",
@@ -457,11 +565,49 @@ function NERContext() {
                     </div>
                 ) : null}
             </Form>
-            <Row>
+            <section className="ner-results-panel" aria-live="polite">
                 <h2>Results</h2>
-                <hr/>
-                <div id="NER" dangerouslySetInnerHTML={{__html: namedEntities}}></div>
-                <div role={nerError.code ? 'alert' : undefined} aria-live={nerError.code ? 'assertive' : undefined}>{
+                <p className="ner-results-hint">Entity spans are color-coded and include a visible type tag, with hover and keyboard tooltips for detail.</p>
+                {entityTypes.length > 0 ? (
+                    <div className="ner-legend" aria-label="Detected entity types">
+                        {entityTypes.map((entityType) => (
+                            <span key={entityType} className="ner-legend-chip">{entityType}</span>
+                        ))}
+                    </div>
+                ) : null}
+                {namedEntities ? (
+                    <div id="NER" className="ner-output" dangerouslySetInnerHTML={{__html: namedEntities}}></div>
+                ) : (
+                    <div className="ner-output ner-output-empty">Run NER to preview highlighted entity output.</div>
+                )}
+                <h3 className="ner-subsection-title">Parts of Speech</h3>
+                {posLegend.length > 0 ? (
+                    <div className="ner-pos-legend" aria-label="Parts of speech tag legend">
+                        {posLegend.map((entry) => (
+                            <span key={entry.tag} className={`ner-pos-legend-item ner-pos-${entry.category}`}>
+                                <b>{entry.tag}</b>
+                                <span>{entry.label}</span>
+                            </span>
+                        ))}
+                    </div>
+                ) : null}
+                {partsOfSpeech.length > 0 ? (
+                    <div className="ner-pos-output" data-testid="ner-pos-output" aria-label="Parts of speech annotations">
+                        {partsOfSpeech.map((entry, index) => {
+                            const posTag = (entry.tag || 'UNK').trim().toUpperCase();
+                            const posInfo = getPosTagDetails(posTag);
+                            return (
+                            <span key={`${entry.token}-${entry.tag}-${index}`} className={`ner-pos-token ner-pos-${posInfo.category}`}>
+                                <span className="ner-pos-tag" title={posInfo.label}>{posTag}</span>
+                                <span className="ner-pos-word">{entry.token}</span>
+                            </span>
+                            );
+                        })}
+                    </div>
+                ) : (
+                    <div className="ner-pos-output ner-output-empty">POS tags are shown after a successful NER run.</div>
+                )}
+                <div className="ner-error-panel" role={nerError.code ? 'alert' : undefined} aria-live={nerError.code ? 'assertive' : undefined}>{
                     nerError.code ?
                         <>
                             <div><b>Code</b> <span>{nerError.code}</span></div>
@@ -471,8 +617,7 @@ function NERContext() {
                         </>
                         : null
                 }</div>
-                <hr/>
-            </Row>
+            </section>
         </div>
     )
 
