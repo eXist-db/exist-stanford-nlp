@@ -1,5 +1,5 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-import React, { FormEvent, useCallback, useEffect, useState } from "react";
+import React, { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import './App.css';
 import {Button, Col, Form, Row} from "react-bootstrap";
 import { API_ENDPOINTS } from './apiConfig';
@@ -204,6 +204,22 @@ function NERContext() {
     const languageLoaded = isLanguageLoaded(language);
     const showLanguageFieldError = hasAttemptedSubmit && (!languageLoaded || nerError.code === 'LANGUAGE_NOT_LOADED');
     const showTextFieldError = hasAttemptedSubmit && nerError.code === 'EMPTY_INPUT';
+    const entityTypes = useMemo(() => {
+        if (!namedEntities) {
+            return [] as string[];
+        }
+
+        const parser = new DOMParser();
+        const parsed = parser.parseFromString(`<div>${namedEntities}</div>`, 'text/html');
+        const values = new Set<string>();
+        parsed.querySelectorAll('[data-tooltip]').forEach((element) => {
+            const tooltip = element.getAttribute('data-tooltip');
+            if (tooltip) {
+                values.add(tooltip.toUpperCase());
+            }
+        });
+        return Array.from(values).sort();
+    }, [namedEntities]);
 
     useEffect(() => {
         if (rawNamedEntities) {
@@ -457,11 +473,22 @@ function NERContext() {
                     </div>
                 ) : null}
             </Form>
-            <Row>
+            <section className="ner-results-panel" aria-live="polite">
                 <h2>Results</h2>
-                <hr/>
-                <div id="NER" dangerouslySetInnerHTML={{__html: namedEntities}}></div>
-                <div role={nerError.code ? 'alert' : undefined} aria-live={nerError.code ? 'assertive' : undefined}>{
+                <p className="ner-results-hint">Entity spans are color-coded and include a visible type tag, with hover and keyboard tooltips for detail.</p>
+                {entityTypes.length > 0 ? (
+                    <div className="ner-legend" aria-label="Detected entity types">
+                        {entityTypes.map((entityType) => (
+                            <span key={entityType} className="ner-legend-chip">{entityType}</span>
+                        ))}
+                    </div>
+                ) : null}
+                {namedEntities ? (
+                    <div id="NER" className="ner-output" dangerouslySetInnerHTML={{__html: namedEntities}}></div>
+                ) : (
+                    <div className="ner-output ner-output-empty">Run NER to preview highlighted entity output.</div>
+                )}
+                <div className="ner-error-panel" role={nerError.code ? 'alert' : undefined} aria-live={nerError.code ? 'assertive' : undefined}>{
                     nerError.code ?
                         <>
                             <div><b>Code</b> <span>{nerError.code}</span></div>
@@ -471,8 +498,7 @@ function NERContext() {
                         </>
                         : null
                 }</div>
-                <hr/>
-            </Row>
+            </section>
         </div>
     )
 
