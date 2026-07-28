@@ -54,24 +54,39 @@ function toNerRequestError(details: Partial<NerError>): NerRequestError {
 
 const NER_SAMPLES: Array<{ label: string; language: string; text: string }> = [
     {
-        label: "Sample 1: English news",
+        label: "[EN] Sample 1: English news",
         language: "en",
         text: "Apple announced in Cupertino that Tim Cook will visit Berlin next week to discuss AI partnerships with Siemens."
     },
     {
-        label: "Sample 2: Spanish travel",
-        language: "es",
-        text: "Mariana viajo de Madrid a Barcelona y luego a Valencia para una conferencia de tecnologia en la Universidad Politecnica."
+        label: "[AR] Sample 2: Arabic briefing",
+        language: "ar",
+        text: "زار المدير Samir منصات Google في Dubai مع فريق Microsoft."
     },
     {
-        label: "Sample 3: French business",
+        label: "[ZH] Sample 3: Chinese technology",
+        language: "zh",
+        text: "苹果公司在北京宣布蒂姆库克将访问上海。"
+    },
+    {
+        label: "[EN-KBP] Sample 4: English KBP incident",
+        language: "english-kbp",
+        text: "In 2026, investigators said Orion Security identified Malik Hassan near Cairo during a joint operation with Interpol."
+    },
+    {
+        label: "[FR] Sample 5: French business",
         language: "fr",
         text: "Le ministre de l'Economie a rencontre des dirigeants d'Airbus a Toulouse pour parler des investissements en 2027."
     },
     {
-        label: "Sample 4: German research",
+        label: "[DE] Sample 6: German research",
         language: "de",
         text: "Forscher der Universitat Freiburg prasentierten in Munchen neue Ergebnisse zur Verarbeitung naturlicher Sprache."
+    },
+    {
+        label: "[ES] Sample 7: Spanish travel",
+        language: "es",
+        text: "Mariana viajo de Madrid a Barcelona y luego a Valencia para una conferencia de tecnologia en la Universidad Politecnica."
     }
 ];
 
@@ -237,6 +252,7 @@ function NERContext() {
                             <Form.Label>Select language</Form.Label>
                             <Form.Select name="language" value={language} onChange={handleLanguageChange}>
                                 <option value="en" disabled={!running.english.isLoaded}>English</option>
+                                <option value="english-kbp" disabled={!running["english-kbp"].isLoaded}>English KBP</option>
                                 <option value="ar" disabled={!running.arabic.isLoaded}>Arabic</option>
                                 <option value="zh" disabled={!running.chinese.isLoaded}>Chinese</option>
                                 <option value="fr" disabled={!running.french.isLoaded}>French</option>
@@ -255,6 +271,11 @@ function NERContext() {
                         <Button type={'submit'} disabled={isSubmitting}>Submit</Button>
                     </Col>
                 </Form.Group>
+                {isSubmitting ? (
+                    <div style={{ marginBottom: 12, color: '#0d6efd' }} role="status" aria-live="polite">
+                        Calling NER API...
+                    </div>
+                ) : null}
             </Form>
             <Row>
                 <div>Results</div>

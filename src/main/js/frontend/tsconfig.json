@@ -15,6 +15,10 @@
     "noFallthroughCasesInSwitch": true,
     "module": "esnext",
     "moduleResolution": "node",
+    "types": [
+      "vite/client",
+      "vitest/globals"
+    ],
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,

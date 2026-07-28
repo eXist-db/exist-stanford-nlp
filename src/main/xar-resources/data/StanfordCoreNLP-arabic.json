@@ -1,0 +1,19 @@
+{
+    "annotators": [
+        "tokenize",
+        "ssplit",
+        "pos",
+        "lemma",
+        "ner"
+    ],
+    "tokenize.language": "en",
+    "pos.model": "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/pos-tagger/english-bidirectional-distsim.tagger",
+    "ner.model": [
+        "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/ner/english.all.3class.caseless.distsim.crf.ser.gz",
+        "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/ner/english.muc.7class.caseless.distsim.crf.ser.gz",
+        "http://localhost:8080/exist/rest/db/apps/stanford-nlp/data/edu/stanford/nlp/models/ner/english.conll.4class.caseless.distsim.crf.ser.gz"
+    ],
+    "ner.useSUTime": "false",
+    "ner.applyFineGrained": "false"
+}
+
