@@ -154,64 +154,75 @@ function SetupContent() {
     }
 
     return (
-        <div className={'LoadingContent'}>
+        <div className={'LoadingContent setup-panel'}>
             <h1>Load</h1>
-            <div>Click on the language button to load each language.</div>
+            <p className="setup-intro">Click on the language button to load each language.</p>
             {pollError ? (
-                <div role="alert" style={{color: '#b00020', marginTop: 8, marginBottom: 8}}>
+                <div role="alert" className="setup-poll-error">
                     {pollError}
                 </div>
             ) : null}
             {lastUpdated ? (
-                <div role="status" aria-live="polite" style={{fontSize: 12, marginBottom: 8}}>
+                <div role="status" aria-live="polite" className="setup-last-updated">
                     Last updated: <time dateTime={lastUpdated}>{lastUpdated}</time>
                 </div>
             ) : null}
-            {LANGUAGE_BUTTONS.map((languageButton) => {
-                const current = running[languageButton.key];
-                const languageError = getLanguageError(languageButton.key);
-                return (
-                    <div key={languageButton.key} style={{display: 'inline-block', marginRight: 8, marginBottom: 8}}>
-                        <Button
-                            onClick={() => loadLanguage(languageButton.key)}
-                            disabled={current.isRunning}
-                        >
-                            {renderLanguageStatusIcon(current)}
-                            {languageButton.label}
-                        </Button>
-                        {languageError ? (
-                            <div style={{color: '#b00020', fontSize: 12, marginTop: 4, maxWidth: 360}}>
-                                {languageError}
-                            </div>
-                        ) : null}
-                    </div>
-                );
-            })}
-            <table>
-                <caption>Language loader activity log.</caption>
-                <thead>
-                <tr>
-                    <th scope="col">Timestamp</th>
-                    <th scope="col">Language</th>
-                    <th scope="col">Log</th>
-                </tr>
-                </thead>
-                <tbody>{
-                    logs.length === 0 ? (
+            <div className="setup-language-grid">
+                {LANGUAGE_BUTTONS.map((languageButton) => {
+                    const current = running[languageButton.key];
+                    const languageError = getLanguageError(languageButton.key);
+                    return (
+                        <div key={languageButton.key} className="setup-language-item">
+                            <Button
+                                className="setup-language-button"
+                                onClick={() => loadLanguage(languageButton.key)}
+                                disabled={current.isRunning}
+                            >
+                                <span className="setup-language-button-label">
+                                    {renderLanguageStatusIcon(current)}
+                                    <span>{languageButton.label}</span>
+                                </span>
+                            </Button>
+                            {languageError ? (
+                                <div className="setup-language-error">
+                                    {languageError}
+                                </div>
+                            ) : null}
+                        </div>
+                    );
+                })}
+            </div>
+
+            <section className="setup-logs">
+                <h2>Activity Log</h2>
+                <div className="setup-log-table-wrap">
+                    <table className="setup-log-table">
+                        <caption>Language loader activity log.</caption>
+                        <thead>
                         <tr>
-                            <td colSpan={3}>No log entries yet.</td>
+                            <th scope="col" className="setup-col-timestamp">Timestamp</th>
+                            <th scope="col" className="setup-col-language">Language</th>
+                            <th scope="col" className="setup-col-message">Log</th>
                         </tr>
-                    ) : logs.map((log, index) => {
-                        return (
-                            <tr key={log.timestamp + '-' + log.language + '-' + index}>
-                                <td>{log.timestamp}</td>
-                                <td>{log.language}</td>
-                                <td>{log.message}</td>
-                            </tr>
-                    )
-                })
-                }</tbody>
-            </table>
+                        </thead>
+                        <tbody>{
+                            logs.length === 0 ? (
+                                <tr>
+                                    <td colSpan={3}>No log entries yet.</td>
+                                </tr>
+                            ) : logs.map((log, index) => {
+                                return (
+                                    <tr key={log.timestamp + '-' + log.language + '-' + index}>
+                                        <td className="setup-col-timestamp">{log.timestamp}</td>
+                                        <td className="setup-col-language">{log.language}</td>
+                                        <td className="setup-col-message">{log.message}</td>
+                                    </tr>
+                                )
+                            })
+                        }</tbody>
+                    </table>
+                </div>
+            </section>
         </div>
     )
 }

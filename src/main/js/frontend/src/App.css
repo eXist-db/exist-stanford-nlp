@@ -47,11 +47,101 @@ body {
 
 .NLPContent {
   height: 100%;
-  width: 100%;
+  flex: 1;
+  min-width: 0;
 }
 .LoadingContent {
   height: 100%;
+  flex: 1;
+  min-width: 0;
+}
+
+.setup-panel {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.setup-panel h1 {
+  margin: 0;
+}
+
+.setup-intro {
+  margin: 0;
+}
+
+.setup-poll-error {
+  color: #b00020;
+  margin: 0;
+}
+
+.setup-last-updated {
+  font-size: 12px;
+  margin: 0;
+}
+
+.setup-language-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.setup-language-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.setup-language-button {
+  min-width: 150px;
+}
+
+.setup-language-button-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.setup-language-error {
+  color: #b00020;
+  font-size: 12px;
+  max-width: 320px;
+}
+
+.setup-logs {
+  margin-top: 4px;
+}
+
+.setup-logs h2 {
+  margin: 0 0 8px 0;
+  font-size: 1.15rem;
+}
+
+.setup-log-table-wrap {
+  overflow-x: auto;
+}
+
+.setup-log-table {
   width: 100%;
+  border-collapse: collapse;
+}
+
+.setup-log-table th,
+.setup-log-table td {
+  border: 1px solid #ddd;
+  padding: 6px 8px;
+  vertical-align: top;
+}
+
+.setup-col-timestamp,
+.setup-col-language {
+  white-space: nowrap;
+}
+
+.setup-col-message {
+  word-break: break-word;
 }
 
 #NER span {
