@@ -97,9 +97,9 @@ function OpenApiContent() {
                             <caption>OpenAPI operations discovered from the live backend document.</caption>
                             <thead>
                             <tr>
-                                <th scope="col">Method</th>
-                                <th scope="col">Path</th>
-                                <th scope="col">Summary</th>
+                                <th scope="col" className="openapi-col-method">Method</th>
+                                <th scope="col" className="openapi-col-path">Path</th>
+                                <th scope="col" className="openapi-col-summary">Summary</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -109,9 +109,9 @@ function OpenApiContent() {
                                 </tr>
                             ) : operations.map((operation) => (
                                 <tr key={`${operation.method}-${operation.path}`}>
-                                    <td><code>{operation.method}</code></td>
-                                    <td><code>{operation.path}</code></td>
-                                    <td>{operation.summary}</td>
+                                    <td className="openapi-col-method"><code>{operation.method}</code></td>
+                                    <td className="openapi-col-path"><code>{operation.path}</code></td>
+                                    <td className="openapi-col-summary">{operation.summary}</td>
                                 </tr>
                             ))}
                             </tbody>

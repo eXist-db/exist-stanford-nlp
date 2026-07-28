@@ -399,7 +399,7 @@ function RagContent() {
                     </Col>
                 </Row>
                 {!ingestLanguageLoaded ? (
-                    <div style={{ marginBottom: 12, color: '#b00020' }}>
+                    <div role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
                         Ingest language is not loaded. Use Setup to load it first.
                     </div>
                 ) : null}
@@ -418,7 +418,7 @@ function RagContent() {
                     </Col>
                 </Row>
                 {!ingestNumbersValid ? (
-                    <div style={{ marginBottom: 12, color: '#b00020' }}>
+                    <div role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
                         Chunk Size must be greater than zero and Overlap cannot be negative.
                     </div>
                 ) : null}
@@ -466,12 +466,12 @@ function RagContent() {
                     </Col>
                 </Row>
                 {!topKValid ? (
-                    <div style={{ marginBottom: 12, color: '#b00020' }}>
+                    <div role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
                         Top K must be at least 1.
                     </div>
                 ) : null}
                 {!searchLanguageLoaded ? (
-                    <div style={{ marginBottom: 12, color: '#b00020' }}>
+                    <div role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
                         Search language is not loaded. Use Setup to load it first.
                     </div>
                 ) : null}
@@ -500,11 +500,11 @@ function RagContent() {
                     <caption>Ranked RAG search results with score, chunk metadata, and matched text.</caption>
                     <thead>
                     <tr>
-                        <th scope="col">Score</th>
-                        <th scope="col">Chunk</th>
-                        <th scope="col">Doc</th>
-                        <th scope="col">Entities</th>
-                        <th scope="col">Text</th>
+                        <th scope="col" className="rag-col-score">Score</th>
+                        <th scope="col" className="rag-col-id">Chunk</th>
+                        <th scope="col" className="rag-col-id">Doc</th>
+                        <th scope="col" className="rag-col-entities">Entities</th>
+                        <th scope="col" className="rag-col-text">Text</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -514,11 +514,11 @@ function RagContent() {
                         </tr>
                     ) : (searchResponse?.results ?? []).map((result) => (
                         <tr key={result.chunkId}>
-                            <td>{result.score}</td>
-                            <td>{result.chunkId}</td>
-                            <td>{result.docId}</td>
-                            <td>{(result.entities ?? []).join(', ')}</td>
-                            <td>{result.text}</td>
+                            <td className="rag-col-score">{result.score}</td>
+                            <td className="rag-col-id">{result.chunkId}</td>
+                            <td className="rag-col-id">{result.docId}</td>
+                            <td className="rag-col-entities">{(result.entities ?? []).join(', ')}</td>
+                            <td className="rag-col-text">{result.text}</td>
                         </tr>
                     ))}
                     </tbody>

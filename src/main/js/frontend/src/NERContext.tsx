@@ -54,6 +54,7 @@ function sanitizeNerMarkup(rawMarkup: string): string {
     }
 
     const safeTooltipPositions = new Set(['top', 'right', 'bottom', 'left']);
+    let tooltipIdCounter = 0;
 
     const copySafeNodes = (sourceNode: Node, targetNode: HTMLElement) => {
         sourceNode.childNodes.forEach((childNode) => {
@@ -85,7 +86,13 @@ function sanitizeNerMarkup(rawMarkup: string): string {
                     const tooltipText = tooltip.trim();
                     safeSpan.setAttribute('data-tooltip', tooltipText);
                     safeSpan.setAttribute('tabindex', '0');
-                    safeSpan.setAttribute('aria-label', `${tooltipText} entity`);
+                    const tooltipId = `ner-tooltip-${tooltipIdCounter++}`;
+                    safeSpan.setAttribute('aria-describedby', tooltipId);
+                    const tooltipDescription = document.createElement('span');
+                    tooltipDescription.setAttribute('id', tooltipId);
+                    tooltipDescription.setAttribute('class', 'sr-only');
+                    tooltipDescription.textContent = `${tooltipText} entity`;
+                    targetNode.appendChild(tooltipDescription);
                 }
 
                 const tooltipPosition = childElement.getAttribute('data-tooltip-position');
@@ -369,7 +376,7 @@ function NERContext() {
                     </Col>
                 </Form.Group>
                 {!languageLoaded ? (
-                    <div style={{ marginBottom: 12, color: '#b00020' }}>
+                    <div role="alert" style={{ marginBottom: 12, color: '#b00020' }}>
                         Selected language is not loaded. Use Setup to load it before submitting.
                     </div>
                 ) : null}

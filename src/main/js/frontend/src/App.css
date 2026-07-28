@@ -33,6 +33,18 @@ body {
   border-radius: 4px;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .SideBar {
   height: 100%;
   width: 250px;
@@ -170,6 +182,28 @@ body {
 }
 
 .setup-col-message {
+  word-break: break-word;
+}
+
+.rag-col-score {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.rag-col-id,
+.rag-col-entities,
+.rag-col-text {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.openapi-col-method {
+  white-space: nowrap;
+}
+
+.openapi-col-path,
+.openapi-col-summary {
+  overflow-wrap: anywhere;
   word-break: break-word;
 }
 

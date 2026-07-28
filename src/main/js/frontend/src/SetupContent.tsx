@@ -138,7 +138,7 @@ function SetupContent() {
 
     function renderLanguageStatusIcon(status: LanguageStatus) {
         if (status.isRunning) {
-            return <Spinner as="span" animation="grow" size="sm" role="status" aria-hidden="true"/>;
+            return <Spinner as="span" animation="grow" size="sm" aria-hidden="true"/>;
         }
 
         if (status.isLoaded) {
