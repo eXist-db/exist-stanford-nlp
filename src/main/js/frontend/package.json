@@ -14,7 +14,7 @@
     "react-bootstrap-icons": "^1.11.6",
     "react-dom": "^18.3.1",
     "react-router-dom": "7.18.2",
-    "react-simple-tree-menu": "^1.1.18",
+    "react-simple-tree-menu": "^2.0.1",
     "web-vitals": "^6.0.1"
   },
   "devDependencies": {
